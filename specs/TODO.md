@@ -1,0 +1,28 @@
+# Auguste - TODO
+
+## UX Improvements
+
+- [ ] **Minimize UUID usage in agent conversations** - Use names and human-readable identifiers instead of UUIDs when interacting with users for better UX
+- [ ] **Be more concise and token efficient** - Keep the nice style but reduce verbosity in agent responses
+- [ ] **Bundle questions in init flow** - Group related questions together to reduce back and forth during initialization (e.g., ask name + country + language together)
+
+## Session & Authentication
+
+- [ ] **Save session in database** - Persist user sessions to the database. We will build a secure mechanism later (Magic link with email or any auth session)
+
+## Meal Planning Logic
+
+- [ ] **Derive servings from availability** - For the number of people/servings, assume it equals the number of family members based on their availability for each meal
+
+## Data Accuracy
+
+- [ ] **Database call on recap** - On the recap/summary, make a call to the database to fetch accurate data and avoid hallucination from the AI model
+
+## Flow Improvements
+
+- [ ] **Resume from existing family data** - If there is already a family configured, read the data from the database and continue the conversation from there. If everything is configured, ask if there are any updates to do or go to the next step (Meal planning - TODO later)
+
+## Bugs
+
+- [ ] **memberAvailability and PlannerSettings not persisted** - These entities are not being saved to the database during the init flow
+

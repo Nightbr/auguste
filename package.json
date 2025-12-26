@@ -1,0 +1,55 @@
+{
+  "name": "auguste",
+  "version": "0.1.0",
+  "description": "The Gold Standard of Meal Planning — An open-source, agentic meal planner inspired by Auguste Escoffier",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "mastra dev",
+    "build": "mastra build",
+    "start": "mastra start",
+    "init": "npx tsx src/cli/init.ts"
+  },
+  "keywords": [
+    "meal-planning",
+    "ai",
+    "agents",
+    "mastra",
+    "family",
+    "recipes",
+    "escoffier",
+    "openrouter",
+    "llm"
+  ],
+  "author": "Auguste Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Nightbr/auguste.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Nightbr/auguste/issues"
+  },
+  "homepage": "https://github.com/Nightbr/auguste#readme",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "dependencies": {
+    "@mastra/core": "^1.0.0-beta.17",
+    "@mastra/evals": "^1.0.0-beta.3",
+    "@mastra/libsql": "^1.0.0-beta.10",
+    "@mastra/loggers": "^1.0.0-beta.3",
+    "@mastra/memory": "^1.0.0-beta.9",
+    "@mastra/observability": "^1.0.0-beta.8",
+    "@mastra/server": "1.0.0-beta.17",
+    "better-sqlite3": "^12.5.0",
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^25.0.3",
+    "mastra": "^1.0.0-beta.12",
+    "typescript": "^5.9.3"
+  }
+}
