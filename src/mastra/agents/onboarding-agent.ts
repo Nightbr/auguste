@@ -1,5 +1,5 @@
 import { Agent } from '@mastra/core/agent';
-import { Memory } from '@mastra/memory';
+import { onboardingMemory } from '../memory';
 import { familyConfigTools, plannerConfigTools, getFamilySummaryTool } from '../tools';
 import { AGENT_INTRO, QUESTION_BUNDLING_GUIDELINES, RESPONSE_STYLE, UUID_HANDLING } from './shared-instructions';
 import { getLanguageInstructions } from './language-instructions';
@@ -123,6 +123,5 @@ export const onboardingAgent = new Agent({
     ...familyConfigTools,
     ...plannerConfigTools,
   },
-  memory: new Memory(),
+  memory: onboardingMemory,
 });
-

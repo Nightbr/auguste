@@ -254,7 +254,7 @@ export const getFamilyAvailabilityForMealTool = createTool({
     dayOfWeek: z.number().int().min(0).max(6),
   }),
   outputSchema: z.array(z.object({
-    memberId: z.string().uuid(),
+    memberId: z.uuid(),
     memberName: z.string(),
     isAvailable: z.boolean(),
   })),
