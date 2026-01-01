@@ -17,17 +17,17 @@ export const QUESTION_BUNDLING_GUIDELINES = `
 **DO Bundle (ask together in one response):**
 - Simple, related factual information
 - Family basics: name + country + language
-- Member basics for adults: name + type (skip age for adults)
+- Member basics: name + type
 - Planner basics: meal types + active days
 - Quick settings: servings + notification schedule
 
 **DO NOT Bundle (ask separately):**
 - Complex or detailed information requiring thought
+- Member birthdate (optional field with day, month, year)
 - Member dietary restrictions (vegetarian, vegan, gluten-free, kosher, halal)
 - Allergies (peanuts, dairy, shellfish, eggs, etc.)
 - Food preferences (loves/dislikes)
 - Cooking skill level (adults only)
-- Child age (required field)
 
 **Rationale:**
 - Bundling simple facts reduces conversational overhead

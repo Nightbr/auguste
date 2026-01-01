@@ -18,5 +18,4 @@
 
 ## Bugs
 
-- [ ] **memberAvailability and PlannerSettings not persisted** - These entities are not being saved to the database during the init flow
-
+- [ ] **PlannerSettings notification CRON is not working** - "Il semble que l'outil ait encore du mal à interpréter "tous les mercredis à 9h du matin" correctement et par défaut à dimanche 18h."

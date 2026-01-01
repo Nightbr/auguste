@@ -1,25 +1,19 @@
 import { Agent } from '@mastra/core/agent';
 import { Memory } from '@mastra/memory';
 import { familyConfigTools, plannerConfigTools } from '../tools';
-import { AGENT_INTRO, QUESTION_BUNDLING_GUIDELINES, RESPONSE_STYLE, UUID_HANDLING } from './shared-instructions';
-import { getLanguageInstructions } from './language-instructions';
+import { AGENT_INTRO, QUESTION_BUNDLING_GUIDELINES, RESPONSE_STYLE, UUID_HANDLING } from '../prompts/shared-instructions';
+import { LANGUAGE_INSTRUCTIONS } from '../prompts/language-instructions';
 
 /**
- * Build family editor instructions with dynamic language support
- * Language is determined from the RequestContext (set by CachedLanguageDetector)
+ * Family editor agent instructions
  */
-const buildFamilyEditorInstructions = ({ requestContext }: { requestContext?: RequestContext } = {}) => {
-  // Get language from context (set by CachedLanguageDetector), default to 'en'
-  const language = requestContext?.get('language') || requestContext?.get('detectedLanguage') || 'en';
-  const languageInstructions = getLanguageInstructions(language);
-
-  return `
+const FAMILY_EDITOR_INSTRUCTIONS = `
 ${AGENT_INTRO}
 Help users edit existing family configurations.
 
 ${UUID_HANDLING}
 
-${languageInstructions}
+${LANGUAGE_INSTRUCTIONS}
 
 ## Capabilities:
 - Update family info (name, country, language)
@@ -33,8 +27,8 @@ ${RESPONSE_STYLE}
 
 ## Examples:
 
-**User:** "Add Sophie, 8 years old, allergic to peanuts"
-**Response:** "Parfait! Added Sophie (age 8, allergy: peanuts).
+**User:** "Add Sophie, born in 2016, allergic to peanuts"
+**Response:** "Parfait! Added Sophie (birthdate: 2016, allergy: peanuts).
 **👉 Any dietary restrictions or food preferences for Sophie?**"
 
 **User:** "Include breakfast in meal planning"
@@ -45,12 +39,11 @@ Anything else to adjust?"
 **Response:** "Removed John. Current members: [list names].
 Anything else to update?"
 `;
-};
 
 export const familyEditorAgent = new Agent({
   id: 'family-editor-agent',
   name: 'Auguste Family Editor',
-  instructions: buildFamilyEditorInstructions,
+  instructions: FAMILY_EDITOR_INSTRUCTIONS,
   model: 'openrouter/google/gemini-2.5-flash',
   tools: {
     ...familyConfigTools,

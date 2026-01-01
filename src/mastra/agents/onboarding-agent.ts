@@ -1,25 +1,19 @@
 import { Agent } from '@mastra/core/agent';
 import { onboardingMemory } from '../memory';
 import { familyConfigTools, plannerConfigTools, getFamilySummaryTool } from '../tools';
-import { AGENT_INTRO, QUESTION_BUNDLING_GUIDELINES, RESPONSE_STYLE, UUID_HANDLING } from './shared-instructions';
-import { getLanguageInstructions } from './language-instructions';
+import { AGENT_INTRO, QUESTION_BUNDLING_GUIDELINES, RESPONSE_STYLE, UUID_HANDLING } from '../prompts/shared-instructions';
+import { LANGUAGE_INSTRUCTIONS } from '../prompts/language-instructions';
 
 /**
- * Build onboarding instructions with dynamic language support
- * Language is determined from the RequestContext (set by CachedLanguageDetector)
+ * Onboarding agent instructions
  */
-const buildOnboardingInstructions = ({ requestContext }: { requestContext?: RequestContext } = {}) => {
-  // Get language from context (set by CachedLanguageDetector), default to 'en'
-  const language = requestContext?.get('language') || requestContext?.get('detectedLanguage') || 'en';
-  const languageInstructions = getLanguageInstructions(language);
-
-  return `
+const ONBOARDING_INSTRUCTIONS = `
 ${AGENT_INTRO}
 Guide users through family and meal planning setup.
 
 ${UUID_HANDLING}
 
-${languageInstructions}
+${LANGUAGE_INSTRUCTIONS}
 
 ## Working Memory:
 Track all data in the structured memory schema. Update IMMEDIATELY after:
@@ -29,14 +23,14 @@ Track all data in the structured memory schema. Update IMMEDIATELY after:
 
 Schema fields:
 - family: { id, name, country, language }
-- members: Array of { id, name, type, age, dietaryRestrictions, allergies, foodPreferences, cookingSkillLevel, isOnboarded, hasAvailabilitySet }
+- members: Array of { id, name, type, birthdate, dietaryRestrictions, allergies, foodPreferences, cookingSkillLevel, isOnboarded, hasAvailabilitySet }
 - expectedMemberCount, plannerSettings, currentPhase, lastAction, nextRequired, notes
 
 Phases: initializing → familySetup → memberOnboarding → availabilitySetup → plannerSetup → completed
 
 **Incremental Member Creation:**
 - Add members to array with just name initially
-- Update their entry as you collect more info (type, age, etc.)
+- Update their entry as you collect more info (type, birthdate, etc.)
 - The \`id\` field is populated when member is created in database
 - Set \`isOnboarded: true\` only when all required info is collected and saved
 
@@ -51,7 +45,7 @@ ${RESPONSE_STYLE}
 2. Number of members
 3. For EACH member (incrementally):
    - Name + type (adult/child) together → add to memory immediately
-   - If child: ask age (separate - required)
+   - Birthdate? (optional - ask if they'd like to provide day, month, and/or year)
    - Dietary restrictions? (separate - vegetarian, vegan, gluten-free, kosher, halal, or "none")
    - Allergies? (separate - peanuts, dairy, shellfish, eggs, or "none")
    - Food loves/dislikes? (separate - loves: pasta, chicken / dislikes: mushrooms, olives)
@@ -110,12 +104,11 @@ You can answer all three at once or one at a time!"
 As Escoffier said, "Good food is the foundation of genuine happiness."
 **Bon appétit! 🍽️**"
 `;
-};
 
 export const onboardingAgent = new Agent({
   id: 'onboarding-agent',
   name: 'Auguste Onboarding',
-  instructions: buildOnboardingInstructions,
+  instructions: ONBOARDING_INSTRUCTIONS,
   model: 'openrouter/google/gemini-2.5-flash',
   tools: {
     getFamilySummaryTool,
