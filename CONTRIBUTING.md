@@ -31,6 +31,13 @@ Be kind, respectful, and constructive. We're all here to build something great t
 ## Development Setup
 
 ```bash
+# Install Node.js 24 using mise (recommended)
+curl https://mise.run | sh  # Install mise if you don't have it
+mise install                # Installs Node.js 24 as specified in .mise.toml
+
+# Or use your preferred Node.js version manager
+# Just make sure you're using Node.js 24+
+
 # Install dependencies
 npm install
 
@@ -61,6 +68,7 @@ src/
 ## Making Changes
 
 1. **Create a branch** for your feature or fix:
+
    ```bash
    git checkout -b feature/your-feature-name
    # or
@@ -90,15 +98,15 @@ type(scope): description
 
 ### Types
 
-| Type | Description |
-|------|-------------|
-| `feat` | New feature |
-| `fix` | Bug fix |
-| `docs` | Documentation only |
-| `style` | Formatting, no code change |
+| Type       | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `feat`     | New feature                                             |
+| `fix`      | Bug fix                                                 |
+| `docs`     | Documentation only                                      |
+| `style`    | Formatting, no code change                              |
 | `refactor` | Code change that neither fixes a bug nor adds a feature |
-| `test` | Adding or updating tests |
-| `chore` | Maintenance tasks |
+| `test`     | Adding or updating tests                                |
+| `chore`    | Maintenance tasks                                       |
 
 ### Examples
 
@@ -111,12 +119,14 @@ docs(readme): update installation instructions
 ## Pull Request Process
 
 1. **Update your branch** with the latest upstream changes:
+
    ```bash
    git fetch upstream
    git rebase upstream/main
    ```
 
 2. **Push your branch**:
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -137,6 +147,5 @@ Feel free to open an issue for any questions or discussions.
 
 ---
 
-*"La bonne cuisine est la base du véritable bonheur."*
+_"La bonne cuisine est la base du véritable bonheur."_
 — Auguste Escoffier
-

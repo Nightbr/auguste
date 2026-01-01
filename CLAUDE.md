@@ -24,9 +24,12 @@ npm run start
 
 ## Environment Setup
 
-1. Copy `.env.example` to `.env`
-2. Set `OPENROUTER_API_KEY` (get from https://openrouter.ai/keys)
-3. Node.js 22.13.0+ is required (see `package.json` `engines` field)
+1. **Node.js version management**: This project uses [mise](https://mise.jdx.dev/) for Node.js version management
+   - Install mise: `curl https://mise.run | sh` (or see [mise installation docs](https://mise.jdx.dev/getting-started.html))
+   - Run `mise install` in the project directory to install Node.js 24
+   - Alternatively, use any Node.js 24+ installation
+2. Copy `.env.example` to `.env`
+3. Set `OPENROUTER_API_KEY` (get from <https://openrouter.ai/keys>)
 4. Database location: `.data/auguste.db` (override via `AUGUSTE_DB_PATH` env var)
 
 ## Architecture
@@ -34,12 +37,16 @@ npm run start
 The codebase follows **clean architecture** with three distinct layers:
 
 ### Domain Layer (`src/domain/`)
+
 Pure business logic with no AI/agent dependencies.
+
 - `db/` - SQLite connection, schema (embedded as string in `schema.sql`), and utilities
 - `schemas/` - Zod 4 validation schemas and TypeScript types
 
 ### Mastra Layer (`src/mastra/`)
+
 AI agents, tools, and workflows built on the Mastra framework.
+
 - `agents/` - Conversational AI agents (init-orchestrator, family-config, planner-config, weather)
 - `tools/` - Database operation tools that agents can call
 - `workflows/` - Multi-step agent orchestrations
@@ -47,11 +54,13 @@ AI agents, tools, and workflows built on the Mastra framework.
 - `index.ts` - Mastra instance configuration
 
 ### CLI Layer (`src/cli/`)
+
 User interface - currently only `init.ts` for interactive family setup.
 
 ## Database Schema
 
 Four main tables in SQLite:
+
 - **Family** - Household information (name, country, language)
 - **Member** - Individual members with dietary restrictions/allergies/preferences
 - **MemberAvailability** - Tracks which meals members attend
@@ -81,6 +90,7 @@ The project includes `.vscode/mcp.json` for Mastra MCP server integration with C
 ## Specs Folder
 
 The `specs/` directory contains comprehensive design documentation:
+
 - `architecture.md` - System architecture and layer responsibilities
 - `database-schema.md` - Database design details
 - `data-models.md` - Type definitions

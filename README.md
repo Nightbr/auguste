@@ -30,7 +30,7 @@
 
 ## 📖 About
 
-Auguste is an open-source, agentic meal planner inspired by the father of modern cuisine, **Auguste Escoffier**. Just as Escoffier brought order and *"Mise en place"* to the chaotic kitchens of the 19th century, Auguste uses AI to bring precision, organization, and elegance to the modern home.
+Auguste is an open-source, agentic meal planner inspired by the father of modern cuisine, **Auguste Escoffier**. Just as Escoffier brought order and _"Mise en place"_ to the chaotic kitchens of the 19th century, Auguste uses AI to bring precision, organization, and elegance to the modern home.
 
 **Built for those who value simplicity in execution and quality in ingredients.**
 
@@ -46,7 +46,7 @@ Auguste is an open-source, agentic meal planner inspired by the father of modern
 
 ### Prerequisites
 
-- Node.js 18+
+- **Node.js 24+** (recommended: use [mise](https://mise.jdx.dev/) for version management)
 - npm or yarn
 
 ### Installation
@@ -55,6 +55,15 @@ Auguste is an open-source, agentic meal planner inspired by the father of modern
 # Clone the repository
 git clone https://github.com/your-username/auguste.git
 cd auguste
+
+# Install Node.js 24 using mise (recommended)
+curl https://mise.run | sh  # Install mise if you don't have it
+mise trust                  # Trust the project configuration
+mise install                # Installs Node.js 24 as specified in .mise.toml
+
+# Or use your preferred Node.js version manager (nvm, fnm, etc.)
+# Just make sure you're using Node.js 24+
+# See docs/MISE_SETUP.md for detailed setup instructions
 
 # Install dependencies
 npm install
@@ -111,4 +120,3 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
   <i>"Good food is the foundation of genuine happiness."</i><br>
   — Auguste Escoffier
 </p>
-

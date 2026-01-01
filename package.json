@@ -8,7 +8,8 @@
     "dev": "mastra dev",
     "build": "mastra build",
     "start": "mastra start",
-    "init": "npx tsx src/cli/init.ts"
+    "init": "npx tsx src/cli/init.ts",
+    "verify": "bash scripts/verify-setup.sh"
   },
   "keywords": [
     "meal-planning",
@@ -33,7 +34,7 @@
   "homepage": "https://github.com/Nightbr/auguste#readme",
   "type": "module",
   "engines": {
-    "node": ">=22.13.0"
+    "node": ">=24.0.0"
   },
   "dependencies": {
     "@mastra/core": "^1.0.0-beta.17",

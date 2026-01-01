@@ -1,0 +1,10 @@
+# mise configuration for Auguste
+# https://mise.jdx.dev/
+
+[tools]
+node = "24"
+
+[env]
+# Ensure npm binaries are available
+_.path = ["./node_modules/.bin", "$PATH"]
+
