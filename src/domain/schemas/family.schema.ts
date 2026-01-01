@@ -2,6 +2,18 @@ import { z } from 'zod';
 import { CookingSkillLevel, MemberType } from './enums';
 
 /**
+ * Birthdate schema - flexible birthdate with optional day, month, year
+ */
+export const BirthdateSchema = z
+  .object({
+    day: z.number().int().min(1).max(31).optional(),
+    month: z.number().int().min(1).max(12).optional(),
+    year: z.number().int().min(1900).max(2100).optional(),
+  })
+  .optional();
+export type Birthdate = z.infer<typeof BirthdateSchema>;
+
+/**
  * Food preferences schema - likes and dislikes
  */
 export const FoodPreferencesSchema = z.object({
@@ -25,8 +37,18 @@ export type Family = z.infer<typeof FamilySchema>;
 
 export const CreateFamilyInputSchema = z.object({
   name: z.string().min(1).describe('The family or household name (e.g., "The Smith Family", "Casa Garcia")'),
-  country: z.string().length(2).describe('ISO 3166-1 alpha-2 country code. MUST be exactly 2 letters. Examples: "US" for United States, "FR" for France, "DE" for Germany, "JP" for Japan, "GB" for United Kingdom'),
-  language: z.string().min(2).describe('ISO 639-1 language code for meal suggestions. Examples: "en" for English, "fr" for French, "es" for Spanish, "de" for German'),
+  country: z
+    .string()
+    .length(2)
+    .describe(
+      'ISO 3166-1 alpha-2 country code. MUST be exactly 2 letters. Examples: "US" for United States, "FR" for France, "DE" for Germany, "JP" for Japan, "GB" for United Kingdom'
+    ),
+  language: z
+    .string()
+    .min(2)
+    .describe(
+      'ISO 639-1 language code for meal suggestions. Examples: "en" for English, "fr" for French, "es" for Spanish, "de" for German'
+    ),
 });
 export type CreateFamilyInput = z.infer<typeof CreateFamilyInputSchema>;
 
@@ -46,17 +68,12 @@ export const MemberSchema = z.object({
   familyId: z.uuid(),
   name: z.string().min(1),
   type: z.enum([MemberType.adult, MemberType.child]),
-  age: z.number().int().positive().nullable(),
+  birthdate: BirthdateSchema,
   dietaryRestrictions: z.array(z.string()).default([]),
   allergies: z.array(z.string()).default([]),
   foodPreferences: FoodPreferencesSchema.default({ likes: [], dislikes: [] }),
   cookingSkillLevel: z
-    .enum([
-      CookingSkillLevel.none,
-      CookingSkillLevel.beginner,
-      CookingSkillLevel.intermediate,
-      CookingSkillLevel.advanced,
-    ])
+    .enum([CookingSkillLevel.none, CookingSkillLevel.beginner, CookingSkillLevel.intermediate, CookingSkillLevel.advanced])
     .default(CookingSkillLevel.none),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
@@ -67,17 +84,12 @@ export const CreateMemberInputSchema = z.object({
   familyId: z.uuid(),
   name: z.string().min(1),
   type: z.enum([MemberType.adult, MemberType.child]),
-  age: z.number().int().positive().nullable().optional(),
+  birthdate: BirthdateSchema,
   dietaryRestrictions: z.array(z.string()).optional(),
   allergies: z.array(z.string()).optional(),
   foodPreferences: FoodPreferencesSchema.optional(),
   cookingSkillLevel: z
-    .enum([
-      CookingSkillLevel.none,
-      CookingSkillLevel.beginner,
-      CookingSkillLevel.intermediate,
-      CookingSkillLevel.advanced,
-    ])
+    .enum([CookingSkillLevel.none, CookingSkillLevel.beginner, CookingSkillLevel.intermediate, CookingSkillLevel.advanced])
     .optional(),
 });
 export type CreateMemberInput = z.infer<typeof CreateMemberInputSchema>;
@@ -86,18 +98,12 @@ export const UpdateMemberInputSchema = z.object({
   id: z.uuid(),
   name: z.string().min(1).optional(),
   type: z.enum([MemberType.adult, MemberType.child]).optional(),
-  age: z.number().int().positive().nullable().optional(),
+  birthdate: BirthdateSchema,
   dietaryRestrictions: z.array(z.string()).optional(),
   allergies: z.array(z.string()).optional(),
   foodPreferences: FoodPreferencesSchema.optional(),
   cookingSkillLevel: z
-    .enum([
-      CookingSkillLevel.none,
-      CookingSkillLevel.beginner,
-      CookingSkillLevel.intermediate,
-      CookingSkillLevel.advanced,
-    ])
+    .enum([CookingSkillLevel.none, CookingSkillLevel.beginner, CookingSkillLevel.intermediate, CookingSkillLevel.advanced])
     .optional(),
 });
 export type UpdateMemberInput = z.infer<typeof UpdateMemberInputSchema>;
-

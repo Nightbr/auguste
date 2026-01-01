@@ -9,7 +9,7 @@ You are now in **Auguste Development Mode**. This session follows specific workf
 ## Core Rules
 
 ### 1. Mastra Framework Changes
-For ANY task involving the Mastra framework, you MUST delegate to the **mastra-helper** subagent:
+For ANY task involving the Mastra framework, you MUST consult the **mastra-helper** agent:
 
 **When to use mastra-helper:**
 - Creating, modifying, or configuring Mastra agents
@@ -17,6 +17,8 @@ For ANY task involving the Mastra framework, you MUST delegate to the **mastra-h
 - Building or modifying Mastra tools
 - Debugging Mastra-related issues
 - Working with Memory, Agents, or other Mastra core features
+
+**Important:** The mastra-helper agent is here to **guide you through the process**, not to do the work for you. It will provide context, explain patterns, and help you understand the Mastra framework's best practices. You remain responsible for implementing the actual changes.
 
 **How to invoke:**
 ```
@@ -76,6 +78,22 @@ User Request
 - **Stack:** Node.js, TypeScript, Mastra framework, SQLite
 - **Architecture:** Clean architecture (domain/mastra/cli layers)
 - **Location:** `/Users/mika/Documents/Auguste/auguste`
+
+### Specs Folder
+
+The `specs/` directory contains comprehensive design documentation that serves as the source of truth for system architecture and implementation:
+
+- **Keep it up to date:** When making architectural decisions or significant changes, update the relevant spec files to reflect the new state.
+- **Use it as reference:** The specs folder can help you and other agents understand the global system context, including database design, agent patterns, and implementation plans.
+
+Available specs:
+- `architecture.md` - System architecture and layer responsibilities
+- `database-schema.md` - Database design details
+- `data-models.md` - Type definitions
+- `conversational-flow.md` - Agent conversation patterns
+- `design-guidelines.md` - UI/UX patterns
+- `implementation-plan.md` - Development roadmap
+- `TODO.md` - Future tasks
 
 ---
 

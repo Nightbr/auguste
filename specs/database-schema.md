@@ -7,7 +7,7 @@ erDiagram
     Family ||--o{ Member : "has"
     Family ||--o| PlannerSettings : "has"
     Member ||--o{ MemberAvailability : "has"
-    
+
     Family {
         string id PK
         string name
@@ -22,7 +22,7 @@ erDiagram
         string familyId FK
         string name
         string type "adult | child"
-        int age "nullable"
+        json birthdate "optional object with day, month, year"
         json dietaryRestrictions "array"
         json allergies "array"
         json foodPreferences "likes/dislikes"
@@ -38,7 +38,7 @@ erDiagram
         int dayOfWeek "0-6 Sun-Sat"
         boolean isAvailable
     }
-    
+
     PlannerSettings {
         string id PK
         string familyId FK
@@ -71,7 +71,7 @@ CREATE TABLE Member (
     familyId TEXT NOT NULL,
     name TEXT NOT NULL,
     type TEXT NOT NULL CHECK (type IN ('adult', 'child')),
-    age INTEGER,
+    birthdate TEXT,
     dietaryRestrictions TEXT DEFAULT '[]',
     allergies TEXT DEFAULT '[]',
     foodPreferences TEXT DEFAULT '{}',
@@ -116,14 +116,40 @@ CREATE INDEX idx_settings_familyId ON PlannerSettings(familyId);
 ## Table Descriptions
 
 ### Family
+
 The root entity representing a household. Each family can have multiple members and one planner settings configuration.
 
 ### Member
+
 Individual people in the family. Stores dietary information, preferences, and cooking abilities.
 
 ### MemberAvailability
+
 Tracks which meals each member will be present for on each day of the week. Used to calculate servings and customize meal plans.
 
 ### PlannerSettings
+
 Global meal planning configuration for the family including schedule, notification preferences, and timezone.
 
+## Schema Changes
+
+### Birthdate Field (Updated)
+
+The `Member.birthdate` field was changed from `age INTEGER` to `birthdate TEXT` to support flexible birthdate storage with optional day, month, and year components.
+
+**Migration Note:** If you have an existing database with the `age` field, you'll need to:
+
+1. Delete the existing database file (`.data/auguste.db`)
+2. Run the application again to recreate the schema with the new `birthdate` field
+
+The birthdate is stored as JSON with the following structure:
+
+```json
+{
+  "day": 15, // optional: 1-31
+  "month": 6, // optional: 1-12
+  "year": 1990 // optional: 1900-2100
+}
+```
+
+All fields are optional, allowing partial birthdate information (e.g., just year, or month and year).

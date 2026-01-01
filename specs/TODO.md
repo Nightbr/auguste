@@ -1,12 +1,5 @@
 # Auguste - TODO
 
-## UX Improvements
-
-- [ ] **Minimize UUID usage in agent conversations** - Use names and human-readable identifiers instead of UUIDs when interacting with users for better UX
-- [ ] **Be more concise and token efficient** - Keep the nice style but reduce verbosity in agent responses
-- [ ] **Bundle questions in init flow** - Group related questions together to reduce back and forth during initialization (e.g., ask name + country + language together)
-- [ ] **Use family language for agent responses** - Use the language setting from the family configuration to respond in the user's preferred language
-
 ## Session & Authentication
 
 - [ ] **Save session in database** - Persist user sessions to the database. We will build a secure mechanism later (Magic link with email or any auth session)
@@ -25,5 +18,4 @@
 
 ## Bugs
 
-- [ ] **memberAvailability and PlannerSettings not persisted** - These entities are not being saved to the database during the init flow
-
+- [ ] **PlannerSettings notification CRON is not working** - "Il semble que l'outil ait encore du mal à interpréter "tous les mercredis à 9h du matin" correctement et par défaut à dimanche 18h."

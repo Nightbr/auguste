@@ -14,9 +14,7 @@ let db: Database.Database | null = null;
  * Ensure the data directory exists
  */
 function ensureDataDir(): void {
-  const dir = process.env.AUGUSTE_DB_PATH
-    ? join(process.env.AUGUSTE_DB_PATH, '..')
-    : DATA_DIR;
+  const dir = process.env.AUGUSTE_DB_PATH ? join(process.env.AUGUSTE_DB_PATH, '..') : DATA_DIR;
 
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
@@ -46,7 +44,7 @@ CREATE TABLE IF NOT EXISTS Member (
     familyId TEXT NOT NULL,
     name TEXT NOT NULL,
     type TEXT NOT NULL CHECK (type IN ('adult', 'child')),
-    age INTEGER,
+    birthdate TEXT,
     dietaryRestrictions TEXT DEFAULT '[]',
     allergies TEXT DEFAULT '[]',
     foodPreferences TEXT DEFAULT '{"likes":[],"dislikes":[]}',
@@ -154,4 +152,3 @@ export function toJson(value: unknown): string {
 }
 
 export { DB_PATH };
-

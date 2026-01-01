@@ -8,6 +8,7 @@
 
 import * as readline from 'readline';
 import { randomUUID } from 'crypto';
+import { RequestContext } from '@mastra/core/request-context';
 import { onboardingAgent } from '../mastra/agents';
 import { closeDatabase } from '../domain';
 
@@ -41,6 +42,10 @@ async function runInitFlow(): Promise<void> {
   // Generate a unique thread ID for this conversation
   const threadId = randomUUID();
 
+  // Create RequestContext for the conversation
+  const requestContext = new RequestContext();
+  requestContext.set('threadId', threadId);
+
   console.log('\n' + '='.repeat(60));
   console.log(`${colors.bold}${colors.magenta}  🍳 Auguste - Family Meal Planner Setup${colors.reset}`);
   console.log('='.repeat(60) + '\n');
@@ -50,7 +55,10 @@ async function runInitFlow(): Promise<void> {
     // Initial greeting from the agent
     const initialResponse = await onboardingAgent.generate(
       'Start the setup process. Greet the user and ask for their family name.',
-      { threadId }
+      {
+        threadId,
+        requestContext,
+      }
     );
 
     console.log(formatAgentMessage(initialResponse.text) + '\n');
@@ -75,8 +83,11 @@ async function runInitFlow(): Promise<void> {
         }
 
         try {
-          // Send user input to the agent
-          const response = await onboardingAgent.generate(trimmedInput, { threadId });
+          // Send user input to the agent with RequestContext
+          const response = await onboardingAgent.generate(trimmedInput, {
+            threadId,
+            requestContext,
+          });
           console.log('\n' + formatAgentMessage(response.text) + '\n');
 
           // Check if setup is complete (agent will indicate this)
@@ -115,4 +126,3 @@ runInitFlow().catch((error) => {
   closeDatabase();
   process.exit(1);
 });
-

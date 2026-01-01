@@ -1,15 +1,9 @@
 // Enums
-export {
-  MemberType,
-  CookingSkillLevel,
-  MealType,
-  DayOfWeek,
-  COMMON_DIETARY_RESTRICTIONS,
-  COMMON_ALLERGIES,
-} from './enums';
+export { MemberType, CookingSkillLevel, MealType, DayOfWeek, COMMON_DIETARY_RESTRICTIONS, COMMON_ALLERGIES } from './enums';
 
 // Family schemas
 export {
+  BirthdateSchema,
   FoodPreferencesSchema,
   FamilySchema,
   CreateFamilyInputSchema,
@@ -21,6 +15,7 @@ export {
 
 // Family types
 export type {
+  Birthdate,
   FoodPreferences,
   Family,
   CreateFamilyInput,
@@ -47,4 +42,3 @@ export type {
   CreatePlannerSettingsInput,
   UpdatePlannerSettingsInput,
 } from './planner.schema';
-

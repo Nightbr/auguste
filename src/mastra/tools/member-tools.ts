@@ -12,15 +12,17 @@ import {
   FoodPreferences,
   CookingSkillLevel,
   Member,
+  Birthdate,
 } from '../../domain';
 
 /**
  * Database row type - JSON fields are stored as strings in SQLite
  */
-type MemberRow = Omit<Member, 'dietaryRestrictions' | 'allergies' | 'foodPreferences'> & {
+type MemberRow = Omit<Member, 'dietaryRestrictions' | 'allergies' | 'foodPreferences' | 'birthdate'> & {
   dietaryRestrictions: string;
   allergies: string;
   foodPreferences: string;
+  birthdate: string | null;
 };
 
 function rowToMember(row: MemberRow) {
@@ -29,11 +31,11 @@ function rowToMember(row: MemberRow) {
     familyId: row.familyId,
     name: row.name,
     type: row.type,
-    age: row.age,
+    birthdate: row.birthdate ? parseJson<Birthdate>(row.birthdate, undefined) : undefined,
     dietaryRestrictions: parseJson<string[]>(row.dietaryRestrictions, []),
     allergies: parseJson<string[]>(row.allergies, []),
     foodPreferences: parseJson<FoodPreferences>(row.foodPreferences, { likes: [], dislikes: [] }),
-    cookingSkillLevel: row.cookingSkillLevel as typeof CookingSkillLevel[keyof typeof CookingSkillLevel],
+    cookingSkillLevel: row.cookingSkillLevel as (typeof CookingSkillLevel)[keyof typeof CookingSkillLevel],
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
@@ -57,7 +59,7 @@ export const createMemberTool = createTool({
       familyId: input.familyId,
       name: input.name,
       type: input.type,
-      age: input.age ?? null,
+      birthdate: input.birthdate,
       dietaryRestrictions: input.dietaryRestrictions ?? [],
       allergies: input.allergies ?? [],
       foodPreferences: input.foodPreferences ?? { likes: [], dislikes: [] },
@@ -67,14 +69,14 @@ export const createMemberTool = createTool({
     };
 
     db.prepare(
-      `INSERT INTO Member (id, familyId, name, type, age, dietaryRestrictions, allergies, foodPreferences, cookingSkillLevel, createdAt, updatedAt)
+      `INSERT INTO Member (id, familyId, name, type, birthdate, dietaryRestrictions, allergies, foodPreferences, cookingSkillLevel, createdAt, updatedAt)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).run(
       member.id,
       member.familyId,
       member.name,
       member.type,
-      member.age,
+      member.birthdate ? toJson(member.birthdate) : null,
       toJson(member.dietaryRestrictions),
       toJson(member.allergies),
       toJson(member.foodPreferences),
@@ -142,9 +144,9 @@ export const getMemberByNameTool = createTool({
   execute: async ({ familyId, name }) => {
     const db = getDatabase();
     // Use LIKE for partial matching, LOWER for case-insensitive
-    const row = db.prepare(
-      'SELECT * FROM Member WHERE familyId = ? AND LOWER(name) LIKE LOWER(?)'
-    ).get(familyId, `%${name}%`) as MemberRow | undefined;
+    const row = db.prepare('SELECT * FROM Member WHERE familyId = ? AND LOWER(name) LIKE LOWER(?)').get(familyId, `%${name}%`) as
+      | MemberRow
+      | undefined;
     if (!row) return { found: false };
     return { found: true, member: rowToMember(row) };
   },
@@ -155,7 +157,7 @@ export const getMemberByNameTool = createTool({
  */
 export const updateMemberTool = createTool({
   id: 'update-member',
-  description: 'Update a family member\'s information. Returns found=false if not found.',
+  description: "Update a family member's information. Returns found=false if not found.",
   inputSchema: UpdateMemberInputSchema,
   outputSchema: z.object({
     found: z.boolean(),
@@ -168,13 +170,34 @@ export const updateMemberTool = createTool({
     const updates: string[] = ['updatedAt = ?'];
     const values: unknown[] = [timestamp];
 
-    if (input.name !== undefined) { updates.push('name = ?'); values.push(input.name); }
-    if (input.type !== undefined) { updates.push('type = ?'); values.push(input.type); }
-    if (input.age !== undefined) { updates.push('age = ?'); values.push(input.age); }
-    if (input.dietaryRestrictions !== undefined) { updates.push('dietaryRestrictions = ?'); values.push(toJson(input.dietaryRestrictions)); }
-    if (input.allergies !== undefined) { updates.push('allergies = ?'); values.push(toJson(input.allergies)); }
-    if (input.foodPreferences !== undefined) { updates.push('foodPreferences = ?'); values.push(toJson(input.foodPreferences)); }
-    if (input.cookingSkillLevel !== undefined) { updates.push('cookingSkillLevel = ?'); values.push(input.cookingSkillLevel); }
+    if (input.name !== undefined) {
+      updates.push('name = ?');
+      values.push(input.name);
+    }
+    if (input.type !== undefined) {
+      updates.push('type = ?');
+      values.push(input.type);
+    }
+    if (input.birthdate !== undefined) {
+      updates.push('birthdate = ?');
+      values.push(input.birthdate ? toJson(input.birthdate) : null);
+    }
+    if (input.dietaryRestrictions !== undefined) {
+      updates.push('dietaryRestrictions = ?');
+      values.push(toJson(input.dietaryRestrictions));
+    }
+    if (input.allergies !== undefined) {
+      updates.push('allergies = ?');
+      values.push(toJson(input.allergies));
+    }
+    if (input.foodPreferences !== undefined) {
+      updates.push('foodPreferences = ?');
+      values.push(toJson(input.foodPreferences));
+    }
+    if (input.cookingSkillLevel !== undefined) {
+      updates.push('cookingSkillLevel = ?');
+      values.push(input.cookingSkillLevel);
+    }
 
     values.push(input.id);
     db.prepare(`UPDATE Member SET ${updates.join(', ')} WHERE id = ?`).run(...values);
@@ -199,4 +222,3 @@ export const deleteMemberTool = createTool({
     return { success: result.changes > 0, deletedId: id };
   },
 });
-

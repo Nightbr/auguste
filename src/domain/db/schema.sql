@@ -17,11 +17,11 @@ CREATE TABLE IF NOT EXISTS Member (
     familyId TEXT NOT NULL,
     name TEXT NOT NULL,
     type TEXT NOT NULL CHECK (type IN ('adult', 'child')),
-    age INTEGER,
+    birthdate TEXT,
     dietaryRestrictions TEXT DEFAULT '[]',
     allergies TEXT DEFAULT '[]',
     foodPreferences TEXT DEFAULT '{"likes":[],"dislikes":[]}',
-    cookingSkillLevel TEXT DEFAULT 'none' 
+    cookingSkillLevel TEXT DEFAULT 'none'
         CHECK (cookingSkillLevel IN ('none', 'beginner', 'intermediate', 'advanced')),
     createdAt TEXT NOT NULL DEFAULT (datetime('now')),
     updatedAt TEXT NOT NULL DEFAULT (datetime('now')),
