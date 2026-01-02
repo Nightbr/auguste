@@ -53,8 +53,40 @@ CREATE TABLE IF NOT EXISTS PlannerSettings (
     FOREIGN KEY (familyId) REFERENCES Family(id) ON DELETE CASCADE
 );
 
+-- MealPlanning table: Weekly planning cycles
+CREATE TABLE MealPlanning (
+    id TEXT PRIMARY KEY,
+    familyId TEXT NOT NULL,
+    startDate TEXT NOT NULL,
+    endDate TEXT NOT NULL,
+    status TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'active', 'completed')),
+    createdAt TEXT NOT NULL DEFAULT (datetime('now')),
+    updatedAt TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (familyId) REFERENCES Family(id) ON DELETE CASCADE
+);
+
+-- MealEvent table: Individual scheduled meals
+CREATE TABLE MealEvent (
+    id TEXT PRIMARY KEY,
+    familyId TEXT NOT NULL,
+    planningId TEXT, -- Optional, can exist outside a planning cycle
+    date TEXT NOT NULL, -- YYYY-MM-DD
+    mealType TEXT NOT NULL CHECK (mealType IN ('breakfast', 'lunch', 'dinner')),
+    recipeName TEXT,
+    description TEXT,
+    participants TEXT DEFAULT '[]', -- JSON array of Member IDs
+    createdAt TEXT NOT NULL DEFAULT (datetime('now')),
+    updatedAt TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (familyId) REFERENCES Family(id) ON DELETE CASCADE,
+    FOREIGN KEY (planningId) REFERENCES MealPlanning(id) ON DELETE SET NULL
+);
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_member_familyId ON Member(familyId);
 CREATE INDEX IF NOT EXISTS idx_availability_memberId ON MemberAvailability(memberId);
 CREATE INDEX IF NOT EXISTS idx_settings_familyId ON PlannerSettings(familyId);
+CREATE INDEX IF NOT EXISTS idx_planning_familyId ON MealPlanning(familyId);
+CREATE INDEX IF NOT EXISTS idx_event_familyId ON MealEvent(familyId);
+CREATE INDEX IF NOT EXISTS idx_event_planningId ON MealEvent(planningId);
+CREATE INDEX IF NOT EXISTS idx_event_date ON MealEvent(date);
 

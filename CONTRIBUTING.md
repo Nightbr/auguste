@@ -4,12 +4,18 @@ First off, thank you for considering contributing to Auguste! 🍳
 
 ## 📋 Table of Contents
 
-- [Code of Conduct](#code-of-conduct)
-- [Getting Started](#getting-started)
-- [Development Setup](#development-setup)
-- [Making Changes](#making-changes)
-- [Commit Guidelines](#commit-guidelines)
-- [Pull Request Process](#pull-request-process)
+- [Contributing to Auguste](#contributing-to-auguste)
+  - [📋 Table of Contents](#-table-of-contents)
+  - [Code of Conduct](#code-of-conduct)
+  - [Getting Started](#getting-started)
+  - [Development Setup](#development-setup)
+    - [Project Structure](#project-structure)
+  - [Making Changes](#making-changes)
+  - [Commit Guidelines](#commit-guidelines)
+    - [Types](#types)
+    - [Examples](#examples)
+  - [Pull Request Process](#pull-request-process)
+  - [Questions?](#questions)
 
 ## Code of Conduct
 

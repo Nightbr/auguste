@@ -42,3 +42,9 @@ export type {
   CreatePlannerSettingsInput,
   UpdatePlannerSettingsInput,
 } from './planner.schema';
+
+// Meal Planner schemas
+export { MealPlanningSchema, CreateMealPlanningInputSchema, MealEventSchema, CreateMealEventInputSchema } from './meal-planner.schema';
+
+// Meal Planner types
+export type { MealPlanning, CreateMealPlanningInput, MealEvent, CreateMealEventInput } from './meal-planner.schema';

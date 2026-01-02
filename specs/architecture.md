@@ -11,6 +11,7 @@ flowchart TB
     subgraph Agents["AI Agents"]
         OBA["Onboarding Agent"]
         FEA["Family Editor Agent"]
+        MPA["Meal Planner Agent"]
     end
 
     subgraph Tools["Database Tools"]
@@ -18,6 +19,7 @@ flowchart TB
         MT["Member Tools"]
         AT["Availability Tools"]
         PT["Planner Settings Tools"]
+        MET["Meal Event Tools"]
     end
 
     subgraph Database["SQLite Database"]
@@ -25,6 +27,7 @@ flowchart TB
         MEM[("Member")]
         AVL[("MemberAvailability")]
         PLS[("PlannerSettings")]
+        MLE[("MealEvent")]
     end
 
     CLI --> OBA
@@ -40,14 +43,22 @@ flowchart TB
     FEA --> AT
     FEA --> PT
 
+    MPA --> FT
+    MPA --> MT
+    MPA --> AT
+    MPA --> PT
+    MPA --> MET
+
     FT --> FAM
     MT --> MEM
     AT --> AVL
     PT --> PLS
+    MET --> MLE
 
     MEM -.->|"foreignKey"| FAM
     AVL -.->|"foreignKey"| MEM
     PLS -.->|"foreignKey"| FAM
+    MLE -.->|"foreignKey"| FAM
 ```
 
 ## Project Structure
@@ -92,26 +103,39 @@ specs/                                # Specifications & documentation
 ## Agents
 
 ### Onboarding Agent (`onboarding-agent.ts`)
+
 Handles the complete first-time setup flow:
+
 - Family creation (name, country, language)
 - Member registration (preferences, allergies, dietary restrictions)
 - Planner settings (meal types, days, notifications)
 
 ### Family Editor Agent (`family-editor-agent.ts`)
+
 Handles updates to an existing family configuration:
+
 - Add/edit/remove family members
 - Update family information
 - Modify planner settings
 - Change member availability
 
+### Meal Planner Agent (`meal-planner-agent.ts`)
+
+Handles the weekly meal planning process:
+
+- Generates meal events for the next 7 days based on settings
+- Suggests meals for each event based on preferences
+- Validates and iteratively modifies the plan with the user
+
 ## Layer Responsibilities
 
 ### Domain Layer (`src/domain/`)
+
 - **Database**: SQLite connection, schema, migrations
 - **Schemas**: Zod validation schemas, TypeScript types
 - **Pure business logic**: No AI/agent dependencies
 
 ### Mastra Layer (`src/mastra/`)
+
 - **Tools**: Database access tools for agents
 - **Agents**: AI agents with prompts and tool bindings
-
