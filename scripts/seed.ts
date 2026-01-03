@@ -1,4 +1,5 @@
-import { getDatabase, toJson } from '../src/domain/db';
+import { getDatabase, toJson } from '../src/domain/db/index.js';
+import { SCHEMA } from '../src/domain/db/schema.js';
 
 async function seed() {
   console.log('🌱 Seeding database...');
@@ -6,21 +7,7 @@ async function seed() {
 
   // 1. Initialize DB schema (in case it's fresh)
   try {
-    const fs = await import('fs');
-    const path = await import('path');
-    const schemaPath = path.join(process.cwd(), 'src/domain/db/schema.sql');
-
-    if (fs.existsSync(schemaPath)) {
-      const schema = fs.readFileSync(schemaPath, 'utf-8');
-      const statements = schema.split(';').filter((s) => s.trim().length > 0);
-      for (const statement of statements) {
-        try {
-          db.prepare(statement).run();
-        } catch (e) {
-          // ignore
-        }
-      }
-    }
+    db.exec(SCHEMA);
   } catch (e) {
     console.error('Schema init warning:', e);
   }

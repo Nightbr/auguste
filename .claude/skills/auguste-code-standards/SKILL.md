@@ -19,12 +19,14 @@ Enforces coding practices and architectural organization for the Auguste project
 The Auguste codebase follows **clean architecture** with three distinct layers:
 
 ### 1. Domain Layer (`src/domain/`)
+
 Pure business logic with **no AI/agent dependencies**.
 
 - `db/` - SQLite connection, schema (embedded as string), utilities
 - `schemas/` - Zod 4 validation schemas and TypeScript types
 
 **Allowed in Domain:**
+
 - Pure TypeScript functions
 - Zod schemas (modern syntax)
 - SQLite database operations
@@ -32,12 +34,14 @@ Pure business logic with **no AI/agent dependencies**.
 - Type definitions
 
 **Forbidden in Domain:**
+
 - AI agent imports
 - Mastra framework imports
 - Agent orchestration logic
 - External API calls (except database)
 
 ### 2. Mastra Layer (`src/mastra/`)
+
 AI agents, tools, and workflows built on the Mastra framework.
 
 - `agents/` - Conversational AI agents
@@ -46,6 +50,7 @@ AI agents, tools, and workflows built on the Mastra framework.
 - `scorers/` - Evaluation metrics for agent responses
 
 ### 3. CLI Layer (`src/cli/`)
+
 User interface code.
 
 - Interactive commands
@@ -83,9 +88,9 @@ When writing or reviewing code for Auguste:
    - Package type is `"module"`
 
 6. **Check Database Operations**:
-   - Schema is embedded in `src/domain/db/schema.sql` as string
-   - No separate SQL files for schema
-   - Use the embedded schema for migrations
+   - Schema is defined in `src/domain/db/schema.ts` as TypeScript constant
+   - Single source of truth for database schema
+   - Use the exported SCHEMA constant for migrations
 
 ## Common Patterns
 
@@ -144,11 +149,13 @@ import { recipeSchema } from '../../domain/schemas/recipe'; // ✅
 ### Example 1: Adding a New Feature
 
 User request:
+
 ```
 Add a feature to track grocery lists
 ```
 
 You would:
+
 1. Create domain schemas in `src/domain/schemas/grocery.ts`:
    - Define `groceryListSchema` using Zod 4 syntax
    - Use `z.uuid()` for IDs
@@ -166,11 +173,13 @@ You would:
 ### Example 2: Code Review
 
 User request:
+
 ```
 Review this PR for architecture compliance
 ```
 
 You would:
+
 1. Check all new files are in correct layer:
    - Domain files in `src/domain/`
    - Mastra files in `src/mastra/`
@@ -193,11 +202,13 @@ You would:
 ### Example 3: Fixing a Violation
 
 User request:
+
 ```
 I found an any type in src/domain/schemas/member.ts:15
 ```
 
 You would:
+
 1. Read the file to understand context
 2. Replace `any` with proper type:
    - If it's an enum, define a const enum
@@ -209,14 +220,16 @@ You would:
 ### Example 4: Database Schema Changes
 
 User request:
+
 ```
 Add a new column to the Member table for dietary preferences
 ```
 
 You would:
-1. Update the embedded schema in `src/domain/db/schema.sql`:
-   - Add column to `CREATE TABLE` statement
-   - Schema is a string, not separate file
+
+1. Update the schema in `src/domain/db/schema.ts`:
+   - Add column to `CREATE TABLE` statement in the SCHEMA constant
+   - This is the single source of truth for database schema
 2. Update domain schema in `src/domain/schemas/member.ts`:
    - Use Zod 4 syntax for new field
 3. Update any migration logic

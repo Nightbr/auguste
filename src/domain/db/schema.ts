@@ -1,3 +1,11 @@
+/**
+ * Auguste Database Schema
+ *
+ * Single source of truth for the SQLite database schema.
+ * Embedded as a TypeScript constant to avoid file path issues when running via Mastra.
+ */
+
+export const SCHEMA = `
 -- Auguste Database Schema
 -- SQLite database for meal planning
 
@@ -54,7 +62,7 @@ CREATE TABLE IF NOT EXISTS PlannerSettings (
 );
 
 -- MealPlanning table: Weekly planning cycles
-CREATE TABLE MealPlanning (
+CREATE TABLE IF NOT EXISTS MealPlanning (
     id TEXT PRIMARY KEY,
     familyId TEXT NOT NULL,
     startDate TEXT NOT NULL,
@@ -66,7 +74,7 @@ CREATE TABLE MealPlanning (
 );
 
 -- MealEvent table: Individual scheduled meals
-CREATE TABLE MealEvent (
+CREATE TABLE IF NOT EXISTS MealEvent (
     id TEXT PRIMARY KEY,
     familyId TEXT NOT NULL,
     planningId TEXT, -- Optional, can exist outside a planning cycle
@@ -89,4 +97,4 @@ CREATE INDEX IF NOT EXISTS idx_planning_familyId ON MealPlanning(familyId);
 CREATE INDEX IF NOT EXISTS idx_event_familyId ON MealEvent(familyId);
 CREATE INDEX IF NOT EXISTS idx_event_planningId ON MealEvent(planningId);
 CREATE INDEX IF NOT EXISTS idx_event_date ON MealEvent(date);
-
+`;

@@ -40,7 +40,7 @@ The codebase follows **clean architecture** with three distinct layers:
 
 Pure business logic with no AI/agent dependencies.
 
-- `db/` - SQLite connection, schema (embedded as string in `schema.sql`), and utilities
+- `db/` - SQLite connection, schema (in `schema.ts`), and utilities
 - `schemas/` - Zod 4 validation schemas and TypeScript types
 
 ### Mastra Layer (`src/mastra/`)
@@ -70,7 +70,7 @@ Foreign key relationships: `Member.familyId → Family`, `MemberAvailability.mem
 
 ## Important Patterns
 
-- **Embedded SQL Schema**: The SQL schema is embedded as a string in `src/domain/db/schema.sql` rather than a separate file to avoid build/path issues.
+- **Embedded SQL Schema**: The SQL schema is defined as a TypeScript constant in `src/domain/db/schema.ts` to avoid build/path issues and ensure type safety.
 - **Zod 4 Syntax**: Uses modern Zod syntax like `z.uuid()` not `z.string().uuid()`.
 - **Const Enums**: Used for enums with proper TypeScript types.
 - **No `any` Types**: TypeScript strict mode is enabled - avoid `any`.

@@ -1,8 +1,7 @@
 import 'dotenv/config';
-import { getDatabase } from '../src/domain/db';
-import { mealPlannerAgent } from '../src/mastra/agents';
-import fs from 'fs';
-import path from 'path';
+import { getDatabase } from '../src/domain/db/index.js';
+import { SCHEMA } from '../src/domain/db/schema.js';
+import { callMealPlannerAgent } from '../src/mastra/agents/index.js';
 
 async function verify() {
   console.log('Starting verification...');
@@ -10,18 +9,7 @@ async function verify() {
 
   // 1. Initialize DB schema
   try {
-    const schema = fs.readFileSync(path.join(process.cwd(), 'src/domain/db/schema.sql'), 'utf-8');
-
-    // Split by statement (rough approximation for SQLite)
-    const statements = schema.split(';').filter((s) => s.trim().length > 0);
-    for (const statement of statements) {
-      // Ignore errors if table exists (simple migration)
-      try {
-        db.prepare(statement).run();
-      } catch (e) {
-        // console.log('Schema init note:', e.message);
-      }
-    }
+    db.exec(SCHEMA);
     console.log('Database initialized.');
   } catch (e) {
     console.error('Failed to init DB:', e);
@@ -55,17 +43,14 @@ async function verify() {
 
   console.log('Test data seeded.');
 
-  // 3. Run Agent
+  // 3. Run Agent using the helper function
   console.log('Invoking agent...');
 
-  const resultExplicit = await mealPlannerAgent.generate([
-    {
-      role: 'user',
-      content: `I am the head of the family with ID ${familyId}. Please create a meal plan for us starting next Monday.`,
-    },
-  ]);
+  const result = await callMealPlannerAgent('Please create a meal plan for us starting next Monday.', {
+    familyId,
+  });
 
-  console.log('Agent Response:', resultExplicit.text);
+  console.log('Agent Response:', result.text);
 
   // 4. Verify DB side effects
   const plans = db.prepare('SELECT * FROM MealPlanning WHERE familyId = ?').all(familyId);
