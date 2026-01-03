@@ -22,17 +22,27 @@ import {
 } from '../../domain/schemas';
 
 /**
+ * Memory-specific schemas that omit timestamp fields
+ * These are used for agent working memory where timestamps aren't needed
+ */
+const FamilyMemorySchema = FamilySchema.omit({ createdAt: true, updatedAt: true });
+const MemberMemorySchema = MemberSchema.omit({ createdAt: true, updatedAt: true });
+const PlannerSettingsMemorySchema = PlannerSettingsSchema.omit({ createdAt: true, updatedAt: true });
+const MealPlanningMemorySchema = MealPlanningSchema.omit({ createdAt: true, updatedAt: true });
+const MealEventMemorySchema = MealEventSchema.omit({ createdAt: true, updatedAt: true });
+
+/**
  * Meal Planner memory schema
  */
 export const MealPlannerMemorySchema = z.object({
-  family: FamilySchema.optional().describe('Family details'),
-  members: z.array(MemberSchema).default([]).describe('Family members and their profiles'),
-  plannerSettings: PlannerSettingsSchema.optional().describe('Configuration for meal planning'),
+  family: FamilyMemorySchema.optional().describe('Family details'),
+  members: z.array(MemberMemorySchema).default([]).describe('Family members and their profiles'),
+  plannerSettings: PlannerSettingsMemorySchema.optional().describe('Configuration for meal planning'),
   memberAvailability: z.array(MemberAvailabilitySchema).default([]).describe('Availability schedule for all members'),
 
   // Current active plan state
-  currentPlanning: MealPlanningSchema.optional().describe('The meal planning cycle currently being worked on'),
-  proposedEvents: z.array(MealEventSchema).default([]).describe('List of proposed meal events for the cycle'),
+  currentPlanning: MealPlanningMemorySchema.optional().describe('The meal planning cycle currently being worked on'),
+  proposedEvents: z.array(MealEventMemorySchema).default([]).describe('List of proposed meal events for the cycle'),
 
   lastAction: z.string().optional().describe('Last action performed by the agent'),
   notes: z.array(z.string()).default([]).describe('Context notes'),
@@ -51,7 +61,7 @@ export const createMealPlannerMemory = (storage?: LibSQLStore): Memory => {
     options: {
       workingMemory: {
         enabled: true,
-        scope: 'thread',
+        scope: 'resource', // Resource-scoped: memory persists across all threads for the same family
         schema: MealPlannerMemorySchema,
       },
     },

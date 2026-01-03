@@ -20,12 +20,16 @@ type PlannerSettingsRow = Omit<PlannerSettings, 'mealTypes' | 'activeDays'> & {
 
 /**
  * Tool to get a complete summary of a family's setup
+ *
+ * SECURITY: This tool requires familyId to be provided as a parameter.
+ * The agent must pass the familyId from its requestContext.
  */
 export const getFamilySummaryTool = createTool({
   id: 'get-family-summary',
-  description: 'Get a complete summary of a family including all members and planner settings',
+  description:
+    'Get a complete summary of a family including all members and planner settings. REQUIRED: You must provide the familyId parameter.',
   inputSchema: z.object({
-    familyId: z.uuid().describe('The family ID to summarize'),
+    familyId: z.uuid().describe('The family ID - REQUIRED. Get this from your requestContext.'),
   }),
   outputSchema: z.object({
     familyFound: z.boolean(),
@@ -41,6 +45,11 @@ export const getFamilySummaryTool = createTool({
     memberAvailability: z.array(z.any()).optional(),
   }),
   execute: async ({ familyId }) => {
+    // SECURITY: Enforce familyId requirement
+    if (!familyId) {
+      throw new Error('SECURITY ERROR: familyId is required. The agent must provide the familyId from its requestContext.');
+    }
+
     const db = getDatabase();
 
     const family = db.prepare('SELECT * FROM Family WHERE id = ?').get(familyId) as FamilyRow | undefined;
