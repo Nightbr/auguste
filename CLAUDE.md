@@ -30,7 +30,7 @@ npm run start
    - Alternatively, use any Node.js 24+ installation
 2. Copy `.env.example` to `.env`
 3. Set `OPENROUTER_API_KEY` (get from <https://openrouter.ai/keys>)
-4. Database location: `.data/auguste.db` (override via `AUGUSTE_DB_PATH` env var)
+4. Database location: Automatically stored at `.data/auguste.db` in the project root (works correctly even when Mastra changes working directory). Override via `AUGUSTE_DB_PATH` env var if needed.
 
 ## Architecture
 

@@ -1,9 +1,42 @@
 import Database from 'better-sqlite3';
-import { existsSync, mkdirSync } from 'fs';
-import { join } from 'path';
+import { existsSync, mkdirSync, readFileSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 
-// Default data directory - stored in .data folder (gitignored)
-const DATA_DIR = join(process.cwd(), '.data');
+/**
+ * Find the project root by looking for package.json
+ * This works regardless of where the code is bundled/executed from
+ */
+function findProjectRoot(): string {
+  const __filename = fileURLToPath(import.meta.url);
+  let currentDir = dirname(__filename);
+
+  // Walk up the directory tree until we find package.json
+  while (currentDir !== dirname(currentDir)) {
+    const packageJsonPath = join(currentDir, 'package.json');
+    if (existsSync(packageJsonPath)) {
+      try {
+        const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+        // Verify it's the Auguste package
+        if (packageJson.name === 'auguste') {
+          return currentDir;
+        }
+      } catch {
+        // Continue searching if package.json is invalid
+      }
+    }
+    currentDir = dirname(currentDir);
+  }
+
+  // Fallback: assume we're in a standard location
+  // This shouldn't happen in normal usage
+  return join(dirname(__filename), '..', '..', '..');
+}
+
+const PROJECT_ROOT = findProjectRoot();
+
+// Default data directory - stored in .data folder at project root (gitignored)
+const DATA_DIR = join(PROJECT_ROOT, '.data');
 
 // Database file path - configurable via AUGUSTE_DB_PATH env variable
 const DB_PATH = process.env.AUGUSTE_DB_PATH || join(DATA_DIR, 'auguste.db');

@@ -9,6 +9,7 @@
     "build": "mastra build",
     "start": "mastra start",
     "init": "npx tsx src/cli/init.ts",
+    "seed": "npx tsx scripts/seed.ts",
     "verify": "bash scripts/verify-setup.sh"
   },
   "keywords": [
