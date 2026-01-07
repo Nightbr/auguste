@@ -81,7 +81,6 @@ CREATE TABLE IF NOT EXISTS MealEvent (
     date TEXT NOT NULL, -- YYYY-MM-DD
     mealType TEXT NOT NULL CHECK (mealType IN ('breakfast', 'lunch', 'dinner')),
     recipeName TEXT,
-    description TEXT,
     participants TEXT DEFAULT '[]', -- JSON array of Member IDs
     createdAt TEXT NOT NULL DEFAULT (datetime('now')),
     updatedAt TEXT NOT NULL DEFAULT (datetime('now')),

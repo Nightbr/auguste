@@ -71,7 +71,6 @@ erDiagram
         date date
         string mealType "breakfast | lunch | dinner"
         string recipeName "optional"
-        string description "optional"
         json participants "array of member IDs"
         datetime createdAt
         datetime updatedAt
@@ -153,7 +152,6 @@ CREATE TABLE MealEvent (
     date TEXT NOT NULL, -- YYYY-MM-DD
     mealType TEXT NOT NULL CHECK (mealType IN ('breakfast', 'lunch', 'dinner')),
     recipeName TEXT,
-    description TEXT,
     participants TEXT DEFAULT '[]', -- JSON array of Member IDs
     createdAt TEXT NOT NULL DEFAULT (datetime('now')),
     updatedAt TEXT NOT NULL DEFAULT (datetime('now')),

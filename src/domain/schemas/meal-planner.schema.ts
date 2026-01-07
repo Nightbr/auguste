@@ -23,11 +23,10 @@ export type CreateMealPlanningInput = z.infer<typeof CreateMealPlanningInputSche
 export const MealEventSchema = z.object({
   id: z.string().uuid(),
   familyId: z.string().uuid(),
-  planningId: z.string().uuid().optional(),
+  planningId: z.string().uuid().nullable().optional(),
   date: z.string().date(), // YYYY-MM-DD
   mealType: z.enum(['breakfast', 'lunch', 'dinner']),
-  recipeName: z.string().optional(),
-  description: z.string().optional(),
+  recipeName: z.string().nullable().optional(),
   participants: z.array(z.string().uuid()).default([]), // Member IDs
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),

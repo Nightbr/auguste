@@ -17,9 +17,3 @@
 ### Bugs
 
 - [ ] **PlannerSettings notification CRON is not working** - "Il semble que l'outil ait encore du mal à interpréter "tous les mercredis à 9h du matin" correctement et par défaut à dimanche 18h."
-
-## Meal Planner Agent
-
-### Meal Planning Logic
-
-- [ ] **Derive servings from availability** - For the number of people/servings, assume it equals the number of family members based on their availability for each meal

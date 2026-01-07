@@ -58,7 +58,7 @@ export const createMealEvent = createTool({
   description: 'Create a single meal event',
   inputSchema: CreateMealEventInputSchema,
   outputSchema: MealEventSchema,
-  execute: async ({ familyId, planningId, date, mealType, recipeName, description, participants }) => {
+  execute: async ({ familyId, planningId, date, mealType, recipeName, participants }) => {
     const db = getDatabase();
     const now = new Date().toISOString();
     const id = crypto.randomUUID();
@@ -71,7 +71,6 @@ export const createMealEvent = createTool({
       date,
       mealType,
       recipeName,
-      description,
       participants: participants || [],
       createdAt: now,
       updatedAt: now,
@@ -79,8 +78,8 @@ export const createMealEvent = createTool({
 
     try {
       db.prepare(
-        `INSERT INTO MealEvent (id, familyId, planningId, date, mealType, recipeName, description, participants, createdAt, updatedAt)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO MealEvent (id, familyId, planningId, date, mealType, recipeName, participants, createdAt, updatedAt)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
       ).run(
         event.id,
         event.familyId,
@@ -88,7 +87,6 @@ export const createMealEvent = createTool({
         event.date,
         event.mealType,
         event.recipeName,
-        event.description,
         participantsJson,
         event.createdAt,
         event.updatedAt
@@ -107,11 +105,10 @@ export const updateMealEvent = createTool({
   inputSchema: z.object({
     id: z.string(),
     recipeName: z.string().optional(),
-    description: z.string().optional(),
     participants: z.array(z.string()).optional(),
   }),
   outputSchema: MealEventSchema,
-  execute: async ({ id, recipeName, description, participants }) => {
+  execute: async ({ id, recipeName, participants }) => {
     const db = getDatabase();
     const now = new Date().toISOString();
 
@@ -128,10 +125,6 @@ export const updateMealEvent = createTool({
     if (recipeName !== undefined) {
       updates.push('recipeName = ?');
       args.push(recipeName);
-    }
-    if (description !== undefined) {
-      updates.push('description = ?');
-      args.push(description);
     }
     if (participants !== undefined) {
       updates.push('participants = ?');
