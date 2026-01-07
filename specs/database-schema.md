@@ -1,5 +1,8 @@
 # Auguste - Database Schema
 
+> [!NOTE]
+> The database schema is defined and managed using **Drizzle ORM**. The source of truth for the schema is [schema.drizzle.ts](file:///home/nightbringer/Dev/auguste/src/domain/db/schema.drizzle.ts).
+
 ## Entity Relationship Diagram
 
 ```mermaid

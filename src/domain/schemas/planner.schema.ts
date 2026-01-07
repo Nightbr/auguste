@@ -1,73 +1,43 @@
 import { z } from 'zod';
-import { MealType } from './enums';
+import { createSelectSchema, createInsertSchema } from 'drizzle-zod';
+import { memberAvailability, plannerSettings } from '../db/schema.drizzle.js';
 
 /**
- * Member availability schema - tracks which meals each member attends
+ * Member availability schema
  */
-export const MemberAvailabilitySchema = z.object({
-  id: z.uuid(),
-  memberId: z.uuid(),
-  mealType: z.enum([MealType.breakfast, MealType.lunch, MealType.dinner]),
-  dayOfWeek: z.number().int().min(0).max(6),
-  isAvailable: z.boolean().default(true),
-});
+export const MemberAvailabilitySchema = createSelectSchema(memberAvailability);
 export type MemberAvailability = z.infer<typeof MemberAvailabilitySchema>;
 
-export const SetMemberAvailabilityInputSchema = z.object({
-  memberId: z.uuid(),
-  mealType: z.enum([MealType.breakfast, MealType.lunch, MealType.dinner]),
-  dayOfWeek: z.number().int().min(0).max(6),
-  isAvailable: z.boolean(),
-});
-export type SetMemberAvailabilityInput = z.infer<
-  typeof SetMemberAvailabilityInputSchema
->;
+export const SetMemberAvailabilityInputSchema = createInsertSchema(memberAvailability).omit({ id: true });
+export type SetMemberAvailabilityInput = z.infer<typeof SetMemberAvailabilityInputSchema>;
 
 /**
- * Planner settings schema - meal planning configuration
+ * Planner settings schema
  */
-export const PlannerSettingsSchema = z.object({
-  id: z.uuid(),
-  familyId: z.uuid(),
-  mealTypes: z
-    .array(z.enum([MealType.breakfast, MealType.lunch, MealType.dinner]))
-    .default([MealType.lunch, MealType.dinner]),
-  activeDays: z
-    .array(z.number().int().min(0).max(6))
-    .default([0, 1, 2, 3, 4, 5, 6]),
-  defaultServings: z.number().int().positive().default(4),
-  notificationCron: z.string().default('0 18 * * 0'), // Sunday 6pm
-  timezone: z.string().default('UTC'),
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
+export const PlannerSettingsSchema = createSelectSchema(plannerSettings).extend({
+  mealTypes: z.array(z.any()),
+  activeDays: z.array(z.number()),
 });
 export type PlannerSettings = z.infer<typeof PlannerSettingsSchema>;
 
-export const CreatePlannerSettingsInputSchema = z.object({
-  familyId: z.uuid(),
-  mealTypes: z
-    .array(z.enum([MealType.breakfast, MealType.lunch, MealType.dinner]))
-    .optional(),
-  activeDays: z.array(z.number().int().min(0).max(6)).optional(),
-  defaultServings: z.number().int().positive().optional(),
-  notificationCron: z.string().optional(),
-  timezone: z.string().optional(),
-});
-export type CreatePlannerSettingsInput = z.infer<
-  typeof CreatePlannerSettingsInputSchema
->;
+export const CreatePlannerSettingsInputSchema = createInsertSchema(plannerSettings)
+  .extend({
+    mealTypes: z.array(z.any()).optional(),
+    activeDays: z.array(z.number()).optional(),
+    defaultServings: z.number().int().optional(),
+    notificationCron: z.string().optional(),
+    timezone: z.string().optional(),
+  })
+  .omit({ id: true, createdAt: true, updatedAt: true });
+export type CreatePlannerSettingsInput = z.infer<typeof CreatePlannerSettingsInputSchema>;
 
-export const UpdatePlannerSettingsInputSchema = z.object({
-  id: z.uuid(),
-  mealTypes: z
-    .array(z.enum([MealType.breakfast, MealType.lunch, MealType.dinner]))
-    .optional(),
-  activeDays: z.array(z.number().int().min(0).max(6)).optional(),
-  defaultServings: z.number().int().positive().optional(),
-  notificationCron: z.string().optional(),
-  timezone: z.string().optional(),
-});
-export type UpdatePlannerSettingsInput = z.infer<
-  typeof UpdatePlannerSettingsInputSchema
->;
-
+export const UpdatePlannerSettingsInputSchema = createInsertSchema(plannerSettings)
+  .extend({
+    mealTypes: z.array(z.any()).optional(),
+    activeDays: z.array(z.number()).optional(),
+    defaultServings: z.number().int().optional(),
+    notificationCron: z.string().optional(),
+    timezone: z.string().optional(),
+  })
+  .omit({ familyId: true, createdAt: true, updatedAt: true });
+export type UpdatePlannerSettingsInput = z.infer<typeof UpdatePlannerSettingsInputSchema>;

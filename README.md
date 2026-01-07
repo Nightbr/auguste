@@ -70,15 +70,25 @@ npm install
 # Set up environment variables
 cp .env.example .env
 # Add your OPENROUTER_API_KEY to .env
+```
 
-# Add your OPENROUTER_API_KEY to .env
+### Database Management
+
+Auguste uses Drizzle ORM. Detailed documentation on schema management, migrations, and seeding can be found in [docs/database-management.md](docs/database-management.md).
+
+```bash
+# Apply pending migrations
+npm run db:migrate
+
+# Seed the database with demo data
+npm run seed
 ```
 
 ## 🛠️ Tech Stack
 
 - **Runtime:** Node.js with TypeScript
 - **AI Framework:** [Mastra](https://mastra.ai) — Agentic AI framework
-- **Database:** SQLite with better-sqlite3
+- **Database:** SQLite with Drizzle ORM
 - **Validation:** Zod 4
 - **LLM Provider:** OpenRouter (Gemini, Claude, etc.)
 
@@ -88,11 +98,12 @@ cp .env.example .env
 auguste/
 ├── src/
 │   ├── domain/           # Schemas and database
-│   │   ├── db/           # SQLite database utilities
-│   │   └── schemas/      # Zod schemas
-│   └── ai/               # Mastra agents and tools
+│   │   ├── db/           # Drizzle schema and migrations
+│   │   └── schemas/      # Zod schemas & enums
+│   └── ai/               # AI agents and tools
 │       ├── agents/       # Conversational agents
 │       └── tools/        # Database operations
+├── docs/                 # Documentation (Database, etc.)
 ├── specs/                # Design docs and specifications
 └── assets/               # Logo and visual assets
 ```

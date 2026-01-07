@@ -1,45 +1,16 @@
 import { createTool } from '@mastra/core/tools';
+import { eq, and, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import {
-  getDatabase,
+  db,
+  schema,
   generateId,
   now,
-  parseJson,
-  toJson,
   CreateMemberInputSchema,
   UpdateMemberInputSchema,
   MemberSchema,
-  FoodPreferences,
   CookingSkillLevel,
-  Member,
-  Birthdate,
 } from '../../domain';
-
-/**
- * Database row type - JSON fields are stored as strings in SQLite
- */
-type MemberRow = Omit<Member, 'dietaryRestrictions' | 'allergies' | 'foodPreferences' | 'birthdate'> & {
-  dietaryRestrictions: string;
-  allergies: string;
-  foodPreferences: string;
-  birthdate: string | null;
-};
-
-function rowToMember(row: MemberRow) {
-  return {
-    id: row.id,
-    familyId: row.familyId,
-    name: row.name,
-    type: row.type,
-    birthdate: row.birthdate ? parseJson<Birthdate>(row.birthdate, undefined) : undefined,
-    dietaryRestrictions: parseJson<string[]>(row.dietaryRestrictions, []),
-    allergies: parseJson<string[]>(row.allergies, []),
-    foodPreferences: parseJson<FoodPreferences>(row.foodPreferences, { likes: [], dislikes: [] }),
-    cookingSkillLevel: row.cookingSkillLevel as (typeof CookingSkillLevel)[keyof typeof CookingSkillLevel],
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
-  };
-}
 
 /**
  * Create a new family member
@@ -50,42 +21,27 @@ export const createMemberTool = createTool({
   inputSchema: CreateMemberInputSchema,
   outputSchema: MemberSchema,
   execute: async (input) => {
-    const db = getDatabase();
     const id = generateId();
     const timestamp = now();
 
-    const member = {
-      id,
-      familyId: input.familyId,
-      name: input.name,
-      type: input.type,
-      birthdate: input.birthdate,
-      dietaryRestrictions: input.dietaryRestrictions ?? [],
-      allergies: input.allergies ?? [],
-      foodPreferences: input.foodPreferences ?? { likes: [], dislikes: [] },
-      cookingSkillLevel: input.cookingSkillLevel ?? CookingSkillLevel.none,
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    };
+    const [newMember] = await db
+      .insert(schema.member)
+      .values({
+        id,
+        familyId: input.familyId,
+        name: input.name,
+        type: input.type,
+        birthdate: input.birthdate,
+        dietaryRestrictions: input.dietaryRestrictions ?? [],
+        allergies: input.allergies ?? [],
+        foodPreferences: input.foodPreferences ?? { likes: [], dislikes: [] },
+        cookingSkillLevel: input.cookingSkillLevel ?? CookingSkillLevel.none,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      })
+      .returning();
 
-    db.prepare(
-      `INSERT INTO Member (id, familyId, name, type, birthdate, dietaryRestrictions, allergies, foodPreferences, cookingSkillLevel, createdAt, updatedAt)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).run(
-      member.id,
-      member.familyId,
-      member.name,
-      member.type,
-      member.birthdate ? toJson(member.birthdate) : null,
-      toJson(member.dietaryRestrictions),
-      toJson(member.allergies),
-      toJson(member.foodPreferences),
-      member.cookingSkillLevel,
-      member.createdAt,
-      member.updatedAt
-    );
-
-    return member;
+    return newMember;
   },
 });
 
@@ -100,9 +56,10 @@ export const getMembersTool = createTool({
   }),
   outputSchema: z.array(MemberSchema),
   execute: async ({ familyId }) => {
-    const db = getDatabase();
-    const rows = db.prepare('SELECT * FROM Member WHERE familyId = ?').all(familyId) as MemberRow[];
-    return rows.map(rowToMember);
+    const rows = await db.query.member.findMany({
+      where: eq(schema.member.familyId, familyId),
+    });
+    return rows;
   },
 });
 
@@ -120,10 +77,11 @@ export const getMemberTool = createTool({
     member: MemberSchema.optional(),
   }),
   execute: async ({ id }) => {
-    const db = getDatabase();
-    const row = db.prepare('SELECT * FROM Member WHERE id = ?').get(id) as MemberRow | undefined;
-    if (!row) return { found: false };
-    return { found: true, member: rowToMember(row) };
+    const member = await db.query.member.findFirst({
+      where: eq(schema.member.id, id),
+    });
+    if (!member) return { found: false };
+    return { found: true, member };
   },
 });
 
@@ -142,13 +100,11 @@ export const getMemberByNameTool = createTool({
     member: MemberSchema.optional(),
   }),
   execute: async ({ familyId, name }) => {
-    const db = getDatabase();
-    // Use LIKE for partial matching, LOWER for case-insensitive
-    const row = db.prepare('SELECT * FROM Member WHERE familyId = ? AND LOWER(name) LIKE LOWER(?)').get(familyId, `%${name}%`) as
-      | MemberRow
-      | undefined;
-    if (!row) return { found: false };
-    return { found: true, member: rowToMember(row) };
+    const member = await db.query.member.findFirst({
+      where: and(eq(schema.member.familyId, familyId), sql`lower(${schema.member.name}) LIKE lower(${`%${name}%`})`),
+    });
+    if (!member) return { found: false };
+    return { found: true, member };
   },
 });
 
@@ -164,47 +120,22 @@ export const updateMemberTool = createTool({
     member: MemberSchema.optional(),
   }),
   execute: async (input) => {
-    const db = getDatabase();
     const timestamp = now();
 
-    const updates: string[] = ['updatedAt = ?'];
-    const values: unknown[] = [timestamp];
+    const updates: Partial<typeof schema.member.$inferInsert> = { updatedAt: timestamp };
 
-    if (input.name !== undefined) {
-      updates.push('name = ?');
-      values.push(input.name);
-    }
-    if (input.type !== undefined) {
-      updates.push('type = ?');
-      values.push(input.type);
-    }
-    if (input.birthdate !== undefined) {
-      updates.push('birthdate = ?');
-      values.push(input.birthdate ? toJson(input.birthdate) : null);
-    }
-    if (input.dietaryRestrictions !== undefined) {
-      updates.push('dietaryRestrictions = ?');
-      values.push(toJson(input.dietaryRestrictions));
-    }
-    if (input.allergies !== undefined) {
-      updates.push('allergies = ?');
-      values.push(toJson(input.allergies));
-    }
-    if (input.foodPreferences !== undefined) {
-      updates.push('foodPreferences = ?');
-      values.push(toJson(input.foodPreferences));
-    }
-    if (input.cookingSkillLevel !== undefined) {
-      updates.push('cookingSkillLevel = ?');
-      values.push(input.cookingSkillLevel);
-    }
+    if (input.name !== undefined) updates.name = input.name;
+    if (input.type !== undefined) updates.type = input.type;
+    if (input.birthdate !== undefined) updates.birthdate = input.birthdate;
+    if (input.dietaryRestrictions !== undefined) updates.dietaryRestrictions = input.dietaryRestrictions;
+    if (input.allergies !== undefined) updates.allergies = input.allergies;
+    if (input.foodPreferences !== undefined) updates.foodPreferences = input.foodPreferences;
+    if (input.cookingSkillLevel !== undefined) updates.cookingSkillLevel = input.cookingSkillLevel;
 
-    values.push(input.id);
-    db.prepare(`UPDATE Member SET ${updates.join(', ')} WHERE id = ?`).run(...values);
+    const [updatedMember] = await db.update(schema.member).set(updates).where(eq(schema.member.id, input.id)).returning();
 
-    const row = db.prepare('SELECT * FROM Member WHERE id = ?').get(input.id) as MemberRow | undefined;
-    if (!row) return { found: false };
-    return { found: true, member: rowToMember(row) };
+    if (!updatedMember) return { found: false };
+    return { found: true, member: updatedMember };
   },
 });
 
@@ -217,8 +148,7 @@ export const deleteMemberTool = createTool({
   inputSchema: z.object({ id: z.uuid().describe('The member ID to delete') }),
   outputSchema: z.object({ success: z.boolean(), deletedId: z.uuid() }),
   execute: async ({ id }) => {
-    const db = getDatabase();
-    const result = db.prepare('DELETE FROM Member WHERE id = ?').run(id);
-    return { success: result.changes > 0, deletedId: id };
+    const result = await db.delete(schema.member).where(eq(schema.member.id, id)).returning({ id: schema.member.id });
+    return { success: result.length > 0, deletedId: id };
   },
 });

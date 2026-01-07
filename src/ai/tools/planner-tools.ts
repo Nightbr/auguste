@@ -1,39 +1,16 @@
 import { createTool } from '@mastra/core/tools';
+import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import {
-  getDatabase,
+  db,
+  schema,
   generateId,
   now,
-  parseJson,
-  toJson,
   CreatePlannerSettingsInputSchema,
   UpdatePlannerSettingsInputSchema,
   PlannerSettingsSchema,
   MealType,
-  PlannerSettings,
 } from '../../domain';
-
-/**
- * Database row type - JSON array fields are stored as strings in SQLite
- */
-type PlannerSettingsRow = Omit<PlannerSettings, 'mealTypes' | 'activeDays'> & {
-  mealTypes: string;
-  activeDays: string;
-};
-
-function rowToSettings(row: PlannerSettingsRow) {
-  return {
-    id: row.id,
-    familyId: row.familyId,
-    mealTypes: parseJson<string[]>(row.mealTypes, [MealType.lunch, MealType.dinner]) as (typeof MealType[keyof typeof MealType])[],
-    activeDays: parseJson<number[]>(row.activeDays, [0, 1, 2, 3, 4, 5, 6]),
-    defaultServings: row.defaultServings,
-    notificationCron: row.notificationCron,
-    timezone: row.timezone,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
-  };
-}
 
 /**
  * Create planner settings for a family
@@ -44,36 +21,23 @@ export const createPlannerSettingsTool = createTool({
   inputSchema: CreatePlannerSettingsInputSchema,
   outputSchema: PlannerSettingsSchema,
   execute: async (input) => {
-    const db = getDatabase();
     const id = generateId();
     const timestamp = now();
 
-    const settings = {
-      id,
-      familyId: input.familyId,
-      mealTypes: input.mealTypes ?? [MealType.lunch, MealType.dinner],
-      activeDays: input.activeDays ?? [0, 1, 2, 3, 4, 5, 6],
-      defaultServings: input.defaultServings ?? 4,
-      notificationCron: input.notificationCron ?? '0 18 * * 0',
-      timezone: input.timezone ?? 'UTC',
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    };
-
-    db.prepare(
-      `INSERT INTO PlannerSettings (id, familyId, mealTypes, activeDays, defaultServings, notificationCron, timezone, createdAt, updatedAt)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).run(
-      settings.id,
-      settings.familyId,
-      toJson(settings.mealTypes),
-      toJson(settings.activeDays),
-      settings.defaultServings,
-      settings.notificationCron,
-      settings.timezone,
-      settings.createdAt,
-      settings.updatedAt
-    );
+    const [settings] = await db
+      .insert(schema.plannerSettings)
+      .values({
+        id,
+        familyId: input.familyId,
+        mealTypes: input.mealTypes ?? [MealType.lunch, MealType.dinner],
+        activeDays: input.activeDays ?? [0, 1, 2, 3, 4, 5, 6],
+        defaultServings: input.defaultServings ?? 4,
+        notificationCron: input.notificationCron ?? '0 18 * * 0',
+        timezone: input.timezone ?? 'UTC',
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      })
+      .returning();
 
     return settings;
   },
@@ -93,10 +57,12 @@ export const getPlannerSettingsTool = createTool({
     settings: PlannerSettingsSchema.optional(),
   }),
   execute: async ({ familyId }) => {
-    const db = getDatabase();
-    const row = db.prepare('SELECT * FROM PlannerSettings WHERE familyId = ?').get(familyId) as PlannerSettingsRow | undefined;
-    if (!row) return { found: false };
-    return { found: true, settings: rowToSettings(row) };
+    const settings = await db.query.plannerSettings.findFirst({
+      where: eq(schema.plannerSettings.familyId, familyId),
+    });
+
+    if (!settings) return { found: false };
+    return { found: true, settings };
   },
 });
 
@@ -112,24 +78,24 @@ export const updatePlannerSettingsTool = createTool({
     settings: PlannerSettingsSchema.optional(),
   }),
   execute: async (input) => {
-    const db = getDatabase();
     const timestamp = now();
 
-    const updates: string[] = ['updatedAt = ?'];
-    const values: unknown[] = [timestamp];
+    const updates: Partial<typeof schema.plannerSettings.$inferInsert> = { updatedAt: timestamp };
 
-    if (input.mealTypes !== undefined) { updates.push('mealTypes = ?'); values.push(toJson(input.mealTypes)); }
-    if (input.activeDays !== undefined) { updates.push('activeDays = ?'); values.push(toJson(input.activeDays)); }
-    if (input.defaultServings !== undefined) { updates.push('defaultServings = ?'); values.push(input.defaultServings); }
-    if (input.notificationCron !== undefined) { updates.push('notificationCron = ?'); values.push(input.notificationCron); }
-    if (input.timezone !== undefined) { updates.push('timezone = ?'); values.push(input.timezone); }
+    if (input.mealTypes !== undefined) updates.mealTypes = input.mealTypes;
+    if (input.activeDays !== undefined) updates.activeDays = input.activeDays;
+    if (input.defaultServings !== undefined) updates.defaultServings = input.defaultServings;
+    if (input.notificationCron !== undefined) updates.notificationCron = input.notificationCron;
+    if (input.timezone !== undefined) updates.timezone = input.timezone;
 
-    values.push(input.id);
-    db.prepare(`UPDATE PlannerSettings SET ${updates.join(', ')} WHERE id = ?`).run(...values);
+    const [updatedSettings] = await db
+      .update(schema.plannerSettings)
+      .set(updates)
+      .where(eq(schema.plannerSettings.id, input.id))
+      .returning();
 
-    const row = db.prepare('SELECT * FROM PlannerSettings WHERE id = ?').get(input.id) as PlannerSettingsRow | undefined;
-    if (!row) return { found: false };
-    return { found: true, settings: rowToSettings(row) };
+    if (!updatedSettings) return { found: false };
+    return { found: true, settings: updatedSettings };
   },
 });
 
@@ -138,7 +104,8 @@ export const updatePlannerSettingsTool = createTool({
  */
 export const parseCronScheduleTool = createTool({
   id: 'parse-cron-schedule',
-  description: 'Convert a natural language schedule description to a cron expression. Examples: "Sunday at 6pm" -> "0 18 * * 0", "Every morning at 7am" -> "0 7 * * *"',
+  description:
+    'Convert a natural language schedule description to a cron expression. Examples: "Sunday at 6pm" -> "0 18 * * 0", "Every morning at 7am" -> "0 7 * * *"',
   inputSchema: z.object({
     description: z.string().describe('Natural language description of the schedule'),
   }),
@@ -170,4 +137,3 @@ export const parseCronScheduleTool = createTool({
     };
   },
 });
-

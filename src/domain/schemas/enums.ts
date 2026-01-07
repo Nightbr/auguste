@@ -14,8 +14,7 @@ export const CookingSkillLevel = {
   intermediate: 'intermediate',
   advanced: 'advanced',
 } as const;
-export type CookingSkillLevel =
-  (typeof CookingSkillLevel)[keyof typeof CookingSkillLevel];
+export type CookingSkillLevel = (typeof CookingSkillLevel)[keyof typeof CookingSkillLevel];
 
 export const MealType = {
   breakfast: 'breakfast',
@@ -35,6 +34,13 @@ export const DayOfWeek = {
 } as const;
 export type DayOfWeek = (typeof DayOfWeek)[keyof typeof DayOfWeek];
 
+export const MealPlanningStatus = {
+  draft: 'draft',
+  active: 'active',
+  completed: 'completed',
+} as const;
+export type MealPlanningStatus = (typeof MealPlanningStatus)[keyof typeof MealPlanningStatus];
+
 /**
  * Predefined options for UI/validation hints
  */
@@ -53,15 +59,4 @@ export const COMMON_DIETARY_RESTRICTIONS = [
   'whole30',
 ] as const;
 
-export const COMMON_ALLERGIES = [
-  'peanuts',
-  'tree-nuts',
-  'milk',
-  'eggs',
-  'wheat',
-  'soy',
-  'fish',
-  'shellfish',
-  'sesame',
-] as const;
-
+export const COMMON_ALLERGIES = ['peanuts', 'tree-nuts', 'milk', 'eggs', 'wheat', 'soy', 'fish', 'shellfish', 'sesame'] as const;

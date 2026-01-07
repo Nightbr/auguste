@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { createSelectSchema, createInsertSchema } from 'drizzle-zod';
+import { family, member } from '../db/schema.drizzle';
 import { CookingSkillLevel, MemberType } from './enums';
 
 /**
@@ -8,9 +10,9 @@ export const BirthdateSchema = z
   .object({
     day: z.number().int().min(1).max(31).optional(),
     month: z.number().int().min(1).max(12).optional(),
-    year: z.number().int().min(1900).max(2100).optional(),
+    year: z.number().int().min(1).max(2100).optional(),
   })
-  .optional();
+  .nullish();
 export type Birthdate = z.infer<typeof BirthdateSchema>;
 
 /**
@@ -25,31 +27,26 @@ export type FoodPreferences = z.infer<typeof FoodPreferencesSchema>;
 /**
  * Family schema - represents a household
  */
-export const FamilySchema = z.object({
-  id: z.uuid(),
-  name: z.string().min(1),
-  country: z.string().length(2), // ISO 3166-1 alpha-2
-  language: z.string().min(2), // ISO 639-1 or BCP 47
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
-});
+export const FamilySchema = createSelectSchema(family);
 export type Family = z.infer<typeof FamilySchema>;
 
-export const CreateFamilyInputSchema = z.object({
-  name: z.string().min(1).describe('The family or household name (e.g., "The Smith Family", "Casa Garcia")'),
-  country: z
-    .string()
-    .length(2)
-    .describe(
-      'ISO 3166-1 alpha-2 country code. MUST be exactly 2 letters. Examples: "US" for United States, "FR" for France, "DE" for Germany, "JP" for Japan, "GB" for United Kingdom'
-    ),
-  language: z
-    .string()
-    .min(2)
-    .describe(
-      'ISO 639-1 language code for meal suggestions. Examples: "en" for English, "fr" for French, "es" for Spanish, "de" for German'
-    ),
-});
+export const CreateFamilyInputSchema = createInsertSchema(family)
+  .extend({
+    name: z.string().min(1).describe('The family or household name (e.g., "The Smith Family", "Casa Garcia")'),
+    country: z
+      .string()
+      .length(2)
+      .describe(
+        'ISO 3166-1 alpha-2 country code. MUST be exactly 2 letters. Examples: "US" for United States, "FR" for France, "DE" for Germany, "JP" for Japan, "GB" for United Kingdom'
+      ),
+    language: z
+      .string()
+      .min(2)
+      .describe(
+        'ISO 639-1 language code for meal suggestions. Examples: "en" for English, "fr" for French, "es" for Spanish, "de" for German'
+      ),
+  })
+  .omit({ id: true, createdAt: true, updatedAt: true });
 export type CreateFamilyInput = z.infer<typeof CreateFamilyInputSchema>;
 
 export const UpdateFamilyInputSchema = z.object({
@@ -63,47 +60,35 @@ export type UpdateFamilyInput = z.infer<typeof UpdateFamilyInputSchema>;
 /**
  * Member schema - individual family members
  */
-export const MemberSchema = z.object({
-  id: z.uuid(),
-  familyId: z.uuid(),
-  name: z.string().min(1),
-  type: z.enum([MemberType.adult, MemberType.child]),
+export const MemberSchema = createSelectSchema(member).extend({
   birthdate: BirthdateSchema,
   dietaryRestrictions: z.array(z.string()).default([]),
   allergies: z.array(z.string()).default([]),
   foodPreferences: FoodPreferencesSchema.default({ likes: [], dislikes: [] }),
-  cookingSkillLevel: z
-    .enum([CookingSkillLevel.none, CookingSkillLevel.beginner, CookingSkillLevel.intermediate, CookingSkillLevel.advanced])
-    .default(CookingSkillLevel.none),
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
 });
 export type Member = z.infer<typeof MemberSchema>;
 
-export const CreateMemberInputSchema = z.object({
-  familyId: z.uuid(),
-  name: z.string().min(1),
-  type: z.enum([MemberType.adult, MemberType.child]),
-  birthdate: BirthdateSchema,
-  dietaryRestrictions: z.array(z.string()).optional(),
-  allergies: z.array(z.string()).optional(),
-  foodPreferences: FoodPreferencesSchema.optional(),
-  cookingSkillLevel: z
-    .enum([CookingSkillLevel.none, CookingSkillLevel.beginner, CookingSkillLevel.intermediate, CookingSkillLevel.advanced])
-    .optional(),
-});
+export const CreateMemberInputSchema = createInsertSchema(member)
+  .extend({
+    name: z.string().min(1),
+    birthdate: BirthdateSchema.optional(),
+    dietaryRestrictions: z.array(z.string()).optional(),
+    allergies: z.array(z.string()).optional(),
+    foodPreferences: FoodPreferencesSchema.optional(),
+    cookingSkillLevel: z.nativeEnum(CookingSkillLevel).optional(),
+  })
+  .omit({ id: true, createdAt: true, updatedAt: true });
 export type CreateMemberInput = z.infer<typeof CreateMemberInputSchema>;
 
-export const UpdateMemberInputSchema = z.object({
-  id: z.uuid(),
-  name: z.string().min(1).optional(),
-  type: z.enum([MemberType.adult, MemberType.child]).optional(),
-  birthdate: BirthdateSchema,
-  dietaryRestrictions: z.array(z.string()).optional(),
-  allergies: z.array(z.string()).optional(),
-  foodPreferences: FoodPreferencesSchema.optional(),
-  cookingSkillLevel: z
-    .enum([CookingSkillLevel.none, CookingSkillLevel.beginner, CookingSkillLevel.intermediate, CookingSkillLevel.advanced])
-    .optional(),
-});
+export const UpdateMemberInputSchema = createInsertSchema(member)
+  .extend({
+    name: z.string().min(1).optional(),
+    type: z.nativeEnum(MemberType).optional(),
+    birthdate: BirthdateSchema.optional(),
+    dietaryRestrictions: z.array(z.string()).optional(),
+    allergies: z.array(z.string()).optional(),
+    foodPreferences: FoodPreferencesSchema.optional(),
+    cookingSkillLevel: z.nativeEnum(CookingSkillLevel).optional(),
+  })
+  .omit({ familyId: true, createdAt: true, updatedAt: true });
 export type UpdateMemberInput = z.infer<typeof UpdateMemberInputSchema>;

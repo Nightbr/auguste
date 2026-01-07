@@ -1,22 +1,7 @@
 import { createTool } from '@mastra/core/tools';
+import { eq, inArray } from 'drizzle-orm';
 import { z } from 'zod';
-import { getDatabase, Family, Member, PlannerSettings } from '../../domain';
-
-/**
- * Database row types - JSON fields are stored as strings in SQLite
- */
-type FamilyRow = Family;
-
-type MemberRow = Omit<Member, 'dietaryRestrictions' | 'allergies' | 'foodPreferences'> & {
-  dietaryRestrictions: string;
-  allergies: string;
-  foodPreferences: string;
-};
-
-type PlannerSettingsRow = Omit<PlannerSettings, 'mealTypes' | 'activeDays'> & {
-  mealTypes: string;
-  activeDays: string;
-};
+import { db, schema } from '../../domain';
 
 /**
  * Tool to get a complete summary of a family's setup
@@ -45,54 +30,40 @@ export const getFamilySummaryTool = createTool({
     memberAvailability: z.array(z.any()).optional(),
   }),
   execute: async ({ familyId }) => {
-    // SECURITY: Enforce familyId requirement
-    if (!familyId) {
-      throw new Error('SECURITY ERROR: familyId is required. The agent must provide the familyId from its requestContext.');
-    }
+    const family = await db.query.family.findFirst({
+      where: eq(schema.family.id, familyId),
+    });
 
-    const db = getDatabase();
+    const members = await db.query.member.findMany({
+      where: eq(schema.member.familyId, familyId),
+    });
 
-    const family = db.prepare('SELECT * FROM Family WHERE id = ?').get(familyId) as FamilyRow | undefined;
-    const membersRows = db.prepare('SELECT * FROM Member WHERE familyId = ?').all(familyId) as MemberRow[];
-    const settingsRow = db.prepare('SELECT * FROM PlannerSettings WHERE familyId = ?').get(familyId) as PlannerSettingsRow | undefined;
+    const plannerSettings = await db.query.plannerSettings.findFirst({
+      where: eq(schema.plannerSettings.familyId, familyId),
+    });
 
     const familyFound = family !== undefined;
-    const settingsFound = settingsRow !== undefined;
-    const isComplete = familyFound && membersRows.length > 0 && settingsFound;
-
-    // Parse details for context usage
-    const members = membersRows.map((m) => ({
-      ...m,
-      dietaryRestrictions: JSON.parse(m.dietaryRestrictions || '[]'),
-      allergies: JSON.parse(m.allergies || '[]'),
-      foodPreferences: JSON.parse(m.foodPreferences || '{}'),
-    }));
-
-    const plannerSettings = settingsRow
-      ? {
-          ...settingsRow,
-          mealTypes: JSON.parse(settingsRow.mealTypes || '[]'),
-          activeDays: JSON.parse(settingsRow.activeDays || '[]'),
-        }
-      : undefined;
+    const settingsFound = plannerSettings !== undefined;
+    const isComplete = familyFound && members.length > 0 && settingsFound;
 
     // Fetch availability
-    let memberAvailability: any[] = [];
-    if (membersRows.length > 0) {
-      const ids = membersRows.map((m) => m.id);
-      const placeholders = ids.map(() => '?').join(',');
-      memberAvailability = db.prepare(`SELECT * FROM MemberAvailability WHERE memberId IN (${placeholders})`).all(ids);
+    let memberAvailability: (typeof schema.memberAvailability.$inferSelect)[] = [];
+    if (members.length > 0) {
+      const ids = members.map((m) => m.id);
+      memberAvailability = await db.query.memberAvailability.findMany({
+        where: inArray(schema.memberAvailability.memberId, ids),
+      });
     }
 
     return {
       familyFound,
       familyName: family?.name,
-      memberCount: membersRows.length,
-      memberNames: membersRows.map((m) => m.name),
+      memberCount: members.length,
+      memberNames: members.map((m) => m.name),
       settingsFound,
       isComplete,
 
-      // Full details
+      // Full details (Drizzle handles JSON parsing automatically)
       family,
       members,
       plannerSettings,

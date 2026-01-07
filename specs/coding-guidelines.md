@@ -69,6 +69,12 @@ export type MealType = (typeof MealType)[keyof typeof MealType];
 
 ## File Organization
 
+### Documentation
+
+- All documentation files in `/docs` and `/specs` MUST use **kebab-case** and be lowercase.
+- Example: `database-management.md`, `onboarding-flow.md`.
+- Prefer descriptive, concise filenames.
+
 ### Domain Layer (`src/domain/`)
 
 - Pure business logic, no AI dependencies

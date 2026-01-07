@@ -1,36 +1,7 @@
 import { createTool } from '@mastra/core/tools';
+import { eq, and, sql, inArray } from 'drizzle-orm';
 import { z } from 'zod';
-import {
-  getDatabase,
-  generateId,
-  SetMemberAvailabilityInputSchema,
-  MemberAvailabilitySchema,
-  MealType,
-  MemberAvailability,
-  Member,
-} from '../../domain';
-
-/**
- * Database row type - boolean is stored as integer (0/1) in SQLite
- */
-type AvailabilityRow = Omit<MemberAvailability, 'isAvailable'> & {
-  isAvailable: number;
-};
-
-/**
- * Partial member row for lookups
- */
-type MemberLookupRow = Pick<Member, 'id' | 'name'>;
-
-function rowToAvailability(row: AvailabilityRow) {
-  return {
-    id: row.id,
-    memberId: row.memberId,
-    mealType: row.mealType as typeof MealType[keyof typeof MealType],
-    dayOfWeek: row.dayOfWeek,
-    isAvailable: row.isAvailable === 1,
-  };
-}
+import { db, schema, generateId, SetMemberAvailabilityInputSchema, MemberAvailabilitySchema, MealType, Member } from '../../domain';
 
 /**
  * Set member availability for a specific meal and day
@@ -41,28 +12,24 @@ export const setMemberAvailabilityTool = createTool({
   inputSchema: SetMemberAvailabilityInputSchema,
   outputSchema: MemberAvailabilitySchema,
   execute: async ({ memberId, mealType, dayOfWeek, isAvailable }) => {
-    const db = getDatabase();
+    const id = generateId();
 
-    // Use UPSERT (INSERT OR REPLACE)
-    const existing = db.prepare(
-      'SELECT id FROM MemberAvailability WHERE memberId = ? AND mealType = ? AND dayOfWeek = ?'
-    ).get(memberId, mealType, dayOfWeek) as { id: string } | undefined;
+    const [record] = await db
+      .insert(schema.memberAvailability)
+      .values({
+        id,
+        memberId,
+        mealType,
+        dayOfWeek,
+        isAvailable,
+      })
+      .onConflictDoUpdate({
+        target: [schema.memberAvailability.memberId, schema.memberAvailability.mealType, schema.memberAvailability.dayOfWeek],
+        set: { isAvailable },
+      })
+      .returning();
 
-    const id = existing?.id ?? generateId();
-    const isAvailableInt = isAvailable ? 1 : 0;
-
-    db.prepare(
-      `INSERT OR REPLACE INTO MemberAvailability (id, memberId, mealType, dayOfWeek, isAvailable)
-       VALUES (?, ?, ?, ?, ?)`
-    ).run(id, memberId, mealType, dayOfWeek, isAvailableInt);
-
-    return {
-      id,
-      memberId,
-      mealType,
-      dayOfWeek,
-      isAvailable,
-    };
+    return record;
   },
 });
 
@@ -77,12 +44,12 @@ export const getMemberAvailabilityTool = createTool({
   }),
   outputSchema: z.array(MemberAvailabilitySchema),
   execute: async ({ memberId }) => {
-    const db = getDatabase();
-    const rows = db.prepare(
-      'SELECT * FROM MemberAvailability WHERE memberId = ? ORDER BY dayOfWeek, mealType'
-    ).all(memberId) as AvailabilityRow[];
+    const rows = await db.query.memberAvailability.findMany({
+      where: eq(schema.memberAvailability.memberId, memberId),
+      orderBy: (table, { asc }) => [asc(table.dayOfWeek), asc(table.mealType)],
+    });
 
-    return rows.map(rowToAvailability);
+    return rows;
   },
 });
 
@@ -94,36 +61,43 @@ export const bulkSetMemberAvailabilityTool = createTool({
   description: 'Set availability for a member across multiple meals and days at once. Useful for setting up initial availability.',
   inputSchema: z.object({
     memberId: z.uuid().describe('The member ID'),
-    availability: z.array(z.object({
-      mealType: z.enum([MealType.breakfast, MealType.lunch, MealType.dinner]),
-      dayOfWeek: z.number().int().min(0).max(6),
-      isAvailable: z.boolean(),
-    })).describe('Array of availability settings'),
+    availability: z
+      .array(
+        z.object({
+          mealType: z.enum([MealType.breakfast, MealType.lunch, MealType.dinner]),
+          dayOfWeek: z.number().int().min(0).max(6),
+          isAvailable: z.boolean(),
+        })
+      )
+      .describe('Array of availability settings'),
   }),
   outputSchema: z.object({
     memberId: z.uuid(),
     recordsSet: z.number(),
   }),
   execute: async ({ memberId, availability }) => {
-    const db = getDatabase();
+    if (availability.length === 0) {
+      return { memberId, recordsSet: 0 };
+    }
 
-    const stmt = db.prepare(
-      `INSERT OR REPLACE INTO MemberAvailability (id, memberId, mealType, dayOfWeek, isAvailable)
-       VALUES (?, ?, ?, ?, ?)`
-    );
-
-    const insertMany = db.transaction(() => {
+    db.transaction((tx) => {
       for (const item of availability) {
-        const existing = db.prepare(
-          'SELECT id FROM MemberAvailability WHERE memberId = ? AND mealType = ? AND dayOfWeek = ?'
-        ).get(memberId, item.mealType, item.dayOfWeek) as { id: string } | undefined;
-
-        const id = existing?.id ?? generateId();
-        stmt.run(id, memberId, item.mealType, item.dayOfWeek, item.isAvailable ? 1 : 0);
+        const id = generateId();
+        tx.insert(schema.memberAvailability)
+          .values({
+            id,
+            memberId,
+            mealType: item.mealType,
+            dayOfWeek: item.dayOfWeek,
+            isAvailable: item.isAvailable,
+          })
+          .onConflictDoUpdate({
+            target: [schema.memberAvailability.memberId, schema.memberAvailability.mealType, schema.memberAvailability.dayOfWeek],
+            set: { isAvailable: item.isAvailable },
+          })
+          .run();
       }
     });
-
-    insertMany();
 
     return {
       memberId,
@@ -135,10 +109,14 @@ export const bulkSetMemberAvailabilityTool = createTool({
 /**
  * Helper to find member ID by name
  */
-function findMemberByName(db: ReturnType<typeof getDatabase>, familyId: string, memberName: string): MemberLookupRow | undefined {
-  return db.prepare(
-    'SELECT id, name FROM Member WHERE familyId = ? AND LOWER(name) LIKE LOWER(?)'
-  ).get(familyId, `%${memberName}%`) as MemberLookupRow | undefined;
+async function findMemberByName(familyId: string, memberName: string) {
+  return await db.query.member.findFirst({
+    where: and(eq(schema.member.familyId, familyId), sql`lower(${schema.member.name}) LIKE lower(${`%${memberName}%`})`),
+    columns: {
+      id: true,
+      name: true,
+    },
+  });
 }
 
 /**
@@ -160,22 +138,26 @@ export const setMemberAvailabilityByNameTool = createTool({
     message: z.string(),
   }),
   execute: async ({ familyId, memberName, mealType, dayOfWeek, isAvailable }) => {
-    const db = getDatabase();
-
-    const member = findMemberByName(db, familyId, memberName);
+    const member = await findMemberByName(familyId, memberName);
     if (!member) {
       return { success: false, memberName, message: `Member "${memberName}" not found in this family` };
     }
 
-    const existing = db.prepare(
-      'SELECT id FROM MemberAvailability WHERE memberId = ? AND mealType = ? AND dayOfWeek = ?'
-    ).get(member.id, mealType, dayOfWeek) as { id: string } | undefined;
+    const id = generateId();
 
-    const id = existing?.id ?? generateId();
-    db.prepare(
-      `INSERT OR REPLACE INTO MemberAvailability (id, memberId, mealType, dayOfWeek, isAvailable)
-       VALUES (?, ?, ?, ?, ?)`
-    ).run(id, member.id, mealType, dayOfWeek, isAvailable ? 1 : 0);
+    await db
+      .insert(schema.memberAvailability)
+      .values({
+        id,
+        memberId: member.id,
+        mealType,
+        dayOfWeek,
+        isAvailable,
+      })
+      .onConflictDoUpdate({
+        target: [schema.memberAvailability.memberId, schema.memberAvailability.mealType, schema.memberAvailability.dayOfWeek],
+        set: { isAvailable },
+      });
 
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     return {
@@ -191,15 +173,20 @@ export const setMemberAvailabilityByNameTool = createTool({
  */
 export const bulkSetMemberAvailabilityByNameTool = createTool({
   id: 'bulk-set-member-availability-by-name',
-  description: 'Set availability for a member across multiple meals and days at once. Uses member NAME instead of ID. Perfect for setting up initial availability.',
+  description:
+    'Set availability for a member across multiple meals and days at once. Uses member NAME instead of ID. Perfect for setting up initial availability.',
   inputSchema: z.object({
     familyId: z.uuid().describe('The family ID'),
     memberName: z.string().describe('The member name (case-insensitive search)'),
-    availability: z.array(z.object({
-      mealType: z.enum([MealType.breakfast, MealType.lunch, MealType.dinner]),
-      dayOfWeek: z.number().int().min(0).max(6).describe('0=Sunday, 1=Monday, ..., 6=Saturday'),
-      isAvailable: z.boolean(),
-    })).describe('Array of availability settings'),
+    availability: z
+      .array(
+        z.object({
+          mealType: z.enum([MealType.breakfast, MealType.lunch, MealType.dinner]),
+          dayOfWeek: z.number().int().min(0).max(6).describe('0=Sunday, 1=Monday, ..., 6=Saturday'),
+          isAvailable: z.boolean(),
+        })
+      )
+      .describe('Array of availability settings'),
   }),
   outputSchema: z.object({
     success: z.boolean(),
@@ -208,30 +195,31 @@ export const bulkSetMemberAvailabilityByNameTool = createTool({
     message: z.string(),
   }),
   execute: async ({ familyId, memberName, availability }) => {
-    const db = getDatabase();
-
-    const member = findMemberByName(db, familyId, memberName);
+    const member = await findMemberByName(familyId, memberName);
     if (!member) {
       return { success: false, memberName, recordsSet: 0, message: `Member "${memberName}" not found in this family` };
     }
 
-    const stmt = db.prepare(
-      `INSERT OR REPLACE INTO MemberAvailability (id, memberId, mealType, dayOfWeek, isAvailable)
-       VALUES (?, ?, ?, ?, ?)`
-    );
-
-    const insertMany = db.transaction(() => {
-      for (const item of availability) {
-        const existing = db.prepare(
-          'SELECT id FROM MemberAvailability WHERE memberId = ? AND mealType = ? AND dayOfWeek = ?'
-        ).get(member.id, item.mealType, item.dayOfWeek) as { id: string } | undefined;
-
-        const id = existing?.id ?? generateId();
-        stmt.run(id, member.id, item.mealType, item.dayOfWeek, item.isAvailable ? 1 : 0);
-      }
-    });
-
-    insertMany();
+    if (availability.length > 0) {
+      db.transaction((tx) => {
+        for (const item of availability) {
+          const id = generateId();
+          tx.insert(schema.memberAvailability)
+            .values({
+              id,
+              memberId: member.id,
+              mealType: item.mealType,
+              dayOfWeek: item.dayOfWeek,
+              isAvailable: item.isAvailable,
+            })
+            .onConflictDoUpdate({
+              target: [schema.memberAvailability.memberId, schema.memberAvailability.mealType, schema.memberAvailability.dayOfWeek],
+              set: { isAvailable: item.isAvailable },
+            })
+            .run();
+        }
+      });
+    }
 
     return {
       success: true,
@@ -253,25 +241,39 @@ export const getFamilyAvailabilityForMealTool = createTool({
     mealType: z.enum([MealType.breakfast, MealType.lunch, MealType.dinner]),
     dayOfWeek: z.number().int().min(0).max(6),
   }),
-  outputSchema: z.array(z.object({
-    memberId: z.uuid(),
-    memberName: z.string(),
-    isAvailable: z.boolean(),
-  })),
+  outputSchema: z.array(
+    z.object({
+      memberId: z.uuid(),
+      memberName: z.string(),
+      isAvailable: z.boolean(),
+    })
+  ),
   execute: async ({ familyId, mealType, dayOfWeek }) => {
-    const db = getDatabase();
-    const rows = db.prepare(`
-      SELECT m.id as memberId, m.name as memberName, COALESCE(a.isAvailable, 1) as isAvailable
-      FROM Member m
-      LEFT JOIN MemberAvailability a ON m.id = a.memberId AND a.mealType = ? AND a.dayOfWeek = ?
-      WHERE m.familyId = ?
-    `).all(mealType, dayOfWeek, familyId) as { memberId: string; memberName: string; isAvailable: number }[];
+    // We want members of the family and their availability for this slot
+    // Defaults to available (true) if no record exists
 
-    return rows.map(row => ({
+    // 1. Get all family members with their availability for this specific slot
+    const members = await db
+      .select({
+        memberId: schema.member.id,
+        memberName: schema.member.name,
+        isAvailable: schema.memberAvailability.isAvailable,
+      })
+      .from(schema.member)
+      .leftJoin(
+        schema.memberAvailability,
+        and(
+          eq(schema.memberAvailability.memberId, schema.member.id),
+          eq(schema.memberAvailability.mealType, mealType),
+          eq(schema.memberAvailability.dayOfWeek, dayOfWeek)
+        )
+      )
+      .where(eq(schema.member.familyId, familyId));
+
+    return members.map((row) => ({
       memberId: row.memberId,
       memberName: row.memberName,
-      isAvailable: row.isAvailable === 1,
+      isAvailable: row.isAvailable ?? true, // Default to true if no record
     }));
   },
 });
-
