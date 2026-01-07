@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { getDatabase } from '../src/domain/db/index.js';
 import { SCHEMA } from '../src/domain/db/schema.js';
-import { callMealPlannerAgent } from '../src/mastra/agents/index.js';
+import { callMealPlannerAgent } from '../src/ai/agents/index.js';
 
 async function verify() {
   console.log('Starting verification...');

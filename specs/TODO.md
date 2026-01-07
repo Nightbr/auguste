@@ -17,3 +17,8 @@
 ### Bugs
 
 - [ ] **PlannerSettings notification CRON is not working** - "Il semble que l'outil ait encore du mal à interpréter "tous les mercredis à 9h du matin" correctement et par défaut à dimanche 18h."
+
+## Tech
+
+- [ ] **Implement Drizzle ORM** - Replace the current SQLite implementation with Drizzle ORM. Generate Zod schemas from the database using drizzle-zod. Update all tools to use the new database layer.
+- [ ] **Create a monorepo with pnpm** - Replace the current pnpm workspace with a monorepo. This will allow us to share code between the different packages. Package will be `@auguste/core` that will include the domain layer and the ai layer. Later we will introduce `@auguste/server` and `@auguste/web` for the web app.

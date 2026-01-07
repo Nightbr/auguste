@@ -74,7 +74,7 @@ src/
 │       ├── family.schema.ts          # Family & Member schemas
 │       └── planner.schema.ts         # PlannerSettings schemas
 │
-├── mastra/                           # Mastra AI layer
+├── ai/                               # Mastra Layer
 │   ├── index.ts                      # Mastra instance
 │   ├── tools/
 │   │   ├── index.ts                  # Export all tools
@@ -132,7 +132,7 @@ Handles the weekly meal planning process:
 - **Schemas**: Zod validation schemas, TypeScript types
 - **Pure business logic**: No AI/agent dependencies
 
-### Mastra Layer (`src/mastra/`)
+### Mastra Layer (`src/ai/`)
 
 - **Tools**: Database access tools for agents
 - **Agents**: AI agents with prompts and tool bindings

@@ -76,7 +76,7 @@ User Request
 
 - **Project:** Auguste - AI-powered meal planning application
 - **Stack:** Node.js, TypeScript, Mastra framework, SQLite
-- **Architecture:** Clean architecture (domain/mastra/cli layers)
+- **Architecture:** Clean architecture (domain/ai/cli layers)
 - **Location:** `/Users/mika/Documents/Auguste/auguste`
 
 ### Specs Folder

@@ -65,7 +65,7 @@ src/
 ├── domain/        # Business logic, schemas, database
 │   ├── db/        # SQLite utilities
 │   └── schemas/   # Zod validation schemas
-└── mastra/        # AI agents and tools
+└── ai/            # Mastra agents and tools
     ├── agents/    # Conversational AI agents
     └── tools/     # Database operation tools
 ```

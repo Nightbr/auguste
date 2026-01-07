@@ -30,26 +30,26 @@ which handles family configuration and meal planning setup.
 
 | Task | File                                     | Description                                                      |
 | ---- | ---------------------------------------- | ---------------------------------------------------------------- |
-| 2.1  | `src/mastra/tools/family-tools.ts`       | createFamily, getFamily, updateFamily                            |
-| 2.2  | `src/mastra/tools/member-tools.ts`       | createMember, getMembers, updateMember, deleteMember             |
-| 2.3  | `src/mastra/tools/availability-tools.ts` | setMemberAvailability, getMemberAvailability                     |
-| 2.4  | `src/mastra/tools/planner-tools.ts`      | createPlannerSettings, getPlannerSettings, updatePlannerSettings |
-| 2.5  | `src/mastra/tools/index.ts`              | Export all tools                                                 |
+| 2.1  | `src/ai/tools/family-tools.ts`       | createFamily, getFamily, updateFamily                            |
+| 2.2  | `src/ai/tools/member-tools.ts`       | createMember, getMembers, updateMember, deleteMember             |
+| 2.3  | `src/ai/tools/availability-tools.ts` | setMemberAvailability, getMemberAvailability                     |
+| 2.4  | `src/ai/tools/planner-tools.ts`      | createPlannerSettings, getPlannerSettings, updatePlannerSettings |
+| 2.5  | `src/ai/tools/index.ts`              | Export all tools                                                 |
 
 **Dependencies:** Phase 1
 
 ---
 
-### Phase 3: AI Agents
+### Phase 3: Mastra Agents
 
 **Goal:** Create the conversational agents for the init flow.
 
 | Task | File                                           | Description                 |
 | ---- | ---------------------------------------------- | --------------------------- |
-| 3.1  | `src/mastra/agents/family-config-agent.ts`     | Family configuration agent  |
-| 3.2  | `src/mastra/agents/planner-config-agent.ts`    | Planner configuration agent |
-| 3.3  | `src/mastra/agents/init-orchestrator-agent.ts` | Orchestrates the init flow  |
-| 3.4  | `src/mastra/agents/index.ts`                   | Export all agents           |
+| 3.1  | `src/ai/agents/family-config-agent.ts`     | Family configuration agent  |
+| 3.2  | `src/ai/agents/planner-config-agent.ts`    | Planner configuration agent |
+| 3.3  | `src/ai/agents/init-orchestrator-agent.ts` | Orchestrates the init flow  |
+| 3.4  | `src/ai/agents/index.ts`                   | Export all agents           |
 
 **Dependencies:** Phase 2
 
@@ -61,8 +61,8 @@ which handles family configuration and meal planning setup.
 
 | Task | File                                    | Description                     |
 | ---- | --------------------------------------- | ------------------------------- |
-| 4.1  | `src/mastra/workflows/init-workflow.ts` | Init phase workflow             |
-| 4.2  | `src/mastra/index.ts`                   | Register new agents & workflows |
+| 4.1  | `src/ai/workflows/init-workflow.ts` | Init phase workflow             |
+| 4.2  | `src/ai/index.ts`                   | Register new agents & workflows |
 
 **Dependencies:** Phase 3
 
@@ -120,7 +120,7 @@ which handles family configuration and meal planning setup.
 | ----------------------- | -------------- |
 | Phase 1: Foundation     | 1-2 hours      |
 | Phase 2: Database Tools | 2-3 hours      |
-| Phase 3: AI Agents      | 2-3 hours      |
+| Phase 3: Mastra Agents      | 2-3 hours      |
 | Phase 4: Workflows      | 1-2 hours      |
 | Phase 5: Testing        | 1-2 hours      |
 | **Total**               | **7-12 hours** |

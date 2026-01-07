@@ -8,7 +8,7 @@ export const mastra = new Mastra({
   agents: { onboardingAgent, familyEditorAgent, mealPlannerAgent },
   storage: new LibSQLStore({
     id: 'mastra-storage',
-    // stores observability, scores, ... into memory storage, if it needs to persist, change to file:../mastra.db
+    // stores observability, scores, ... into memory storage, if it needs to persist, change to file:../ai.db
     url: ':memory:',
   }),
   logger: new PinoLogger({

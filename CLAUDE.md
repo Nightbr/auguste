@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Auguste is an open-source, AI-powered meal planning application built with Node.js and TypeScript. It uses the Mastra framework for agentic AI workflows and SQLite for local-first data storage. The application is named after Auguste Escoffier, the father of modern cuisine.
+Auguste is an open-source, AI-powered meal planning application built with Node.js and TypeScript. It uses the AI framework (Mastra) for agentic AI workflows and SQLite for local-first data storage. The application is named after Auguste Escoffier, the father of modern cuisine.
 
 ## Essential Commands
 
@@ -40,15 +40,15 @@ Pure business logic with no AI/agent dependencies.
 - `db/` - SQLite connection, schema (in `schema.ts`), and utilities
 - `schemas/` - Zod 4 validation schemas and TypeScript types
 
-### Mastra Layer (`src/mastra/`)
+### AI (Mastra) Layer (`src/ai/`)
 
-AI agents, tools, and workflows built on the Mastra framework.
+AI agents, tools, and workflows built on the AI framework (Mastra).
 
 - `agents/` - Conversational AI agents (init-orchestrator, family-config, planner-config, weather)
 - `tools/` - Database operation tools that agents can call
 - `workflows/` - Multi-step agent orchestrations
 - `scorers/` - Evaluation metrics for agent responses
-- `index.ts` - Mastra instance configuration
+- `index.ts` - AI (Mastra) instance configuration
 
 ## Database Schema
 
