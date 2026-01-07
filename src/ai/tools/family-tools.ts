@@ -1,46 +1,34 @@
 import { createTool } from '@mastra/core/tools';
+import { eq } from 'drizzle-orm';
 import { z } from 'zod';
-import {
-  getDatabase,
-  generateId,
-  now,
-  CreateFamilyInputSchema,
-  UpdateFamilyInputSchema,
-  FamilySchema,
-  Family,
-} from '../../domain';
-
-/**
- * Database row type - Family has no JSON fields so it matches the schema directly
- */
-type FamilyRow = Family;
+import { db, schema, generateId, now, CreateFamilyInputSchema, UpdateFamilyInputSchema, FamilySchema } from '../../domain';
 
 /**
  * Create a new family
  */
 export const createFamilyTool = createTool({
   id: 'create-family',
-  description: 'Create a new family/household. IMPORTANT: country must be a 2-letter ISO code (e.g., "US", "FR", "DE") NOT the full country name. Language must also be a 2-letter ISO code (e.g., "en", "fr").',
+  description:
+    'Create a new family/household. IMPORTANT: country must be a 2-letter ISO code (e.g., "US", "FR", "DE") NOT the full country name. Language must also be a 2-letter ISO code (e.g., "en", "fr").',
   inputSchema: CreateFamilyInputSchema,
   outputSchema: FamilySchema,
   execute: async ({ name, country, language }) => {
-    const db = getDatabase();
     const id = generateId();
     const timestamp = now();
 
-    db.prepare(
-      `INSERT INTO Family (id, name, country, language, createdAt, updatedAt)
-       VALUES (?, ?, ?, ?, ?, ?)`
-    ).run(id, name, country.toUpperCase(), language.toLowerCase(), timestamp, timestamp);
+    const [newFamily] = await db
+      .insert(schema.family)
+      .values({
+        id,
+        name,
+        country: country.toUpperCase(),
+        language: language.toLowerCase(),
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      })
+      .returning();
 
-    return {
-      id,
-      name,
-      country: country.toUpperCase(),
-      language: language.toLowerCase(),
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    };
+    return newFamily;
   },
 });
 
@@ -58,14 +46,15 @@ export const getFamilyTool = createTool({
     family: FamilySchema.optional(),
   }),
   execute: async ({ id }) => {
-    const db = getDatabase();
-    const row = db.prepare('SELECT * FROM Family WHERE id = ?').get(id) as FamilyRow | undefined;
+    const family = await db.query.family.findFirst({
+      where: eq(schema.family.id, id),
+    });
 
-    if (!row) return { found: false };
+    if (!family) return { found: false };
 
     return {
       found: true,
-      family: row,
+      family,
     };
   },
 });
@@ -75,44 +64,27 @@ export const getFamilyTool = createTool({
  */
 export const updateFamilyTool = createTool({
   id: 'update-family',
-  description: 'Update a family\'s name, country, or language. Returns found=false if not found.',
+  description: "Update a family's name, country, or language. Returns found=false if not found.",
   inputSchema: UpdateFamilyInputSchema,
   outputSchema: z.object({
     found: z.boolean(),
     family: FamilySchema.optional(),
   }),
   execute: async ({ id, name, country, language }) => {
-    const db = getDatabase();
     const timestamp = now();
+    const updates: Partial<typeof schema.family.$inferInsert> = { updatedAt: timestamp };
 
-    // Build dynamic update query
-    const updates: string[] = ['updatedAt = ?'];
-    const values: (string | undefined)[] = [timestamp];
+    if (name !== undefined) updates.name = name;
+    if (country !== undefined) updates.country = country.toUpperCase();
+    if (language !== undefined) updates.language = language.toLowerCase();
 
-    if (name !== undefined) {
-      updates.push('name = ?');
-      values.push(name);
-    }
-    if (country !== undefined) {
-      updates.push('country = ?');
-      values.push(country.toUpperCase());
-    }
-    if (language !== undefined) {
-      updates.push('language = ?');
-      values.push(language.toLowerCase());
-    }
+    const [updatedFamily] = await db.update(schema.family).set(updates).where(eq(schema.family.id, id)).returning();
 
-    values.push(id);
-    db.prepare(`UPDATE Family SET ${updates.join(', ')} WHERE id = ?`).run(...values);
-
-    // Return updated family
-    const row = db.prepare('SELECT * FROM Family WHERE id = ?').get(id) as FamilyRow | undefined;
-
-    if (!row) return { found: false };
+    if (!updatedFamily) return { found: false };
 
     return {
       found: true,
-      family: row,
+      family: updatedFamily,
     };
   },
 });
@@ -131,13 +103,11 @@ export const deleteFamilyTool = createTool({
     deletedId: z.uuid(),
   }),
   execute: async ({ id }) => {
-    const db = getDatabase();
-    const result = db.prepare('DELETE FROM Family WHERE id = ?').run(id);
+    const result = await db.delete(schema.family).where(eq(schema.family.id, id)).returning({ id: schema.family.id });
 
     return {
-      success: result.changes > 0,
+      success: result.length > 0,
       deletedId: id,
     };
   },
 });
-

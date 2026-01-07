@@ -67,9 +67,12 @@ flowchart TB
 src/
 ├── domain/                           # Domain layer (data models & database)
 │   ├── db/
-│   │   └── index.ts                  # Database connection & utilities
+│   │   ├── index.ts                  # Drizzle client & connection
+│   │   ├── schema.drizzle.ts         # Drizzle ORM schema definition
+│   │   ├── migrate.ts                # Migration runner
+│   │   └── migrations/               # SQL migrations (descriptive names)
 │   └── schemas/
-│       ├── index.ts                  # Export all schemas
+│       ├── index.ts                  # Export all schemas (Zod + Drizzle)
 │       ├── enums.ts                  # Type-safe enums
 │       ├── family.schema.ts          # Family & Member schemas
 │       └── planner.schema.ts         # PlannerSettings schemas
@@ -128,7 +131,8 @@ Handles the weekly meal planning process:
 
 ### Domain Layer (`src/domain/`)
 
-- **Database**: SQLite connection, schema, migrations
+- **Database**: SQLite connection, schema, and versioned migrations.
+  - All migrations must use descriptive names: `npm run db:generate -- --name <feature>`.
 - **Schemas**: Zod validation schemas, TypeScript types
 - **Pure business logic**: No AI/agent dependencies
 

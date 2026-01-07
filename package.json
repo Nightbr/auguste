@@ -4,12 +4,16 @@
   "description": "The Gold Standard of Meal Planning — An open-source, agentic meal planner inspired by Auguste Escoffier",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "dev": "mastra dev -d src/ai",
     "build": "mastra build -d src/ai",
     "start": "mastra start",
     "seed": "npx tsx scripts/seed.ts",
-    "verify": "bash scripts/verify-setup.sh"
+    "verify": "bash scripts/verify-setup.sh",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "npx tsx src/domain/db/migrate.ts"
   },
   "keywords": [
     "meal-planning",
@@ -45,12 +49,19 @@
     "@mastra/observability": "^1.0.0-beta.8",
     "@mastra/server": "1.0.0-beta.17",
     "better-sqlite3": "^12.5.0",
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.45.1",
+    "drizzle-zod": "^0.8.3",
     "zod": "^4.2.1"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^25.0.3",
+    "@vitest/coverage-v8": "^4.0.16",
+    "drizzle-kit": "^0.31.8",
     "mastra": "^1.0.0-beta.12",
-    "typescript": "^5.9.3"
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
   }
 }

@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `MemberAvailability_memberId_mealType_dayOfWeek_unique` ON `MemberAvailability` (`memberId`,`mealType`,`dayOfWeek`);

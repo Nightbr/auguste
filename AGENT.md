@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENT.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to AI coding assistants when working with code in this repository.
 
 ## Project Overview
 
@@ -17,6 +17,11 @@ npm run build
 
 # Start the production application
 npm run start
+
+# Database Management
+npm run db:generate -- --name <description>  # Generate migration (always name it!)
+npm run db:migrate                          # Apply migrations
+npm run seed                                # Seed database
 ```
 
 ## Environment Setup
@@ -37,8 +42,11 @@ The codebase follows **clean architecture** with two distinct layers:
 
 Pure business logic with no AI/agent dependencies.
 
-- `db/` - SQLite connection, schema (in `schema.ts`), and utilities
+- `db/` - SQLite connection, Drizzle schema, and migrations
+- `db/migrations/` - SQL migration files (0000_descriptive_name.sql)
 - `schemas/` - Zod 4 validation schemas and TypeScript types
+
+For detailed database workflows, see [docs/database-management.md](docs/database-management.md).
 
 ### AI (Mastra) Layer (`src/ai/`)
 
@@ -63,8 +71,10 @@ Foreign key relationships: `Member.familyId → Family`, `MemberAvailability.mem
 
 ## Important Patterns
 
-- **Embedded SQL Schema**: The SQL schema is defined as a TypeScript constant in `src/domain/db/schema.ts` to avoid build/path issues and ensure type safety.
+- **Descriptive Migration Naming**: Always use the `--name` flag when generating migrations (e.g., `npm run db:generate -- --name add_user_table`). Never use the default random names.
 - **Zod 4 Syntax**: Uses modern Zod syntax like `z.uuid()` not `z.string().uuid()`.
+- **Task Management**: When a task in `specs/TODO.md` is completed, **remove it** from the file instead of just marking it with `[x]`.
+- **Documentation Naming**: All files in `/docs` and `/specs` MUST follow **kebab-case** and be lowercase (e.g., `database-management.md`).
 - **Const Enums**: Used for enums with proper TypeScript types.
 - **No `any` Types**: TypeScript strict mode is enabled - avoid `any`.
 - **ESM Only**: Package type is `"module"` - uses ES2022 modules.
@@ -78,7 +88,7 @@ Foreign key relationships: `Member.familyId → Family`, `MemberAvailability.mem
 
 ## MCP Integration
 
-The project includes `.vscode/mcp.json` for Mastra MCP server integration with Claude Code.
+The project includes `.vscode/mcp.json` for Mastra MCP server integration with AI coding assistants.
 
 ## Specs Folder
 

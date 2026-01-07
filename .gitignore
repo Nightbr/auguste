@@ -9,3 +9,6 @@ dist
 
 # Data directory (SQLite database)
 .data/
+
+# Test coverage
+coverage/

@@ -1,6 +1,7 @@
 import { createTool } from '@mastra/core/tools';
+import { eq, and, gte, lte, asc } from 'drizzle-orm';
 import { z } from 'zod';
-import { getDatabase, toJson, parseJson } from '../../domain/db';
+import { db, schema, generateId, now } from '../../domain';
 import { CreateMealPlanningInputSchema, CreateMealEventInputSchema, MealPlanningSchema, MealEventSchema } from '../../domain/schemas';
 
 export const createMealPlanning = createTool({
@@ -9,25 +10,23 @@ export const createMealPlanning = createTool({
   inputSchema: CreateMealPlanningInputSchema,
   outputSchema: MealPlanningSchema,
   execute: async ({ familyId, startDate, endDate, status }) => {
-    const db = getDatabase();
-    const now = new Date().toISOString();
-    const id = crypto.randomUUID();
-
-    const planning = {
-      id,
-      familyId,
-      startDate,
-      endDate,
-      status: status || 'draft',
-      createdAt: now,
-      updatedAt: now,
-    };
+    const id = generateId();
+    const timestamp = now();
 
     try {
-      db.prepare(
-        `INSERT INTO MealPlanning (id, familyId, startDate, endDate, status, createdAt, updatedAt)
-              VALUES (?, ?, ?, ?, ?, ?, ?)`
-      ).run(planning.id, planning.familyId, planning.startDate, planning.endDate, planning.status, planning.createdAt, planning.updatedAt);
+      const [planning] = await db
+        .insert(schema.mealPlanning)
+        .values({
+          id,
+          familyId,
+          startDate,
+          endDate,
+          status: status || 'draft',
+          createdAt: timestamp,
+          updatedAt: timestamp,
+        })
+        .returning();
+
       return planning;
     } catch (error) {
       console.error('Error creating meal planning:', error);
@@ -42,10 +41,11 @@ export const getMealPlanning = createTool({
   inputSchema: z.object({ id: z.string() }),
   outputSchema: MealPlanningSchema.nullable(),
   execute: async ({ id }) => {
-    const db = getDatabase();
     try {
-      const row = db.prepare('SELECT * FROM MealPlanning WHERE id = ?').get(id);
-      return (row as any) || null;
+      const planning = await db.query.mealPlanning.findFirst({
+        where: eq(schema.mealPlanning.id, id),
+      });
+      return planning || null;
     } catch (error) {
       console.error('Error getting meal planning:', error);
       throw new Error('Failed to get meal planning');
@@ -59,38 +59,25 @@ export const createMealEvent = createTool({
   inputSchema: CreateMealEventInputSchema,
   outputSchema: MealEventSchema,
   execute: async ({ familyId, planningId, date, mealType, recipeName, participants }) => {
-    const db = getDatabase();
-    const now = new Date().toISOString();
-    const id = crypto.randomUUID();
-    const participantsJson = JSON.stringify(participants || []);
-
-    const event = {
-      id,
-      familyId,
-      planningId,
-      date,
-      mealType,
-      recipeName,
-      participants: participants || [],
-      createdAt: now,
-      updatedAt: now,
-    };
+    const id = generateId();
+    const timestamp = now();
 
     try {
-      db.prepare(
-        `INSERT INTO MealEvent (id, familyId, planningId, date, mealType, recipeName, participants, createdAt, updatedAt)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
-      ).run(
-        event.id,
-        event.familyId,
-        event.planningId,
-        event.date,
-        event.mealType,
-        event.recipeName,
-        participantsJson,
-        event.createdAt,
-        event.updatedAt
-      );
+      const [event] = await db
+        .insert(schema.mealEvent)
+        .values({
+          id,
+          familyId,
+          planningId,
+          date,
+          mealType,
+          recipeName,
+          participants: participants || [],
+          createdAt: timestamp,
+          updatedAt: timestamp,
+        })
+        .returning();
+
       return event;
     } catch (error) {
       console.error('Error creating meal event:', error);
@@ -109,50 +96,25 @@ export const updateMealEvent = createTool({
   }),
   outputSchema: MealEventSchema,
   execute: async ({ id, recipeName, participants }) => {
-    const db = getDatabase();
-    const now = new Date().toISOString();
+    const timestamp = now();
 
-    // Check if event exists
-    const currentEvent = db.prepare('SELECT * FROM MealEvent WHERE id = ?').get(id);
+    const updates: Partial<typeof schema.mealEvent.$inferInsert> = { updatedAt: timestamp };
 
-    if (!currentEvent) {
-      throw new Error(`Meal event with id ${id} not found`);
-    }
+    if (recipeName !== undefined) updates.recipeName = recipeName;
+    if (participants !== undefined) updates.participants = participants;
 
-    const updates: string[] = [];
-    const args: any[] = [];
+    try {
+      const [updatedEvent] = await db.update(schema.mealEvent).set(updates).where(eq(schema.mealEvent.id, id)).returning();
 
-    if (recipeName !== undefined) {
-      updates.push('recipeName = ?');
-      args.push(recipeName);
-    }
-    if (participants !== undefined) {
-      updates.push('participants = ?');
-      args.push(JSON.stringify(participants));
-    }
-
-    if (updates.length > 0) {
-      updates.push('updatedAt = ?');
-      args.push(now);
-      args.push(id);
-
-      try {
-        db.prepare(`UPDATE MealEvent SET ${updates.join(', ')} WHERE id = ?`).run(...args);
-
-        // Fetch updated
-        const updatedEvent = db.prepare('SELECT * FROM MealEvent WHERE id = ?').get(id) as any;
-        updatedEvent.participants = JSON.parse(updatedEvent.participants);
-        return updatedEvent;
-      } catch (error) {
-        console.error('Error updating meal event:', error);
-        throw new Error('Failed to update meal event');
+      if (!updatedEvent) {
+        throw new Error(`Meal event with id ${id} not found`);
       }
-    }
 
-    // Return existing if no updates
-    const event = currentEvent as any;
-    event.participants = JSON.parse(event.participants);
-    return event;
+      return updatedEvent;
+    } catch (error) {
+      console.error('Error updating meal event:', error);
+      throw new Error('Failed to update meal event');
+    }
   },
 });
 
@@ -166,16 +128,13 @@ export const getMealEvents = createTool({
   }),
   outputSchema: z.array(MealEventSchema),
   execute: async ({ familyId, startDate, endDate }) => {
-    const db = getDatabase();
     try {
-      const rows = db
-        .prepare('SELECT * FROM MealEvent WHERE familyId = ? AND date >= ? AND date <= ? ORDER BY date ASC')
-        .all(familyId, startDate, endDate);
+      const rows = await db.query.mealEvent.findMany({
+        where: and(eq(schema.mealEvent.familyId, familyId), gte(schema.mealEvent.date, startDate), lte(schema.mealEvent.date, endDate)),
+        orderBy: [asc(schema.mealEvent.date)],
+      });
 
-      return rows.map((row: any) => ({
-        ...row,
-        participants: JSON.parse(row.participants),
-      }));
+      return rows;
     } catch (error) {
       console.error('Error getting meal events:', error);
       throw new Error('Failed to get meal events');

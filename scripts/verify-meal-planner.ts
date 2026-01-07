@@ -1,66 +1,75 @@
 import 'dotenv/config';
-import { getDatabase } from '../src/domain/db/index.js';
-import { SCHEMA } from '../src/domain/db/schema.js';
+import { db, schema, generateId } from '../src/domain/index.js';
 import { callMealPlannerAgent } from '../src/ai/agents/index.js';
+import { eq } from 'drizzle-orm';
 
 async function verify() {
   console.log('Starting verification...');
-  const db = getDatabase();
 
-  // 1. Initialize DB schema
-  try {
-    db.exec(SCHEMA);
-    console.log('Database initialized.');
-  } catch (e) {
-    console.error('Failed to init DB:', e);
-  }
+  // 1. Seed Data
+  const familyId = generateId();
+  const adultId = generateId();
 
-  // 2. Seed Data
-  const familyId = crypto.randomUUID();
-  const adultId = crypto.randomUUID();
+  await db.insert(schema.family).values({
+    id: familyId,
+    name: 'Test Family',
+    country: 'US',
+    language: 'en',
+  });
 
-  db.prepare(`INSERT INTO Family (id, name, country, language) VALUES (?, ?, ?, ?)`).run(familyId, 'Test Family', 'US', 'en');
-
-  db.prepare(
-    `INSERT INTO Member (id, familyId, name, type, allergies, foodPreferences, cookingSkillLevel) VALUES (?, ?, ?, ?, ?, ?, ?)`
-  ).run(adultId, familyId, 'Alice', 'adult', '["nuts"]', '{"likes":["pasta"]}', 'intermediate');
-
-  db.prepare(`INSERT INTO MemberAvailability (id, memberId, mealType, dayOfWeek, isAvailable) VALUES (?, ?, ?, ?, ?)`).run(
-    crypto.randomUUID(),
-    adultId,
-    'dinner',
-    1,
-    1
-  );
-
-  // Note: activeDays is JSON string '[1]'
-  db.prepare(`INSERT INTO PlannerSettings (id, familyId, mealTypes, activeDays) VALUES (?, ?, ?, ?)`).run(
-    crypto.randomUUID(),
+  await db.insert(schema.member).values({
+    id: adultId,
     familyId,
-    '["dinner"]',
-    '[1]'
-  );
+    name: 'Alice',
+    type: 'adult',
+    allergies: ['nuts'],
+    foodPreferences: { likes: ['pasta'], dislikes: [] },
+    cookingSkillLevel: 'intermediate',
+  });
+
+  await db.insert(schema.memberAvailability).values({
+    id: generateId(),
+    memberId: adultId,
+    mealType: 'dinner',
+    dayOfWeek: 1,
+    isAvailable: true,
+  });
+
+  await db.insert(schema.plannerSettings).values({
+    id: generateId(),
+    familyId,
+    mealTypes: ['dinner'],
+    activeDays: [1],
+  });
 
   console.log('Test data seeded.');
 
-  // 3. Run Agent using the helper function
+  // 2. Run Agent
   console.log('Invoking agent...');
 
+  // This will use the Mastra agent which uses tools that we've refactored to use Drizzle
   const result = await callMealPlannerAgent('Please create a meal plan for us starting next Monday.', {
     familyId,
   });
 
   console.log('Agent Response:', result.text);
 
-  // 4. Verify DB side effects
-  const plans = db.prepare('SELECT * FROM MealPlanning WHERE familyId = ?').all(familyId);
+  // 3. Verify DB side effects via Drizzle
+  const plans = await db.query.mealPlanning.findMany({
+    where: eq(schema.mealPlanning.familyId, familyId),
+  });
   console.log('Plans created:', plans.length);
 
-  const events = db.prepare('SELECT * FROM MealEvent WHERE familyId = ?').all(familyId);
+  const events = await db.query.mealEvent.findMany({
+    where: eq(schema.mealEvent.familyId, familyId),
+  });
   console.log('Events created:', events.length);
   if (events.length > 0) {
     console.log('Sample Event:', events[0]);
   }
 }
 
-verify().catch(console.error);
+verify().catch((err) => {
+  console.error('Verification failed:', err);
+  process.exit(1);
+});
