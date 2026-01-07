@@ -5,7 +5,7 @@
 ```mermaid
 flowchart TB
     subgraph UserInterface["User Interface"]
-        CLI["CLI / API"]
+        API["API"]
     end
 
     subgraph Agents["AI Agents"]
@@ -30,8 +30,8 @@ flowchart TB
         MLE[("MealEvent")]
     end
 
-    CLI --> OBA
-    CLI --> FEA
+    API --> OBA
+    API --> FEA
 
     OBA --> FT
     OBA --> MT
@@ -65,9 +65,6 @@ flowchart TB
 
 ```
 src/
-├── cli/                              # CLI interface
-│   └── init.ts                       # Onboarding CLI command
-│
 ├── domain/                           # Domain layer (data models & database)
 │   ├── db/
 │   │   └── index.ts                  # Database connection & utilities

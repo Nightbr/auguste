@@ -9,9 +9,6 @@ Auguste is an open-source, AI-powered meal planning application built with Node.
 ## Essential Commands
 
 ```bash
-# Run the interactive family setup CLI
-npm run init
-
 # Development server (via Mastra)
 npm run dev
 
@@ -34,7 +31,7 @@ npm run start
 
 ## Architecture
 
-The codebase follows **clean architecture** with three distinct layers:
+The codebase follows **clean architecture** with two distinct layers:
 
 ### Domain Layer (`src/domain/`)
 
@@ -52,10 +49,6 @@ AI agents, tools, and workflows built on the Mastra framework.
 - `workflows/` - Multi-step agent orchestrations
 - `scorers/` - Evaluation metrics for agent responses
 - `index.ts` - Mastra instance configuration
-
-### CLI Layer (`src/cli/`)
-
-User interface - currently only `init.ts` for interactive family setup.
 
 ## Database Schema
 

@@ -62,7 +62,6 @@ npm run dev
 
 ```
 src/
-├── cli/           # CLI commands
 ├── domain/        # Business logic, schemas, database
 │   ├── db/        # SQLite utilities
 │   └── schemas/   # Zod validation schemas
