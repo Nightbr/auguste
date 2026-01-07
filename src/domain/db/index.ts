@@ -1,9 +1,43 @@
 import Database from 'better-sqlite3';
-import { existsSync, mkdirSync } from 'fs';
-import { join } from 'path';
+import { existsSync, mkdirSync, readFileSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+import { SCHEMA } from './schema.js';
 
-// Default data directory - stored in .data folder (gitignored)
-const DATA_DIR = join(process.cwd(), '.data');
+/**
+ * Find the project root by looking for package.json
+ * This works regardless of where the code is bundled/executed from
+ */
+function findProjectRoot(): string {
+  const __filename = fileURLToPath(import.meta.url);
+  let currentDir = dirname(__filename);
+
+  // Walk up the directory tree until we find package.json
+  while (currentDir !== dirname(currentDir)) {
+    const packageJsonPath = join(currentDir, 'package.json');
+    if (existsSync(packageJsonPath)) {
+      try {
+        const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+        // Verify it's the Auguste package
+        if (packageJson.name === 'auguste') {
+          return currentDir;
+        }
+      } catch {
+        // Continue searching if package.json is invalid
+      }
+    }
+    currentDir = dirname(currentDir);
+  }
+
+  // Fallback: assume we're in a standard location
+  // This shouldn't happen in normal usage
+  return join(dirname(__filename), '..', '..', '..');
+}
+
+const PROJECT_ROOT = findProjectRoot();
+
+// Default data directory - stored in .data folder at project root (gitignored)
+const DATA_DIR = join(PROJECT_ROOT, '.data');
 
 // Database file path - configurable via AUGUSTE_DB_PATH env variable
 const DB_PATH = process.env.AUGUSTE_DB_PATH || join(DATA_DIR, 'auguste.db');
@@ -20,71 +54,6 @@ function ensureDataDir(): void {
     mkdirSync(dir, { recursive: true });
   }
 }
-
-/**
- * SQL Schema embedded directly to avoid file path issues when running via Mastra
- */
-const SCHEMA = `
--- Auguste Database Schema
--- SQLite database for meal planning
-
--- Family table: Represents a household
-CREATE TABLE IF NOT EXISTS Family (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    country TEXT NOT NULL,  -- ISO 3166-1 alpha-2 (e.g., 'US', 'FR')
-    language TEXT NOT NULL, -- ISO 639-1 (e.g., 'en', 'fr')
-    createdAt TEXT NOT NULL DEFAULT (datetime('now')),
-    updatedAt TEXT NOT NULL DEFAULT (datetime('now'))
-);
-
--- Member table: Individual family members
-CREATE TABLE IF NOT EXISTS Member (
-    id TEXT PRIMARY KEY,
-    familyId TEXT NOT NULL,
-    name TEXT NOT NULL,
-    type TEXT NOT NULL CHECK (type IN ('adult', 'child')),
-    birthdate TEXT,
-    dietaryRestrictions TEXT DEFAULT '[]',
-    allergies TEXT DEFAULT '[]',
-    foodPreferences TEXT DEFAULT '{"likes":[],"dislikes":[]}',
-    cookingSkillLevel TEXT DEFAULT 'none'
-        CHECK (cookingSkillLevel IN ('none', 'beginner', 'intermediate', 'advanced')),
-    createdAt TEXT NOT NULL DEFAULT (datetime('now')),
-    updatedAt TEXT NOT NULL DEFAULT (datetime('now')),
-    FOREIGN KEY (familyId) REFERENCES Family(id) ON DELETE CASCADE
-);
-
--- MemberAvailability table: Which meals each member attends
-CREATE TABLE IF NOT EXISTS MemberAvailability (
-    id TEXT PRIMARY KEY,
-    memberId TEXT NOT NULL,
-    mealType TEXT NOT NULL CHECK (mealType IN ('breakfast', 'lunch', 'dinner')),
-    dayOfWeek INTEGER NOT NULL CHECK (dayOfWeek >= 0 AND dayOfWeek <= 6),
-    isAvailable INTEGER NOT NULL DEFAULT 1,
-    FOREIGN KEY (memberId) REFERENCES Member(id) ON DELETE CASCADE,
-    UNIQUE(memberId, mealType, dayOfWeek)
-);
-
--- PlannerSettings table: Meal planning configuration
-CREATE TABLE IF NOT EXISTS PlannerSettings (
-    id TEXT PRIMARY KEY,
-    familyId TEXT NOT NULL UNIQUE,
-    mealTypes TEXT DEFAULT '["lunch", "dinner"]',
-    activeDays TEXT DEFAULT '[0, 1, 2, 3, 4, 5, 6]',
-    defaultServings INTEGER DEFAULT 4,
-    notificationCron TEXT DEFAULT '0 18 * * 0',
-    timezone TEXT DEFAULT 'UTC',
-    createdAt TEXT NOT NULL DEFAULT (datetime('now')),
-    updatedAt TEXT NOT NULL DEFAULT (datetime('now')),
-    FOREIGN KEY (familyId) REFERENCES Family(id) ON DELETE CASCADE
-);
-
--- Indexes for performance
-CREATE INDEX IF NOT EXISTS idx_member_familyId ON Member(familyId);
-CREATE INDEX IF NOT EXISTS idx_availability_memberId ON MemberAvailability(memberId);
-CREATE INDEX IF NOT EXISTS idx_settings_familyId ON PlannerSettings(familyId);
-`;
 
 /**
  * Get the database instance (singleton pattern)

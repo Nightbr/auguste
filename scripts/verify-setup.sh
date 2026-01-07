@@ -88,6 +88,5 @@ echo ""
 echo "✨ Setup verification complete!"
 echo ""
 echo "Next steps:"
-echo "  1. Run 'npm run init' to set up your family"
-echo "  2. Run 'npm run dev' to start the development server"
+echo "  1. Run 'npm run dev' to start the development server"
 

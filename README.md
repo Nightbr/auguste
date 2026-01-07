@@ -38,9 +38,8 @@ Auguste is an open-source, agentic meal planner inspired by the father of modern
 
 - 🏠 **Family-Aware Planning** — Understands dietary restrictions, allergies, and preferences for each family member
 - 📅 **Smart Scheduling** — Plans meals based on who's available for each meal
-- 🤖 **Conversational Setup** — Natural language interface powered by AI agents
+- 🤖 **Conversational Setup** — Natural language interface powered by Mastra agents
 - 🍽️ **Cultural Awareness** — Adapts recipes to your country and language
-- 💾 **Local-First** — Your data stays on your machine with SQLite
 
 ## 🚀 Getting Started
 
@@ -72,8 +71,7 @@ npm install
 cp .env.example .env
 # Add your OPENROUTER_API_KEY to .env
 
-# Run the initialization flow
-npm run init
+# Add your OPENROUTER_API_KEY to .env
 ```
 
 ## 🛠️ Tech Stack
@@ -89,11 +87,10 @@ npm run init
 ```
 auguste/
 ├── src/
-│   ├── cli/              # CLI interface
 │   ├── domain/           # Schemas and database
 │   │   ├── db/           # SQLite database utilities
 │   │   └── schemas/      # Zod schemas
-│   └── mastra/           # AI agents and tools
+│   └── ai/               # Mastra agents and tools
 │       ├── agents/       # Conversational agents
 │       └── tools/        # Database operations
 ├── specs/                # Design docs and specifications

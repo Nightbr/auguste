@@ -11,6 +11,7 @@
 - For database row types that differ from domain types (e.g., JSON fields stored as strings), use TypeScript `Omit` and intersection types
 
 **Good:**
+
 ```typescript
 import { Family, Member, PlannerSettings } from '../../domain';
 
@@ -23,6 +24,7 @@ type MemberRow = Omit<Member, 'dietaryRestrictions' | 'allergies' | 'foodPrefere
 ```
 
 **Bad:**
+
 ```typescript
 // DON'T do this - duplicates the schema
 interface MemberRow {
@@ -41,6 +43,7 @@ interface MemberRow {
 - Export both the const object and its derived type
 
 **Example:**
+
 ```typescript
 export const MealType = {
   breakfast: 'breakfast',
@@ -67,11 +70,12 @@ export type MealType = (typeof MealType)[keyof typeof MealType];
 ## File Organization
 
 ### Domain Layer (`src/domain/`)
+
 - Pure business logic, no AI dependencies
 - Schemas define the contract for all data
 
-### Mastra Layer (`src/mastra/`)
+### Mastra Layer (`src/ai/`)
+
 - Tools consume domain schemas
 - Agents compose tools
 - No direct schema definitions in this layer
-

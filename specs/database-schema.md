@@ -7,6 +7,9 @@ erDiagram
     Family ||--o{ Member : "has"
     Family ||--o| PlannerSettings : "has"
     Member ||--o{ MemberAvailability : "has"
+    Family ||--o{ MealPlanning : "has"
+    Family ||--o{ MealEvent : "has"
+    MealPlanning ||--o{ MealEvent : "contains"
 
     Family {
         string id PK
@@ -47,6 +50,28 @@ erDiagram
         int defaultServings
         string notificationCron "cron expression"
         string timezone
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    MealPlanning {
+        string id PK
+        string familyId FK
+        date startDate
+        date endDate
+        string status "draft | active | completed"
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    MealEvent {
+        string id PK
+        string familyId FK
+        string planningId FK
+        date date
+        string mealType "breakfast | lunch | dinner"
+        string recipeName "optional"
+        json participants "array of member IDs"
         datetime createdAt
         datetime updatedAt
     }
@@ -107,10 +132,41 @@ CREATE TABLE PlannerSettings (
     FOREIGN KEY (familyId) REFERENCES Family(id) ON DELETE CASCADE
 );
 
+-- MealPlanning table: Weekly planning cycles
+CREATE TABLE MealPlanning (
+    id TEXT PRIMARY KEY,
+    familyId TEXT NOT NULL,
+    startDate TEXT NOT NULL, -- YYYY-MM-DD
+    endDate TEXT NOT NULL,   -- YYYY-MM-DD
+    status TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'active', 'completed')),
+    createdAt TEXT NOT NULL DEFAULT (datetime('now')),
+    updatedAt TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (familyId) REFERENCES Family(id) ON DELETE CASCADE
+);
+
+-- MealEvent table: Individual scheduled meals
+CREATE TABLE MealEvent (
+    id TEXT PRIMARY KEY,
+    familyId TEXT NOT NULL,
+    planningId TEXT, -- Optional, can exist outside a planning cycle
+    date TEXT NOT NULL, -- YYYY-MM-DD
+    mealType TEXT NOT NULL CHECK (mealType IN ('breakfast', 'lunch', 'dinner')),
+    recipeName TEXT,
+    participants TEXT DEFAULT '[]', -- JSON array of Member IDs
+    createdAt TEXT NOT NULL DEFAULT (datetime('now')),
+    updatedAt TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (familyId) REFERENCES Family(id) ON DELETE CASCADE,
+    FOREIGN KEY (planningId) REFERENCES MealPlanning(id) ON DELETE SET NULL
+);
+
 -- Indexes for performance
 CREATE INDEX idx_member_familyId ON Member(familyId);
 CREATE INDEX idx_availability_memberId ON MemberAvailability(memberId);
 CREATE INDEX idx_settings_familyId ON PlannerSettings(familyId);
+CREATE INDEX idx_planning_familyId ON MealPlanning(familyId);
+CREATE INDEX idx_event_familyId ON MealEvent(familyId);
+CREATE INDEX idx_event_planningId ON MealEvent(planningId);
+CREATE INDEX idx_event_date ON MealEvent(date);
 ```
 
 ## Table Descriptions
@@ -130,6 +186,14 @@ Tracks which meals each member will be present for on each day of the week. Used
 ### PlannerSettings
 
 Global meal planning configuration for the family including schedule, notification preferences, and timezone.
+
+### MealPlanning
+
+Represents a specific week's meal plan status and duration.
+
+### MealEvent
+
+A specific meal instance (e.g., Lunch on Tuesday) containing the recipe, description, and list of participants.
 
 ## Schema Changes
 

@@ -1,21 +1,9 @@
 // Family tools
-import {
-  createFamilyTool,
-  getFamilyTool,
-  updateFamilyTool,
-  deleteFamilyTool,
-} from './family-tools';
+import { createFamilyTool, getFamilyTool, updateFamilyTool, deleteFamilyTool } from './family-tools';
 export { createFamilyTool, getFamilyTool, updateFamilyTool, deleteFamilyTool };
 
 // Member tools
-import {
-  createMemberTool,
-  getMembersTool,
-  getMemberTool,
-  getMemberByNameTool,
-  updateMemberTool,
-  deleteMemberTool,
-} from './member-tools';
+import { createMemberTool, getMembersTool, getMemberTool, getMemberByNameTool, updateMemberTool, deleteMemberTool } from './member-tools';
 export { createMemberTool, getMembersTool, getMemberTool, getMemberByNameTool, updateMemberTool, deleteMemberTool };
 
 // Availability tools
@@ -37,17 +25,16 @@ export {
 };
 
 // Planner settings tools
-import {
-  createPlannerSettingsTool,
-  getPlannerSettingsTool,
-  updatePlannerSettingsTool,
-  parseCronScheduleTool,
-} from './planner-tools';
+import { createPlannerSettingsTool, getPlannerSettingsTool, updatePlannerSettingsTool, parseCronScheduleTool } from './planner-tools';
 export { createPlannerSettingsTool, getPlannerSettingsTool, updatePlannerSettingsTool, parseCronScheduleTool };
 
 // Family summary tool
 import { getFamilySummaryTool } from './family-summary-tool';
 export { getFamilySummaryTool };
+
+// Calendar tool
+import { getCurrentDateTool } from './calendar-tools';
+export { getCurrentDateTool };
 
 /**
  * All family configuration tools (for Family Config Agent)
@@ -84,3 +71,6 @@ export const plannerConfigTools = {
   getMemberByNameTool, // Lookup member by name
 };
 
+// Meal Planner tools
+import { createMealPlanning, getMealPlanning, createMealEvent, updateMealEvent, getMealEvents } from './meal-tools';
+export { createMealPlanning, getMealPlanning, createMealEvent, updateMealEvent, getMealEvents };

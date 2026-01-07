@@ -4,14 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Auguste is an open-source, AI-powered meal planning application built with Node.js and TypeScript. It uses the Mastra framework for agentic AI workflows and SQLite for local-first data storage. The application is named after Auguste Escoffier, the father of modern cuisine.
+Auguste is an open-source, AI-powered meal planning application built with Node.js and TypeScript. It uses the AI framework (Mastra) for agentic AI workflows and SQLite for local-first data storage. The application is named after Auguste Escoffier, the father of modern cuisine.
 
 ## Essential Commands
 
 ```bash
-# Run the interactive family setup CLI
-npm run init
-
 # Development server (via Mastra)
 npm run dev
 
@@ -30,32 +27,28 @@ npm run start
    - Alternatively, use any Node.js 24+ installation
 2. Copy `.env.example` to `.env`
 3. Set `OPENROUTER_API_KEY` (get from <https://openrouter.ai/keys>)
-4. Database location: `.data/auguste.db` (override via `AUGUSTE_DB_PATH` env var)
+4. Database location: Automatically stored at `.data/auguste.db` in the project root (works correctly even when Mastra changes working directory). Override via `AUGUSTE_DB_PATH` env var if needed.
 
 ## Architecture
 
-The codebase follows **clean architecture** with three distinct layers:
+The codebase follows **clean architecture** with two distinct layers:
 
 ### Domain Layer (`src/domain/`)
 
 Pure business logic with no AI/agent dependencies.
 
-- `db/` - SQLite connection, schema (embedded as string in `schema.sql`), and utilities
+- `db/` - SQLite connection, schema (in `schema.ts`), and utilities
 - `schemas/` - Zod 4 validation schemas and TypeScript types
 
-### Mastra Layer (`src/mastra/`)
+### AI (Mastra) Layer (`src/ai/`)
 
-AI agents, tools, and workflows built on the Mastra framework.
+AI agents, tools, and workflows built on the AI framework (Mastra).
 
 - `agents/` - Conversational AI agents (init-orchestrator, family-config, planner-config, weather)
 - `tools/` - Database operation tools that agents can call
 - `workflows/` - Multi-step agent orchestrations
 - `scorers/` - Evaluation metrics for agent responses
-- `index.ts` - Mastra instance configuration
-
-### CLI Layer (`src/cli/`)
-
-User interface - currently only `init.ts` for interactive family setup.
+- `index.ts` - AI (Mastra) instance configuration
 
 ## Database Schema
 
@@ -70,7 +63,7 @@ Foreign key relationships: `Member.familyId → Family`, `MemberAvailability.mem
 
 ## Important Patterns
 
-- **Embedded SQL Schema**: The SQL schema is embedded as a string in `src/domain/db/schema.sql` rather than a separate file to avoid build/path issues.
+- **Embedded SQL Schema**: The SQL schema is defined as a TypeScript constant in `src/domain/db/schema.ts` to avoid build/path issues and ensure type safety.
 - **Zod 4 Syntax**: Uses modern Zod syntax like `z.uuid()` not `z.string().uuid()`.
 - **Const Enums**: Used for enums with proper TypeScript types.
 - **No `any` Types**: TypeScript strict mode is enabled - avoid `any`.

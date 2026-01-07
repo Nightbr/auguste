@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "mastra dev",
-    "build": "mastra build",
+    "dev": "mastra dev -d src/ai",
+    "build": "mastra build -d src/ai",
     "start": "mastra start",
-    "init": "npx tsx src/cli/init.ts",
+    "seed": "npx tsx scripts/seed.ts",
     "verify": "bash scripts/verify-setup.sh"
   },
   "keywords": [

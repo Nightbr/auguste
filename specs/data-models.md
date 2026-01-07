@@ -150,6 +150,49 @@ export const CreatePlannerSettingsInputSchema = PlannerSettingsSchema.omit({
 export type CreatePlannerSettingsInput = z.infer<typeof CreatePlannerSettingsInputSchema>;
 ```
 
+### MealPlanning Schema
+
+```typescript
+export const MealPlanningSchema = z.object({
+  id: z.string().uuid(),
+  familyId: z.string().uuid(),
+  startDate: z.string().date(), // YYYY-MM-DD
+  endDate: z.string().date(), // YYYY-MM-DD
+  status: z.enum(['draft', 'active', 'completed']).default('draft'),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+
+export type MealPlanning = z.infer<typeof MealPlanningSchema>;
+```
+
+### MealEvent Schema
+
+```typescript
+export const MealEventSchema = z.object({
+  id: z.string().uuid(),
+  familyId: z.string().uuid(),
+  planningId: z.string().uuid().optional(),
+  date: z.string().date(), // YYYY-MM-DD
+  mealType: z.enum(['breakfast', 'lunch', 'dinner']),
+  recipeName: z.string().optional(),
+  description: z.string().optional(),
+  participants: z.array(z.string().uuid()).default([]), // Member IDs
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+
+export type MealEvent = z.infer<typeof MealEventSchema>;
+
+export const CreateMealEventInputSchema = MealEventSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type CreateMealEventInput = z.infer<typeof CreateMealEventInputSchema>;
+```
+
 ## Common Dietary Restrictions & Allergies
 
 ```typescript
