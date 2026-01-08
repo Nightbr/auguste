@@ -26,7 +26,7 @@ echo "🛠️  Checking for mise..."
 if command -v mise &> /dev/null; then
     MISE_VERSION=$(mise --version)
     echo "✅ mise $MISE_VERSION installed"
-    
+
     # Check if mise is managing Node.js
     if mise current node &> /dev/null; then
         MISE_NODE=$(mise current node)
@@ -37,11 +37,17 @@ else
     echo "   Install: curl https://mise.run | sh"
 fi
 
-# Check npm
+# Check pnpm
 echo ""
-echo "📦 Checking npm..."
-NPM_VERSION=$(npm --version)
-echo "✅ npm $NPM_VERSION"
+echo "📦 Checking pnpm..."
+if command -v pnpm &> /dev/null; then
+    PNPM_VERSION=$(pnpm --version)
+    echo "✅ pnpm $PNPM_VERSION"
+else
+    echo "❌ pnpm not found"
+    echo "   Run: mise install"
+    exit 1
+fi
 
 # Check if node_modules exists
 echo ""
@@ -50,7 +56,7 @@ if [ -d "node_modules" ]; then
     echo "✅ node_modules directory exists"
 else
     echo "⚠️  node_modules not found"
-    echo "   Run: npm install"
+    echo "   Run: pnpm install"
 fi
 
 # Check .env file
@@ -76,9 +82,9 @@ fi
 # Check TypeScript compilation
 echo ""
 echo "🔨 Checking TypeScript compilation..."
-if npx tsc --noEmit 2>&1 | grep -q "error TS"; then
+if pnpm exec tsc -b 2>&1 | grep -q "error TS"; then
     echo "❌ TypeScript compilation has errors"
-    echo "   Run: npx tsc --noEmit"
+    echo "   Run: pnpm exec tsc -b"
     exit 1
 else
     echo "✅ TypeScript compilation successful"
@@ -88,5 +94,5 @@ echo ""
 echo "✨ Setup verification complete!"
 echo ""
 echo "Next steps:"
-echo "  1. Run 'npm run dev' to start the development server"
+echo "  1. Run 'pnpm run dev' to start the development server"
 

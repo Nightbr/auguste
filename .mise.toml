@@ -3,6 +3,7 @@
 
 [tools]
 node = "24"
+pnpm = "latest"
 
 [env]
 # Ensure npm binaries are available

@@ -12,3 +12,12 @@ dist
 
 # Test coverage
 coverage/
+
+# Create Biome
+.biomeignore
+
+# Turborepo
+.turbo
+
+# TypeScript incremental build cache
+*.tsbuildinfo

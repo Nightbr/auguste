@@ -46,7 +46,7 @@ Auguste is an open-source, agentic meal planner inspired by the father of modern
 ### Prerequisites
 
 - **Node.js 24+** (recommended: use [mise](https://mise.jdx.dev/) for version management)
-- npm or yarn
+- **pnpm** (installed via mise or globally)
 
 ### Installation
 
@@ -55,17 +55,12 @@ Auguste is an open-source, agentic meal planner inspired by the father of modern
 git clone https://github.com/your-username/auguste.git
 cd auguste
 
-# Install Node.js 24 using mise (recommended)
+# Install Node.js 24 and pnpm using mise (recommended)
 curl https://mise.run | sh  # Install mise if you don't have it
-mise trust                  # Trust the project configuration
-mise install                # Installs Node.js 24 as specified in .mise.toml
-
-# Or use your preferred Node.js version manager (nvm, fnm, etc.)
-# Just make sure you're using Node.js 24+
-# See docs/MISE_SETUP.md for detailed setup instructions
+mise install                # Installs Node.js and pnpm as specified in .mise.toml
 
 # Install dependencies
-npm install
+pnpm install
 
 # Set up environment variables
 cp .env.example .env
@@ -78,34 +73,36 @@ Auguste uses Drizzle ORM. Detailed documentation on schema management, migration
 
 ```bash
 # Apply pending migrations
-npm run db:migrate
+pnpm run db:migrate
 
 # Seed the database with demo data
-npm run seed
+pnpm run seed
 ```
 
 ## 🛠️ Tech Stack
 
-- **Runtime:** Node.js with TypeScript
+- **Backend:** Node.js with Express
+- **Frontend:** React with Vite
 - **AI Framework:** [Mastra](https://mastra.ai) — Agentic AI framework
+- **Package Manager:** pnpm with Workspaces
+- **Build Tool:** Turborepo
 - **Database:** SQLite with Drizzle ORM
-- **Validation:** Zod 4
-- **LLM Provider:** OpenRouter (Gemini, Claude, etc.)
+- **Linting & Formatting:** [BiomeJS](https://biomejs.dev/)
+- **Validation:** Zod
+- **LLM Provider:** OpenRouter
 
 ## 📁 Project Structure
 
 ```
-auguste/
-├── src/
-│   ├── domain/           # Schemas and database
-│   │   ├── db/           # Drizzle schema and migrations
-│   │   └── schemas/      # Zod schemas & enums
-│   └── ai/               # AI agents and tools
-│       ├── agents/       # Conversational agents
-│       └── tools/        # Database operations
-├── docs/                 # Documentation (Database, etc.)
-├── specs/                # Design docs and specifications
-└── assets/               # Logo and visual assets
+.
+├── apps/
+│   ├── api/          # Express application (@auguste/api)
+│   └── web/          # React application (@auguste/web)
+├── packages/
+│   └── core/          # @auguste/core (Domain & AI logic)
+├── docs/              # Additional guides
+├── specs/             # Design specifications
+└── scripts/           # Utility scripts
 ```
 
 ## 🤝 Contributing

@@ -1,13 +1,17 @@
 import { defineConfig } from 'vitest/config';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export default defineConfig({
   test: {
     environment: 'node',
-    setupFiles: ['./src/test/setup.ts'],
+    setupFiles: [join(__dirname, './packages/core/src/test/setup.ts')],
     env: {
       AUGUSTE_DB_PATH: ':memory:',
     },
-    include: ['src/**/*.test.ts'],
+    include: [join(__dirname, './packages/core/src/**/*.test.ts')],
   },
 });

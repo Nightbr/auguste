@@ -4,7 +4,7 @@
 
 ### Schemas as Source of Truth
 
-**Rule:** Always use Zod schemas from `src/domain/schemas/` as the single source of truth for types.
+**Rule:** Always use Zod schemas from `packages/core/src/domain/schemas/` as the single source of truth for types.
 
 - Import types from domain schemas, never define inline interfaces for domain entities
 - Use `z.infer<typeof Schema>` to derive TypeScript types from Zod schemas
@@ -75,13 +75,24 @@ export type MealType = (typeof MealType)[keyof typeof MealType];
 - Example: `database-management.md`, `onboarding-flow.md`.
 - Prefer descriptive, concise filenames.
 
-### Domain Layer (`src/domain/`)
+### Domain Layer (`packages/core/src/domain/`)
 
 - Pure business logic, no AI dependencies
 - Schemas define the contract for all data
 
-### Mastra Layer (`src/ai/`)
+### Mastra Layer (`packages/core/src/ai/`)
 
 - Tools consume domain schemas
 - Agents compose tools
 - No direct schema definitions in this layer
+
+## Tooling & Quality
+
+### Linting & Formatting
+
+**Rule:** Always use **BiomeJS** for linting and formatting across all packages in the monorepo.
+
+- Do not use ESLint, Prettier, or other alternative linters unless explicitly approved.
+- Use `pnpm turbo lint` to check all packages.
+- Use `pnpm turbo check -- --write` to automatically fix formatting and simple lint issues.
+- Configuration is managed at the root in `biome.json`.
