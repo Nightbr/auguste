@@ -9,30 +9,7 @@ import * as schema from './schema.drizzle.js';
 export * from './schema.drizzle.js';
 export { schema };
 
-/**
- * Find the project root by looking for package.json
- * This works regardless of where the code is bundled/executed from
- */
-function findProjectRoot(): string {
-  const __filename = fileURLToPath(import.meta.url);
-  let currentDir = dirname(__filename);
-
-  // Walk up the directory tree until we find package.json
-  while (currentDir !== dirname(currentDir)) {
-    const packageJsonPath = join(currentDir, 'package.json');
-
-    // Skip .mastra and other internal tool directories
-    const isInternalDir = currentDir.includes('.mastra') || currentDir.includes('node_modules');
-
-    if (existsSync(packageJsonPath) && !isInternalDir) {
-      return currentDir;
-    }
-    currentDir = dirname(currentDir);
-  }
-
-  // Fallback: assume we're in a standard location
-  return join(dirname(__filename), '..', '..', '..');
-}
+import { findProjectRoot } from './root.js';
 
 const PROJECT_ROOT = findProjectRoot();
 

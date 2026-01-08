@@ -11,8 +11,8 @@ interface MessageListProps {
 
 export function MessageList({ messages, isLoading, messagesEndRef }: MessageListProps) {
   return (
-    <ScrollArea className="flex-1 p-4">
-      <div className="max-w-3xl mx-auto py-4">
+    <ScrollArea className="flex-1 px-4 sm:px-6">
+      <div className="max-w-4xl mx-auto py-6">
         {messages.map((msg, i) => (
           <MessageItem key={i} message={msg} />
         ))}

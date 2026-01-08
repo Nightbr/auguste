@@ -37,25 +37,26 @@ export function ChatInput({ input, isLoading, onInputChange, onSend }: ChatInput
   }, []);
 
   return (
-    <div className="flex gap-2 p-4 bg-background/80 backdrop-blur-lg border-t border-primary/20">
-      <Input
-        ref={inputRef}
-        type="text"
-        placeholder="Type your message..."
-        value={input}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e.target.value)}
-        onKeyDown={handleKeyDown}
-        className="flex-1 bg-accent/20 border-primary/20 focus-visible:ring-primary h-11"
-        // We do NOT disable input while loading, allowing user to type next message
-        // disabled={isLoading}
-      />
+    <div className="flex gap-4 p-6 bg-[#111814] border-t border-white/5 items-center">
+      <div className="flex-1 relative">
+        <Input
+          ref={inputRef}
+          type="text"
+          placeholder="Type your message..."
+          value={input}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="w-full bg-[#2d3a31]/20 border-[#D4AF37]/20 focus-visible:ring-[#D4AF37]/40 h-10 rounded-lg text-white placeholder:text-white/20 px-4"
+        />
+        <div className="absolute inset-0 rounded-lg border border-[#D4AF37]/10 pointer-events-none" />
+      </div>
       <Button
         onClick={handleSend}
         disabled={isLoading || !input.trim()}
         size="icon"
-        className="h-11 w-11 shadow-[0_0_10px_rgba(212,175,55,0.2)]"
+        className="h-10 w-14 rounded-xl bg-[#e5ede9] hover:bg-white text-[#1B3022] border-none shadow-none transition-all active:scale-95"
       >
-        <Send className="h-5 w-5" />
+        <Send className="h-4 w-4 rotate-45" />
         <span className="sr-only">Send</span>
       </Button>
     </div>

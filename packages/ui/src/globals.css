@@ -41,34 +41,34 @@
   }
 
   .dark {
-    --background: 140 28% 12%; /* Deep Escoffier Green Background */
-    --foreground: 46 65% 94%; /* Off-white with gold tint */
+    --background: 140 10% 5%; /* Extremely deep green, almost black background */
+    --foreground: 46 65% 94%;
 
-    --card: 140 28% 15%; /* Slightly lighter green for cards */
+    --card: 140 28% 12%; /* Deep Escoffier Green for the main card */
     --card-foreground: 46 65% 94%;
 
-    --popover: 140 28% 15%;
+    --popover: 140 28% 12%;
     --popover-foreground: 46 65% 94%;
 
     /* Brand Colors */
-    --primary: 46 65% 52%; /* Champagne Gold as Primary CTA in dark */
-    --primary-foreground: 140 28% 12%;
+    --primary: 46 65% 52%; /* Champagne Gold: #D4AF37 */
+    --primary-foreground: 140 28% 10%;
 
-    --secondary: 140 28% 20%;
+    --secondary: 140 20% 15%;
     --secondary-foreground: 46 65% 94%;
 
-    --muted: 140 28% 20%;
-    --muted-foreground: 46 20% 70%;
+    --muted: 140 20% 15%;
+    --muted-foreground: 46 20% 65%;
 
-    /* Accent / Assistant Bubbles */
-    --accent: 140 28% 18% / 0.8; /* Glassmorphism green */
+    /* Accent / Assistant Bubbles - Using very subtle transparency */
+    --accent: 140 20% 20% / 0.4;
     --accent-foreground: 46 65% 94%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 46 65% 52% / 0.2; /* Subtle gold border */
-    --input: 140 28% 20%;
+    --border: 46 65% 52% / 0.1; /* Almost invisible gold border */
+    --input: 140 20% 15%;
     --ring: 46 65% 52%;
   }
 }

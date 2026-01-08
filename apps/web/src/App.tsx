@@ -8,8 +8,8 @@ function App() {
   const { messages, input, isLoading, messagesEndRef, handleInputChange, sendMessage } = useChat();
 
   return (
-    <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden items-center justify-center p-2 sm:p-4 md:p-8">
-      <div className="flex flex-col w-full max-w-4xl h-full bg-card/30 backdrop-blur-xl border border-primary/20 rounded-xl shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden">
+    <div className="flex flex-col h-screen bg-[#FAF9F6] text-foreground overflow-hidden items-center justify-center p-2 sm:p-4 md:p-12">
+      <div className="flex flex-col w-full max-w-4xl h-full bg-[#1B3022]/95 backdrop-blur-2xl border border-white/5 rounded-[2rem] shadow-[0_30px_100px_rgba(0,0,0,0.8)] overflow-hidden">
         <Header />
         <MessageList messages={messages} isLoading={isLoading} messagesEndRef={messagesEndRef} />
         <ChatInput
