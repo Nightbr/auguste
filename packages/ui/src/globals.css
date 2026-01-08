@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 140 28% 15%; /* Escoffier Green as widely used foreground? Or keep neutral? Guidelines say Green for headers/ui. Let's keep neutral mostly but maybe cooler? sticking to slate-like for text, or maybe very dark green. Let's stick to standard slate for body text for readability, Escoffier for headings via classes. Wait, --foreground is usually body text. Let's keep it slate-ish 222.2 84% 4.9% or use the dark green? Design guidelines say "Primary Green... Usage: Primary backgrounds, headers". Let's use it as Primary. */
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    /* Escoffier Green */
+    --primary: 140 28% 15%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    /* Champagne Gold */
+    --accent: 46 65% 52%;
+    --accent-foreground: 140 28% 15%; /* Dark green text on gold bg */
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 140 28% 15%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 140 28% 12%; /* Deep Escoffier Green Background */
+    --foreground: 46 65% 94%; /* Off-white with gold tint */
+
+    --card: 140 28% 15%; /* Slightly lighter green for cards */
+    --card-foreground: 46 65% 94%;
+
+    --popover: 140 28% 15%;
+    --popover-foreground: 46 65% 94%;
+
+    /* Brand Colors */
+    --primary: 46 65% 52%; /* Champagne Gold as Primary CTA in dark */
+    --primary-foreground: 140 28% 12%;
+
+    --secondary: 140 28% 20%;
+    --secondary-foreground: 46 65% 94%;
+
+    --muted: 140 28% 20%;
+    --muted-foreground: 46 20% 70%;
+
+    /* Accent / Assistant Bubbles */
+    --accent: 140 28% 18% / 0.8; /* Glassmorphism green */
+    --accent-foreground: 46 65% 94%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 46 65% 52% / 0.2; /* Subtle gold border */
+    --input: 140 28% 20%;
+    --ring: 46 65% 52%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

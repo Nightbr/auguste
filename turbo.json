@@ -22,6 +22,10 @@
     },
     "db:generate": {
       "cache": false
+    },
+    "studio": {
+      "cache": false,
+      "persistent": true
     }
   }
 }

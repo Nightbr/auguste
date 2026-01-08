@@ -10,7 +10,7 @@
     "test:coverage": "vitest run --coverage",
     "dev": "turbo dev",
     "build": "turbo build",
-    "start": "mastra start",
+    "studio": "turbo studio --filter @auguste/core",
     "seed": "pnpm exec tsx scripts/seed.ts",
     "verify": "bash scripts/verify-setup.sh",
     "db:generate": "drizzle-kit generate",
