@@ -1,7 +1,6 @@
 import { cn } from '@auguste/ui/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import type { Message } from '@/hooks/use-chat';
-import { ChefHat, User } from 'lucide-react';
 
 interface MessageItemProps {
   message: Message;

@@ -2,7 +2,6 @@ import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { existsSync, mkdirSync } from 'fs';
 import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
 import * as schema from './schema.drizzle.js';
 
 // Export everything from schema for easy access
