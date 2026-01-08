@@ -1,5 +1,5 @@
 import { eq, and } from 'drizzle-orm';
-import { db, schema, generateId } from '../src/domain/index.js';
+import { db, schema, generateId } from '../packages/core/src/domain/index.js';
 
 async function seed() {
   console.log('🌱 Seeding database...');
@@ -89,8 +89,8 @@ async function seed() {
       and(
         eq(schema.memberAvailability.memberId, dadId),
         eq(schema.memberAvailability.dayOfWeek, 2),
-        eq(schema.memberAvailability.mealType, 'dinner')
-      )
+        eq(schema.memberAvailability.mealType, 'dinner'),
+      ),
     );
 
   // Marie (Mom) - Thursday Dinner
@@ -101,8 +101,8 @@ async function seed() {
       and(
         eq(schema.memberAvailability.memberId, momId),
         eq(schema.memberAvailability.dayOfWeek, 4),
-        eq(schema.memberAvailability.mealType, 'dinner')
-      )
+        eq(schema.memberAvailability.mealType, 'dinner'),
+      ),
     );
 
   console.log('✅ Seed complete!');

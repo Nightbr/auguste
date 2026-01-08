@@ -11,14 +11,14 @@ which handles family configuration and meal planning setup.
 
 **Goal:** Set up the data layer with SQLite and Zod schemas.
 
-| Task | File                                   | Description                          |
-| ---- | -------------------------------------- | ------------------------------------ |
-| 1.1  | `src/domain/db/schema.ts`              | SQLite schema as TypeScript constant |
-| 1.2  | `src/domain/db/index.ts`               | Database connection & utilities      |
-| 1.3  | `src/domain/schemas/enums.ts`          | Enum definitions (const objects)     |
-| 1.4  | `src/domain/schemas/family.schema.ts`  | Family & Member Zod schemas          |
-| 1.5  | `src/domain/schemas/planner.schema.ts` | PlannerSettings Zod schema           |
-| 1.6  | `src/domain/schemas/index.ts`          | Export all schemas                   |
+| Task | File                                                 | Description                          |
+| ---- | ---------------------------------------------------- | ------------------------------------ |
+| 1.1  | `packages/core/src/domain/db/schema.ts`              | SQLite schema as TypeScript constant |
+| 1.2  | `packages/core/src/domain/db/index.ts`               | Database connection & utilities      |
+| 1.3  | `packages/core/src/domain/schemas/enums.ts`          | Enum definitions (const objects)     |
+| 1.4  | `packages/core/src/domain/schemas/family.schema.ts`  | Family & Member Zod schemas          |
+| 1.5  | `packages/core/src/domain/schemas/planner.schema.ts` | PlannerSettings Zod schema           |
+| 1.6  | `packages/core/src/domain/schemas/index.ts`          | Export all schemas                   |
 
 **Dependencies:** None
 
@@ -28,13 +28,13 @@ which handles family configuration and meal planning setup.
 
 **Goal:** Create Mastra tools for database CRUD operations.
 
-| Task | File                                     | Description                                                      |
-| ---- | ---------------------------------------- | ---------------------------------------------------------------- |
-| 2.1  | `src/ai/tools/family-tools.ts`       | createFamily, getFamily, updateFamily                            |
-| 2.2  | `src/ai/tools/member-tools.ts`       | createMember, getMembers, updateMember, deleteMember             |
-| 2.3  | `src/ai/tools/availability-tools.ts` | setMemberAvailability, getMemberAvailability                     |
-| 2.4  | `src/ai/tools/planner-tools.ts`      | createPlannerSettings, getPlannerSettings, updatePlannerSettings |
-| 2.5  | `src/ai/tools/index.ts`              | Export all tools                                                 |
+| Task | File                                               | Description                                                      |
+| ---- | -------------------------------------------------- | ---------------------------------------------------------------- |
+| 2.1  | `packages/core/src/ai/tools/family-tools.ts`       | createFamily, getFamily, updateFamily                            |
+| 2.2  | `packages/core/src/ai/tools/member-tools.ts`       | createMember, getMembers, updateMember, deleteMember             |
+| 2.3  | `packages/core/src/ai/tools/availability-tools.ts` | setMemberAvailability, getMemberAvailability                     |
+| 2.4  | `packages/core/src/ai/tools/planner-tools.ts`      | createPlannerSettings, getPlannerSettings, updatePlannerSettings |
+| 2.5  | `packages/core/src/ai/tools/index.ts`              | Export all tools                                                 |
 
 **Dependencies:** Phase 1
 
@@ -44,12 +44,12 @@ which handles family configuration and meal planning setup.
 
 **Goal:** Create the conversational agents for the init flow.
 
-| Task | File                                           | Description                 |
-| ---- | ---------------------------------------------- | --------------------------- |
-| 3.1  | `src/ai/agents/family-config-agent.ts`     | Family configuration agent  |
-| 3.2  | `src/ai/agents/planner-config-agent.ts`    | Planner configuration agent |
-| 3.3  | `src/ai/agents/init-orchestrator-agent.ts` | Orchestrates the init flow  |
-| 3.4  | `src/ai/agents/index.ts`                   | Export all agents           |
+| Task | File                                                     | Description                 |
+| ---- | -------------------------------------------------------- | --------------------------- |
+| 3.1  | `packages/core/src/ai/agents/family-config-agent.ts`     | Family configuration agent  |
+| 3.2  | `packages/core/src/ai/agents/planner-config-agent.ts`    | Planner configuration agent |
+| 3.3  | `packages/core/src/ai/agents/init-orchestrator-agent.ts` | Orchestrates the init flow  |
+| 3.4  | `packages/core/src/ai/agents/index.ts`                   | Export all agents           |
 
 **Dependencies:** Phase 2
 
@@ -59,10 +59,10 @@ which handles family configuration and meal planning setup.
 
 **Goal:** Create the init workflow that chains agents together.
 
-| Task | File                                    | Description                     |
-| ---- | --------------------------------------- | ------------------------------- |
-| 4.1  | `src/ai/workflows/init-workflow.ts` | Init phase workflow             |
-| 4.2  | `src/ai/index.ts`                   | Register new agents & workflows |
+| Task | File                                              | Description                     |
+| ---- | ------------------------------------------------- | ------------------------------- |
+| 4.1  | `packages/core/src/ai/workflows/init-workflow.ts` | Init phase workflow             |
+| 4.2  | `packages/core/src/ai/index.ts`                   | Register new agents & workflows |
 
 **Dependencies:** Phase 3
 
@@ -120,7 +120,7 @@ which handles family configuration and meal planning setup.
 | ----------------------- | -------------- |
 | Phase 1: Foundation     | 1-2 hours      |
 | Phase 2: Database Tools | 2-3 hours      |
-| Phase 3: Mastra Agents      | 2-3 hours      |
+| Phase 3: Mastra Agents  | 2-3 hours      |
 | Phase 4: Workflows      | 1-2 hours      |
 | Phase 5: Testing        | 1-2 hours      |
 | **Total**               | **7-12 hours** |

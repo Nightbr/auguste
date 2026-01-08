@@ -109,7 +109,7 @@ mise install
 
 ```bash
 node --version  # Should show v24.x.x
-npm run verify  # Runs the setup verification script
+pnpm run verify  # Runs the setup verification script
 ```
 
 ### 4. Automatic version switching

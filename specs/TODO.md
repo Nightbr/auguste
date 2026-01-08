@@ -23,5 +23,4 @@
 
 ## Tech
 
-- [ ] **Create a monorepo with pnpm** - Replace the current pnpm workspace with a monorepo. This will allow us to share code between the different packages. Package will be `@auguste/core` that will include the domain layer and the ai layer. Later we will introduce `@auguste/server` and `@auguste/web` for the web app.
 - [ ] **Use drizzle-seed for database seeding** - Replace the current manual seeding script with [drizzle-seed](https://orm.drizzle.team/docs/seed-overview) for more robust and maintainable test data generation. This will provide better data variety, relationship handling, and faker integration.

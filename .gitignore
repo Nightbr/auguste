@@ -12,3 +12,9 @@ dist
 
 # Test coverage
 coverage/
+
+# Create Biome
+.biomeignore
+
+# Turborepo
+.turbo

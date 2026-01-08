@@ -45,29 +45,31 @@ mise install                # Installs Node.js 24 as specified in .mise.toml
 # Just make sure you're using Node.js 24+
 
 # Install dependencies
-npm install
+pnpm install
 
 # Copy environment variables
 cp .env.example .env
 # Add your OPENROUTER_API_KEY
 
 # Run TypeScript check
-npx tsc --noEmit
+pnpm run type-check
 
 # Run the dev server
-npm run dev
+pnpm run dev
 ```
 
 ### Project Structure
 
 ```
-src/
-├── domain/        # Business logic, schemas, database
-│   ├── db/        # SQLite utilities
-│   └── schemas/   # Zod validation schemas
-└── ai/            # Mastra agents and tools
-    ├── agents/    # Conversational AI agents
-    └── tools/     # Database operation tools
+.
+├── packages/
+│   └── core/          # Core logic (@auguste/core)
+│       └── src/
+│           ├── domain/ # Business logic, schemas, database
+│           └── ai/     # Mastra agents and tools
+├── apps/              # Applications (future)
+├── specs/             # Specifications
+└── docs/              # Documentation
 ```
 
 ## Making Changes
@@ -88,7 +90,9 @@ src/
 
 3. **Test your changes**:
    ```bash
-   npx tsc --noEmit
+   pnpm test
+   pnpm run type-check
+   pnpm run lint
    ```
 
 ## Commit Guidelines
