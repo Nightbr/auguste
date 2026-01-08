@@ -11,8 +11,8 @@
     }
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc -w",
+    "build": "tsc -b",
+    "dev": "tsc -b -w",
     "test": "vitest run",
     "lint": "biome lint .",
     "check": "biome check .",
