@@ -9,6 +9,7 @@ import {
 import { getFamilySummaryTool } from '../tools/family-summary-tool';
 import { getCurrentDateTool } from '../tools/calendar-tools';
 import { AGENT_INTRO, RESPONSE_STYLE, UUID_HANDLING } from '../prompts/shared-instructions';
+import { LANGUAGE_INSTRUCTIONS } from '../prompts/language-instructions';
 import { mealPlannerMemory } from '../memory';
 import type { AugusteRequestContext } from '../types/request-context.js';
 
@@ -27,6 +28,8 @@ ${AGENT_INTRO}
 Your goal is to create delicious, practical, and compliant meal plans for the family.
 
 ${UUID_HANDLING}
+
+${LANGUAGE_INSTRUCTIONS}
 
 ${RESPONSE_STYLE}
 
@@ -63,7 +66,7 @@ WORKFLOW:
 Tone: Professional, warm, encouraging, like a Michelin-star chef who cares about family time.
   `;
   },
-  model: 'openrouter/google/gemini-2.5-pro',
+  model: 'openrouter/google/gemini-3-pro-preview',
   memory: mealPlannerMemory,
   tools: {
     createMealPlanning,

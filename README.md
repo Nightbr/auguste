@@ -50,7 +50,7 @@ Auguste is an open-source, agentic meal planner inspired by the father of modern
 
 ### Installation
 
-````bash
+```bash
 # Clone the repository
 git clone https://github.com/your-username/auguste.git
 cd auguste
@@ -65,6 +65,7 @@ pnpm install
 # Set up environment variables
 cp .env.example .env
 # Add your OPENROUTER_API_KEY to .env
+```
 
 ### Running Mastra Studio
 
@@ -72,11 +73,9 @@ To visualize your agents and workflows, run the local studio:
 
 ```bash
 pnpm run studio
-````
+```
 
 This will start the studio at [http://localhost:4111/studio](http://localhost:4111/studio).
-
-````
 
 ### Database Management
 
@@ -88,7 +87,7 @@ pnpm run db:migrate
 
 # Seed the database with demo data
 pnpm run seed
-````
+```
 
 ## 🛠️ Tech Stack
 

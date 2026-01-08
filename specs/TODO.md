@@ -7,7 +7,7 @@
 
 ### Session & Authentication
 
-- [ ] **Save session in database** - Persist user sessions to the database. We will build a secure mechanism later (Magic link with email or any auth session)
+- [ ] **Save session in database** - Persist user sessions to the database. We will build a secure mechanism later (Magic link with email or any auth session) [need specifications]
 
 ### Data Accuracy
 
@@ -21,6 +21,14 @@
 
 - [ ] **PlannerSettings notification CRON is not working** - "Il semble que l'outil ait encore du mal à interpréter "tous les mercredis à 9h du matin" correctement et par défaut à dimanche 18h."
 
+## apps/web
+
+- [ ] **More modern UI** - The UI is not modern enough, we need to make it more modern and user-friendly. Look at https://ai-sdk.dev/elements for inspiration.
+- [ ] **Display family and member object on the right** - Dynamically display family and member object on the right of the screen when they are configured.
+- [ ] **Display MemberAvailability and PlannerSettings on the right** - Dynamically display MemberAvailability and PlannerSettings on the right of the screen when they are configured.
+- [ ] **Onboarding phase/Meal planner phase** - Dissociate the onboarding phase and the meal planner phase in the UI. Also related to saving session in database [need specifications].
+
 ## Tech
 
 - [ ] **Use drizzle-seed for database seeding** - Replace the current manual seeding script with [drizzle-seed](https://orm.drizzle.team/docs/seed-overview) for more robust and maintainable test data generation. This will provide better data variety, relationship handling, and faker integration.
+- [ ] **Refactor core/db/index.ts** - Refactor the database connection to use a more modern and maintainable approach. Avoid putting everything in index.ts.
