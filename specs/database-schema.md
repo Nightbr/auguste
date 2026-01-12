@@ -51,7 +51,6 @@ erDiagram
         string familyId FK
         json mealTypes "array of meal types"
         json activeDays "array 0-6"
-        int defaultServings
         string notificationCron "cron expression"
         string timezone
         datetime createdAt
@@ -129,7 +128,6 @@ CREATE TABLE PlannerSettings (
     familyId TEXT NOT NULL UNIQUE,
     mealTypes TEXT DEFAULT '["lunch", "dinner"]',
     activeDays TEXT DEFAULT '[0, 1, 2, 3, 4, 5, 6]',
-    defaultServings INTEGER DEFAULT 4,
     notificationCron TEXT DEFAULT '0 18 * * 0',
     timezone TEXT DEFAULT 'UTC',
     createdAt TEXT NOT NULL DEFAULT (datetime('now')),

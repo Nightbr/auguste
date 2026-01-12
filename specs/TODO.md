@@ -23,6 +23,7 @@
 - [ ] **Display family and member object on the right** - Dynamically display family and member object on the right of the screen when they are configured.
 - [ ] **Display MemberAvailability and PlannerSettings on the right** - Dynamically display MemberAvailability and PlannerSettings on the right of the screen when they are configured.
 - [ ] **Onboarding phase/Meal planner phase** - Dissociate the onboarding phase and the meal planner phase in the UI. Also related to saving session in database [need specifications].
+- [ ] **Speech-to-text button for chat input** - Add a speech-to-text button to the chat input that allows users to speak and have their speech transcribed to text in the input field.
 
 ## Tech
 

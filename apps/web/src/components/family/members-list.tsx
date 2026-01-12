@@ -1,13 +1,15 @@
+interface Birthdate {
+  day?: number;
+  month?: number;
+  year?: number;
+}
+
 interface MembersListProps {
   members: Array<{
     id: string;
     name: string;
     type: string;
-    birthdate: {
-      day?: number;
-      month?: number;
-      year?: number;
-    } | null;
+    birthdate: Birthdate | null;
     dietaryRestrictions: string[];
     allergies: string[];
     foodPreferencesLikes: string[];
@@ -25,6 +27,95 @@ function getSkillLevelLabel(level: string): string {
     professional: 'Professional',
   };
   return labels[level] || level;
+}
+
+/**
+ * Calculate age from a partial birthdate.
+ * - If only year is provided, calculates approximate age based on current year
+ * - If year and month are provided, calculates age considering month
+ * - If all fields are provided, calculates exact age
+ */
+function calculateAgeFromBirthdate(birthdate: Birthdate): number | null {
+  if (!birthdate.year) {
+    return null;
+  }
+
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth() + 1; // getMonth() is 0-indexed
+  const currentDay = today.getDate();
+
+  let age = currentYear - birthdate.year;
+
+  // If month is provided, adjust age if birthday hasn't occurred yet this year
+  if (birthdate.month !== undefined) {
+    if (birthdate.month > currentMonth) {
+      age--;
+    } else if (birthdate.month === currentMonth && birthdate.day !== undefined) {
+      if (birthdate.day > currentDay) {
+        age--;
+      }
+    }
+  }
+
+  return age >= 0 ? age : null;
+}
+
+/**
+ * Format a partial birthdate for display.
+ * Handles cases where only some fields are provided.
+ */
+function formatPartialBirthdate(birthdate: Birthdate): string {
+  const parts: string[] = [];
+
+  if (birthdate.day !== undefined) {
+    parts.push(String(birthdate.day).padStart(2, '0'));
+  }
+  if (birthdate.month !== undefined) {
+    parts.push(String(birthdate.month).padStart(2, '0'));
+  }
+  if (birthdate.year !== undefined) {
+    parts.push(String(birthdate.year));
+  }
+
+  if (parts.length === 0) {
+    return '';
+  }
+
+  // Format based on what's available
+  if (
+    birthdate.day !== undefined &&
+    birthdate.month !== undefined &&
+    birthdate.year !== undefined
+  ) {
+    return `${parts[0]}/${parts[1]}/${parts[2]}`;
+  }
+  if (birthdate.month !== undefined && birthdate.year !== undefined) {
+    return `${parts[0]}/${parts[1]}`;
+  }
+  if (birthdate.year !== undefined) {
+    return `Born ${birthdate.year}`;
+  }
+
+  return parts.join('/');
+}
+
+/**
+ * Get display text for birthdate including age if calculable.
+ */
+function getBirthdateDisplay(birthdate: Birthdate): string {
+  const formattedDate = formatPartialBirthdate(birthdate);
+  const age = calculateAgeFromBirthdate(birthdate);
+
+  if (!formattedDate) {
+    return '';
+  }
+
+  if (age !== null) {
+    return `${formattedDate} (${age} years old)`;
+  }
+
+  return formattedDate;
 }
 
 export function MembersList({ members }: MembersListProps) {
@@ -50,11 +141,9 @@ export function MembersList({ members }: MembersListProps) {
               </h3>
               <span className="badge">{member.type}</span>
             </div>
-            {member.birthdate && (
+            {member.birthdate && getBirthdateDisplay(member.birthdate) && (
               <div className="text-sm text-escoffier-green/60">
-                {member.birthdate.day && member.birthdate.month && member.birthdate.year
-                  ? `${member.birthdate.day}/${member.birthdate.month}/${member.birthdate.year}`
-                  : 'Age not specified'}
+                {getBirthdateDisplay(member.birthdate)}
               </div>
             )}
           </div>

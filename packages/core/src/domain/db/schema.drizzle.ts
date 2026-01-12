@@ -96,7 +96,6 @@ export const plannerSettings = sqliteTable(
       .notNull()
       .default(sql`'[0, 1, 2, 3, 4, 5, 6]'`)
       .$type<number[]>(),
-    defaultServings: integer('defaultServings').default(4),
     notificationCron: text('notificationCron').default('0 18 * * 0'),
     timezone: text('timezone').default('UTC'),
     createdAt: text('createdAt')

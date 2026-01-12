@@ -22,6 +22,13 @@
       "when": 1767811878800,
       "tag": "0002_split_food_preferences_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1768236853999,
+      "tag": "0003_remove_default_servings",
+      "breakpoints": true
     }
   ]
 }

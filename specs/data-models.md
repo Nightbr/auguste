@@ -133,7 +133,6 @@ export const PlannerSettingsSchema = z.object({
   familyId: z.string().uuid(),
   mealTypes: z.array(z.enum(['breakfast', 'lunch', 'dinner'])).default(['lunch', 'dinner']),
   activeDays: z.array(z.number().int().min(0).max(6)).default([0, 1, 2, 3, 4, 5, 6]),
-  defaultServings: z.number().int().positive().default(4),
   notificationCron: z.string().default('0 18 * * 0'),
   timezone: z.string().default('UTC'),
   createdAt: z.string().datetime(),

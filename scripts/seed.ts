@@ -60,7 +60,6 @@ async function seed() {
     familyId,
     mealTypes: ['dinner'],
     activeDays: [0, 1, 2, 3, 4, 5, 6],
-    defaultServings: 3,
   });
 
   // Availability

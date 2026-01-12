@@ -45,7 +45,6 @@ describe('Family Tools', () => {
     expect(settings?.familyId).toBe(family.id);
     expect(settings?.mealTypes).toEqual(['lunch', 'dinner']);
     expect(settings?.activeDays).toEqual([0, 1, 2, 3, 4, 5, 6]);
-    expect(settings?.defaultServings).toBe(4);
   });
 
   it('should get a family by ID', async () => {

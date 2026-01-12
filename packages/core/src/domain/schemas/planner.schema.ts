@@ -26,7 +26,6 @@ export const CreatePlannerSettingsInputSchema = createInsertSchema(plannerSettin
   .extend({
     mealTypes: z.array(z.any()).optional(),
     activeDays: z.array(z.number()).optional(),
-    defaultServings: z.number().int().optional(),
     notificationCron: z.string().optional(),
     timezone: z.string().optional(),
   })
@@ -37,7 +36,6 @@ export const UpdatePlannerSettingsInputSchema = createInsertSchema(plannerSettin
   .extend({
     mealTypes: z.array(z.any()).optional(),
     activeDays: z.array(z.number()).optional(),
-    defaultServings: z.number().int().optional(),
     notificationCron: z.string().optional(),
     timezone: z.string().optional(),
   })
