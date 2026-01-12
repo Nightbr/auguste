@@ -29,6 +29,25 @@ describe('Family Tools', () => {
     expect(result.language).toBe('en'); // Should be lowercased
   });
 
+  it('should create default planner settings when creating a family', async () => {
+    const family = await createFamilyTool.execute({
+      name: 'Settings Test Family',
+      country: 'US',
+      language: 'en',
+    });
+
+    // Verify planner settings were created
+    const settings = await db.query.plannerSettings.findFirst({
+      where: (fields, { eq }) => eq(fields.familyId, family.id),
+    });
+
+    expect(settings).toBeDefined();
+    expect(settings?.familyId).toBe(family.id);
+    expect(settings?.mealTypes).toEqual(['lunch', 'dinner']);
+    expect(settings?.activeDays).toEqual([0, 1, 2, 3, 4, 5, 6]);
+    expect(settings?.defaultServings).toBe(4);
+  });
+
   it('should get a family by ID', async () => {
     const family = await createFamilyTool.execute({
       name: 'Get Me',

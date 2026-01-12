@@ -13,6 +13,7 @@ import {
   getMemberTool,
   getMemberByNameTool,
   updateMemberTool,
+  updateMemberByNameTool,
   deleteMemberTool,
 } from './member-tools.js';
 export {
@@ -21,6 +22,7 @@ export {
   getMemberTool,
   getMemberByNameTool,
   updateMemberTool,
+  updateMemberByNameTool,
   deleteMemberTool,
 };
 
@@ -47,13 +49,17 @@ import {
   createPlannerSettingsTool,
   getPlannerSettingsTool,
   updatePlannerSettingsTool,
+  updatePlannerSettingsByFamilyIdTool,
   parseCronScheduleTool,
+  cronToHumanReadable,
 } from './planner-tools.js';
 export {
   createPlannerSettingsTool,
   getPlannerSettingsTool,
   updatePlannerSettingsTool,
+  updatePlannerSettingsByFamilyIdTool,
   parseCronScheduleTool,
+  cronToHumanReadable,
 };
 
 // Family summary tool
@@ -76,6 +82,7 @@ export const familyConfigTools = {
   getMemberTool,
   getMemberByNameTool,
   updateMemberTool,
+  updateMemberByNameTool, // Preferred - update by name without needing member ID
   deleteMemberTool,
 };
 
@@ -86,6 +93,7 @@ export const plannerConfigTools = {
   getPlannerSettingsTool,
   createPlannerSettingsTool,
   updatePlannerSettingsTool,
+  updatePlannerSettingsByFamilyIdTool, // Preferred - update by familyId without needing settings ID
   parseCronScheduleTool,
   // Name-based tools (preferred - no need to lookup IDs)
   setMemberAvailabilityByNameTool,

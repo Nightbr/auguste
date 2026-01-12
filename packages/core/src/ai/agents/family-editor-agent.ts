@@ -9,16 +9,30 @@ import {
 } from '../prompts/shared-instructions';
 import { LANGUAGE_INSTRUCTIONS } from '../prompts/language-instructions';
 
-/**
- * Family editor agent instructions
- */
-const FAMILY_EDITOR_INSTRUCTIONS = `
+import type { AugusteRequestContext } from '../types/request-context.js';
+import { getFamilySummaryTool } from '../tools/family-summary-tool';
+
+export const familyEditorAgent = new Agent({
+  id: 'family-editor-agent',
+  name: 'Auguste Family Editor',
+  instructions: ({ requestContext }) => {
+    const familyId = requestContext.get('familyId') as AugusteRequestContext['familyId'];
+
+    if (!familyId) {
+      throw new Error('familyId is required in requestContext for family editor agent');
+    }
+
+    return `
 ${AGENT_INTRO}
 Help users edit existing family configurations.
 
 ${UUID_HANDLING}
 
 ${LANGUAGE_INSTRUCTIONS}
+
+## Context:
+- CRITICAL: The familyId for this conversation is: ${familyId}
+- ALWAYS start by calling 'getFamilySummaryTool' with familyId="${familyId}" to establish current state.
 
 ## Capabilities:
 - Update family info (name, country, language)
@@ -44,15 +58,12 @@ Anything else to adjust?"
 **Response:** "Removed John. Current members: [list names].
 Anything else to update?"
 `;
-
-export const familyEditorAgent = new Agent({
-  id: 'family-editor-agent',
-  name: 'Auguste Family Editor',
-  instructions: FAMILY_EDITOR_INSTRUCTIONS,
+  },
   model: 'openrouter/google/gemini-2.5-flash',
   tools: {
     ...familyConfigTools,
     ...plannerConfigTools,
+    getFamilySummaryTool,
   },
   memory: new Memory(),
 });

@@ -6,7 +6,7 @@ import {
   parseCronScheduleTool,
 } from './planner-tools';
 import { createFamilyTool } from './family-tools';
-import { db, schema, MealType } from '../../domain';
+import { db, schema, MealType, generateId, now } from '../../domain';
 
 describe('Planner Tools', () => {
   let familyId: string;
@@ -21,25 +21,39 @@ describe('Planner Tools', () => {
     familyId = family.id;
   });
 
-  it('should create planner settings', async () => {
+  it('should create planner settings for a family without settings', async () => {
+    // Create a family directly in DB (without auto-created settings)
+    const manualFamilyId = generateId();
+    const timestamp = now();
+    await db.insert(schema.family).values({
+      id: manualFamilyId,
+      name: 'Manual Family',
+      country: 'US',
+      language: 'en',
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    });
+
     const result = await createPlannerSettingsTool.execute({
-      familyId,
+      familyId: manualFamilyId,
       mealTypes: [MealType.breakfast as any, MealType.dinner as any],
       defaultServings: 2,
     });
 
     expect(result.id).toBeDefined();
-    expect(result.familyId).toBe(familyId);
+    expect(result.familyId).toBe(manualFamilyId);
     expect(result.mealTypes).toContain(MealType.breakfast);
     expect(result.defaultServings).toBe(2);
   });
 
-  it('should get planner settings', async () => {
-    await createPlannerSettingsTool.execute({ familyId });
+  it('should get auto-created planner settings', async () => {
+    // Family created via createFamilyTool automatically has settings
     const result = await getPlannerSettingsTool.execute({ familyId });
 
     expect(result.found).toBe(true);
     expect(result.settings?.familyId).toBe(familyId);
+    expect(result.settings?.mealTypes).toEqual(['lunch', 'dinner']);
+    expect(result.settings?.defaultServings).toBe(4);
   });
 
   it('should return found=false for non-existent planner settings', async () => {
@@ -50,9 +64,12 @@ describe('Planner Tools', () => {
   });
 
   it('should update planner settings', async () => {
-    const settings = await createPlannerSettingsTool.execute({ familyId });
+    // Get auto-created settings
+    const getResult = await getPlannerSettingsTool.execute({ familyId });
+    const settingsId = getResult.settings!.id;
+
     const result = await updatePlannerSettingsTool.execute({
-      id: settings.id,
+      id: settingsId,
       defaultServings: 6,
       timezone: 'Europe/Paris',
     });
@@ -63,9 +80,12 @@ describe('Planner Tools', () => {
   });
 
   it('should update other planner settings fields independently', async () => {
-    const settings = await createPlannerSettingsTool.execute({ familyId });
+    // Get auto-created settings
+    const getResult = await getPlannerSettingsTool.execute({ familyId });
+    const settingsId = getResult.settings!.id;
+
     const result = await updatePlannerSettingsTool.execute({
-      id: settings.id,
+      id: settingsId,
       mealTypes: [MealType.lunch as any],
       activeDays: [1, 2, 3],
       notificationCron: '0 9 * * 1',
@@ -85,15 +105,32 @@ describe('Planner Tools', () => {
     expect(result.found).toBe(false);
   });
 
-  it('should parse cron schedule', async () => {
+  it('should parse cron schedule for specific day and time', async () => {
     const result = await parseCronScheduleTool.execute({ description: 'Sunday at 6pm' });
     expect(result.cron).toBe('0 18 * * 0');
     expect(result.humanReadable).toContain('Sunday');
+    expect(result.humanReadable).toContain('6 PM');
   });
 
-  it('should return default cron for unknown description', async () => {
+  it('should parse cron schedule for Friday evening', async () => {
+    const result = await parseCronScheduleTool.execute({ description: 'Friday evening' });
+    expect(result.cron).toBe('0 18 * * 5');
+    expect(result.humanReadable).toContain('Friday');
+    expect(result.humanReadable).toContain('6 PM');
+  });
+
+  it('should parse cron schedule for weekdays', async () => {
+    const result = await parseCronScheduleTool.execute({ description: 'weekday mornings' });
+    expect(result.cron).toBe('0 9 * * 1-5');
+    expect(result.humanReadable).toContain('Monday to Friday');
+    expect(result.humanReadable).toContain('9 AM');
+  });
+
+  it('should default to every day at 6pm for unknown description', async () => {
     const result = await parseCronScheduleTool.execute({ description: 'whenever' });
-    expect(result.cron).toBe('0 18 * * 0');
-    expect(result.humanReadable).toContain('defaulting');
+    // When no day or time is specified, defaults to every day at 6pm
+    expect(result.cron).toBe('0 18 * * *');
+    expect(result.humanReadable).toContain('Every day');
+    expect(result.humanReadable).toContain('6 PM');
   });
 });

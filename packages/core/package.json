@@ -13,6 +13,7 @@
   "scripts": {
     "build": "tsc -b",
     "dev": "tsc -b -w",
+    "studio": "mastra dev -d src/ai -e ../../.env",
     "test": "vitest run",
     "lint": "biome lint .",
     "check": "biome check .",

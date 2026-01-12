@@ -67,6 +67,16 @@ cp .env.example .env
 # Add your OPENROUTER_API_KEY to .env
 ```
 
+### Running Mastra Studio
+
+To visualize your agents and workflows, run the local studio:
+
+```bash
+pnpm run studio
+```
+
+This will start the studio at [http://localhost:4111/studio](http://localhost:4111/studio).
+
 ### Database Management
 
 Auguste uses Drizzle ORM. Detailed documentation on schema management, migrations, and seeding can be found in [docs/database-management.md](docs/database-management.md).

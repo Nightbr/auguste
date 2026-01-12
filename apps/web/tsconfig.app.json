@@ -22,7 +22,12 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@auguste/ui/*": ["../../packages/ui/src/*"],
+      "@auguste/core/*": ["../../packages/core/dist/*"]
+    }
   },
   "include": ["src"],
   "references": [{ "path": "../../packages/core" }]

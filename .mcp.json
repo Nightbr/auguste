@@ -2,10 +2,8 @@
   "mcpServers": {
     "mastra": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@mastra/mcp-docs-server@beta"
-      ]
+      "args": ["-y", "@mastra/mcp-docs-server@beta"],
+      "alwaysAllow": ["mastraDocs"]
     }
   }
 }

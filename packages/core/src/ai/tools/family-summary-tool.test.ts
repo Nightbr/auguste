@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { getFamilySummaryTool } from './family-summary-tool';
 import { createFamilyTool } from './family-tools';
 import { createMemberTool } from './member-tools';
-import { createPlannerSettingsTool } from './planner-tools';
 import { setMemberAvailabilityTool } from './availability-tools';
 import { db, schema, MemberType, MealType } from '../../domain';
 
@@ -20,16 +19,11 @@ describe('Family Summary Tool', () => {
   });
 
   it('should return a complete summary of the family', async () => {
-    // Setup complex family state
+    // Setup complex family state - planner settings are auto-created with family
     const member = await createMemberTool.execute({
       familyId,
       name: 'Jean',
       type: MemberType.adult as any,
-    });
-
-    await createPlannerSettingsTool.execute({
-      familyId,
-      defaultServings: 4,
     });
 
     await setMemberAvailabilityTool.execute({
@@ -47,13 +41,15 @@ describe('Family Summary Tool', () => {
     expect(result.isComplete).toBe(true);
     expect(result.memberNames).toContain('Jean');
     expect(result.memberAvailability).toHaveLength(1);
+    // Default planner settings have defaultServings=4
     expect(result.plannerSettings.defaultServings).toBe(4);
   });
 
-  it('should show incomplete if settings or members are missing', async () => {
+  it('should show incomplete if members are missing', async () => {
+    // Family has auto-created settings but no members
     const result = await getFamilySummaryTool.execute({ familyId });
     expect(result.isComplete).toBe(false);
     expect(result.memberCount).toBe(0);
-    expect(result.settingsFound).toBe(false);
+    expect(result.settingsFound).toBe(true); // Settings are now auto-created
   });
 });

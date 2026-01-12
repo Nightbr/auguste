@@ -12,6 +12,9 @@ Auguste is an open-source, AI-powered meal planning application built with Node.
 # Development server (via Mastra)
 pnpm run dev
 
+# Run Mastra Studio (Visual Interface)
+pnpm run studio
+
 # Build all packages
 pnpm run build
 
