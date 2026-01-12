@@ -1,0 +1,69 @@
+/* Family panel styles following Auguste design guidelines */
+
+/* Card styles with subtle Escoffier Green borders */
+.family-card {
+  border: 1px solid rgba(27, 48, 34, 0.1);
+  border-radius: 0.75rem;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.family-card:hover {
+  border-color: rgba(212, 175, 55, 0.3);
+  box-shadow: 0 4px 12px rgba(27, 48, 34, 0.08);
+}
+
+/* Tab styles with Champagne Gold accents */
+.tab-button {
+  color: #1b3022;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.tab-button:hover {
+  color: #d4af37;
+}
+
+.tab-button.active {
+  color: #d4af37;
+  border-bottom-color: #d4af37;
+}
+
+/* List item styles */
+.list-item {
+  border-bottom: 1px solid rgba(27, 48, 34, 0.08);
+  padding: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.list-item:hover {
+  background-color: rgba(27, 48, 34, 0.02);
+}
+
+/* Calendar grid styles */
+.calendar-day {
+  border: 1px solid rgba(27, 48, 34, 0.1);
+  border-radius: 0.5rem;
+  min-height: 80px;
+  transition: all 0.2s ease;
+}
+
+.calendar-day:hover {
+  border-color: rgba(212, 175, 55, 0.4);
+  background-color: rgba(212, 175, 55, 0.05);
+}
+
+/* Badge styles */
+.badge {
+  background-color: rgba(27, 48, 34, 0.05);
+  color: #1b3022;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.badge.gold {
+  background-color: rgba(212, 175, 55, 0.1);
+  color: #d4af37;
+}

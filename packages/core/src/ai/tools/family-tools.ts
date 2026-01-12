@@ -36,6 +36,19 @@ export const createFamilyTool = createTool({
       })
       .returning();
 
+    // Create default planner settings for the new family
+    await db.insert(schema.plannerSettings).values({
+      id: generateId(),
+      familyId: id,
+      mealTypes: ['lunch', 'dinner'],
+      activeDays: [0, 1, 2, 3, 4, 5, 6],
+      defaultServings: 4,
+      notificationCron: '0 18 * * 0',
+      timezone: 'UTC',
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    });
+
     return newFamily;
   },
 });

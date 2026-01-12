@@ -68,12 +68,12 @@ export const getPlannerSettingsTool = createTool({
 });
 
 /**
- * Update planner settings
+ * Update planner settings by ID
  */
 export const updatePlannerSettingsTool = createTool({
   id: 'update-planner-settings',
   description:
-    'Update meal planning settings including meals, days, servings, and notifications. Returns found=false if not found.',
+    'Update meal planning settings by settings ID. Returns found=false if not found. Prefer updatePlannerSettingsByFamilyIdTool if you only have the familyId.',
   inputSchema: UpdatePlannerSettingsInputSchema,
   outputSchema: z.object({
     found: z.boolean(),
@@ -94,6 +94,58 @@ export const updatePlannerSettingsTool = createTool({
       .update(schema.plannerSettings)
       .set(updates)
       .where(eq(schema.plannerSettings.id, input.id))
+      .returning();
+
+    if (!updatedSettings) return { found: false };
+    return { found: true, settings: updatedSettings };
+  },
+});
+
+/**
+ * Input schema for updating planner settings by family ID
+ */
+const UpdatePlannerSettingsByFamilyIdInputSchema = z.object({
+  familyId: z.uuid().describe('The family ID whose planner settings to update'),
+  mealTypes: z
+    .array(z.any())
+    .optional()
+    .describe('Array of meal types to plan (breakfast, lunch, dinner)'),
+  activeDays: z
+    .array(z.number())
+    .optional()
+    .describe('Array of days (0=Sunday to 6=Saturday) to plan meals for'),
+  defaultServings: z.number().int().optional().describe('Default number of servings per meal'),
+  notificationCron: z.string().optional().describe('Cron expression for notification schedule'),
+  timezone: z.string().optional().describe('Timezone for notifications (e.g., "America/New_York")'),
+});
+
+/**
+ * Update planner settings by family ID (preferred for onboarding)
+ */
+export const updatePlannerSettingsByFamilyIdTool = createTool({
+  id: 'update-planner-settings-by-family-id',
+  description:
+    'Update meal planning settings using the familyId. This is easier than updatePlannerSettingsTool because you do not need to know the settings ID. Returns found=false if no settings exist for this family.',
+  inputSchema: UpdatePlannerSettingsByFamilyIdInputSchema,
+  outputSchema: z.object({
+    found: z.boolean(),
+    settings: PlannerSettingsSchema.optional(),
+  }),
+  execute: async (input) => {
+    const timestamp = now();
+
+    const updates: Partial<typeof schema.plannerSettings.$inferInsert> = { updatedAt: timestamp };
+
+    if (input.mealTypes !== undefined) updates.mealTypes = input.mealTypes;
+    if (input.activeDays !== undefined) updates.activeDays = input.activeDays;
+    if (input.defaultServings !== undefined) updates.defaultServings = input.defaultServings;
+    if (input.notificationCron !== undefined) updates.notificationCron = input.notificationCron;
+    if (input.timezone !== undefined) updates.timezone = input.timezone;
+
+    const [updatedSettings] = await db
+      .update(schema.plannerSettings)
+      .set(updates)
+      .where(eq(schema.plannerSettings.familyId, input.familyId))
       .returning();
 
     if (!updatedSettings) return { found: false };

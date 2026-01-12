@@ -54,6 +54,14 @@ export default {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        escoffier: {
+          green: '#1B3022',
+          'green-light': '#2d3a31',
+        },
+        champagne: {
+          gold: '#D4AF37',
+          'gold-light': '#e5ede9',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',

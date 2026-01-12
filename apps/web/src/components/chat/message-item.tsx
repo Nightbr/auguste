@@ -15,7 +15,7 @@ export function MessageItem({ message }: MessageItemProps) {
         className={cn(
           'relative px-5 py-2.5 text-sm transition-all duration-300',
           isAssistant
-            ? 'bg-[#2d3a31]/20 backdrop-blur-md border border-white/5 shadow-md rounded-2xl w-full max-w-[95%]'
+            ? 'bg-[#1B3022]/95 backdrop-blur-md border border-white/10 shadow-md rounded-2xl w-full max-w-[95%]'
             : 'bg-[#D4AF37] text-[#1B3022] shadow-[0_4px_12px_rgba(0,0,0,0.1)] border-none font-bold rounded-full px-4 py-1.5 max-w-[80%] flex items-center justify-center',
         )}
       >
@@ -29,10 +29,13 @@ export function MessageItem({ message }: MessageItemProps) {
             <ReactMarkdown
               components={{
                 p: ({ node, ...props }) => (
-                  <p className="mb-2 last:mb-0 leading-relaxed" {...props} />
+                  <p className="first:mt-0 mb-2 last:mb-0 leading-relaxed" {...props} />
                 ),
                 strong: ({ node, ...props }) => (
                   <strong className="text-[#D4AF37] font-bold" {...props} />
+                ),
+                hr: () => (
+                  <hr className="block w-full my-4 mx-4 border-0 border-t border-white/20" />
                 ),
               }}
             >

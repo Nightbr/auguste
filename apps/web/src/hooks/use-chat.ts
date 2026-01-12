@@ -6,12 +6,7 @@ export interface Message {
 }
 
 export function useChat() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: 'assistant',
-      content: 'Hello! I am Auguste, your AI meal planning assistant. How can I help you today?',
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -19,6 +14,9 @@ export function useChat() {
   // Persistent IDs for memory
   const threadIdRef = useRef(crypto.randomUUID());
   const resourceIdRef = useRef('default-user');
+
+  // Family ID state - will be set when agent creates a family
+  const [familyId, setFamilyId] = useState<string | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -28,10 +26,18 @@ export function useChat() {
     scrollToBottom();
   }, [messages, isLoading]);
 
+  // Load familyId from localStorage on mount
+  useEffect(() => {
+    const storedFamilyId = localStorage.getItem('auguste-family-id');
+    if (storedFamilyId) {
+      setFamilyId(storedFamilyId);
+    }
+  }, []);
+
   const handleInputChange = (value: string) => setInput(value);
 
   const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading || !familyId) return;
 
     const userMessage: Message = { role: 'user', content: input };
     setMessages((prev) => [...prev, userMessage]);
@@ -45,10 +51,11 @@ export function useChat() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          messages: [...messages, userMessage],
+          message: input, // Only send the current message
           agentId: 'onboardingAgent',
           threadId: threadIdRef.current,
-          resourceId: resourceIdRef.current,
+          resourceId: familyId || resourceIdRef.current,
+          familyId,
         }),
       });
 
@@ -66,18 +73,38 @@ export function useChat() {
 
       setMessages((prev) => [...prev, assistantMessage]);
 
+      let buffer = '';
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value, { stream: true });
-        assistantMessage.content += chunk;
+        buffer += decoder.decode(value, { stream: true });
 
-        setMessages((prev) => {
-          const newMessages = [...prev];
-          newMessages[newMessages.length - 1] = { ...assistantMessage };
-          return newMessages;
-        });
+        // Process complete SSE events
+        const lines = buffer.split('\n\n');
+        buffer = lines.pop() || ''; // Keep incomplete event in buffer
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+
+          try {
+            const data = JSON.parse(line.slice(6));
+
+            if (data.type === 'text') {
+              assistantMessage.content += data.content;
+              setMessages((prev) => {
+                const newMessages = [...prev];
+                newMessages[newMessages.length - 1] = { ...assistantMessage };
+                return newMessages;
+              });
+            } else if (data.type === 'error') {
+              throw new Error(data.content);
+            }
+          } catch (parseError) {
+            console.error('Failed to parse SSE event:', parseError);
+          }
+        }
       }
     } catch (error) {
       console.error('Error:', error);
@@ -93,6 +120,11 @@ export function useChat() {
     }
   };
 
+  const updateFamilyId = (id: string) => {
+    setFamilyId(id);
+    localStorage.setItem('auguste-family-id', id);
+  };
+
   return {
     messages,
     input,
@@ -101,5 +133,7 @@ export function useChat() {
     handleInputChange,
     sendMessage,
     setInput,
+    familyId,
+    setFamilyId: updateFamilyId,
   };
 }

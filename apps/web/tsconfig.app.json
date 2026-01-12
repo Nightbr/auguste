@@ -23,10 +23,10 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@auguste/ui/*": ["../../packages/ui/src/*"]
+      "@auguste/ui/*": ["../../packages/ui/src/*"],
+      "@auguste/core/*": ["../../packages/core/dist/*"]
     }
   },
   "include": ["src"],
