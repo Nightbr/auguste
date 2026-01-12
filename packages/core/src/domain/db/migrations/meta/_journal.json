@@ -15,6 +15,13 @@
       "when": 1767811578699,
       "tag": "0001_add_availability_index",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1767811878800,
+      "tag": "0002_split_food_preferences_columns",
+      "breakpoints": true
     }
   ]
 }

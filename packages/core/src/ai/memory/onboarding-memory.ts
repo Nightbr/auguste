@@ -42,13 +42,8 @@ const OnboardingMemberSchema = z.object({
     .default([])
     .describe('Dietary restrictions (e.g., vegetarian, gluten-free)'),
   allergies: z.array(z.string()).default([]).describe('Food allergies'),
-  foodPreferences: z
-    .object({
-      likes: z.array(z.string()).default([]),
-      dislikes: z.array(z.string()).default([]),
-    })
-    .default({ likes: [], dislikes: [] })
-    .describe('Food preferences'),
+  foodPreferencesLikes: z.array(z.string()).default([]).describe('Food likes'),
+  foodPreferencesDislikes: z.array(z.string()).default([]).describe('Food dislikes'),
   cookingSkillLevel: z
     .enum([
       CookingSkillLevel.none,

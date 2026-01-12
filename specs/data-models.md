@@ -78,12 +78,12 @@ export const BirthdateSchema = z
 
 export type Birthdate = z.infer<typeof BirthdateSchema>;
 
-export const FoodPreferencesSchema = z.object({
-  likes: z.array(z.string()).default([]),
-  dislikes: z.array(z.string()).default([]),
-});
+// Food preferences are stored as separate arrays for likes and dislikes
+export const FoodPreferencesLikesSchema = z.array(z.string()).default([]);
+export type FoodPreferencesLikes = z.infer<typeof FoodPreferencesLikesSchema>;
 
-export type FoodPreferences = z.infer<typeof FoodPreferencesSchema>;
+export const FoodPreferencesDislikesSchema = z.array(z.string()).default([]);
+export type FoodPreferencesDislikes = z.infer<typeof FoodPreferencesDislikesSchema>;
 
 export const MemberSchema = z.object({
   id: z.string().uuid(),
@@ -93,7 +93,8 @@ export const MemberSchema = z.object({
   birthdate: BirthdateSchema,
   dietaryRestrictions: z.array(z.string()).default([]),
   allergies: z.array(z.string()).default([]),
-  foodPreferences: FoodPreferencesSchema.default({ likes: [], dislikes: [] }),
+  foodPreferencesLikes: FoodPreferencesLikesSchema,
+  foodPreferencesDislikes: FoodPreferencesDislikesSchema,
   cookingSkillLevel: z.enum(['none', 'beginner', 'intermediate', 'advanced']).default('none'),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
@@ -212,5 +213,15 @@ export const COMMON_DIETARY_RESTRICTIONS = [
   'whole30',
 ] as const;
 
-export const COMMON_ALLERGIES = ['peanuts', 'tree-nuts', 'milk', 'eggs', 'wheat', 'soy', 'fish', 'shellfish', 'sesame'] as const;
+export const COMMON_ALLERGIES = [
+  'peanuts',
+  'tree-nuts',
+  'milk',
+  'eggs',
+  'wheat',
+  'soy',
+  'fish',
+  'shellfish',
+  'sesame',
+] as const;
 ```

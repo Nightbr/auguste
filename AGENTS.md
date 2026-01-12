@@ -84,6 +84,7 @@ Foreign key relationships: `Member.familyId → Family`, `MemberAvailability.mem
 ## Important Patterns
 
 - **Descriptive Migration Naming**: Always use the `--name` flag when generating migrations (e.g., `pnpm run db:generate -- --name add_user_table`). Never use the default random names.
+- **Database Column Naming**: Use **camelCase** for all database column names (e.g., `foodPreferencesLikes`, `createdAt`). This maintains consistency across the schema.
 - **Zod 4 Syntax**: Uses modern Zod syntax like `z.uuid()` not `z.string().uuid()`.
 - **Task Management**: When a task in `specs/TODO.md` is completed, **remove it** from the file instead of just marking it with `[x]`.
 - **Documentation Naming**: All files in `/docs` and `/specs` MUST follow **kebab-case** and be lowercase (e.g., `database-management.md`).

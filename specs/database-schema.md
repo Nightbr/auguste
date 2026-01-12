@@ -31,7 +31,8 @@ erDiagram
         json birthdate "optional object with day, month, year"
         json dietaryRestrictions "array"
         json allergies "array"
-        json foodPreferences "likes/dislikes"
+        json foodPreferencesLikes "array of liked foods"
+        json foodPreferencesDislikes "array of disliked foods"
         string cookingSkillLevel "none | beginner | intermediate | advanced"
         datetime createdAt
         datetime updatedAt
@@ -102,7 +103,8 @@ CREATE TABLE Member (
     birthdate TEXT,
     dietaryRestrictions TEXT DEFAULT '[]',
     allergies TEXT DEFAULT '[]',
-    foodPreferences TEXT DEFAULT '{}',
+    foodPreferencesLikes TEXT NOT NULL DEFAULT '[]',
+    foodPreferencesDislikes TEXT NOT NULL DEFAULT '[]',
     cookingSkillLevel TEXT DEFAULT 'none'
         CHECK (cookingSkillLevel IN ('none', 'beginner', 'intermediate', 'advanced')),
     createdAt TEXT NOT NULL DEFAULT (datetime('now')),

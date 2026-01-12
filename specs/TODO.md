@@ -5,10 +5,6 @@
 
 ## Onboarding Agent
 
-### Bugs
-
-- [ ] **Food dislikes not saved to database** - When asking the agent to add dislikes for a member (e.g., "Lucie dislikes pineapple"), the agent acknowledges the input but the database is not updated. The `updateMemberByNameTool` with `foodPreferences` is not being called. Root cause: The agent stores dislikes in working memory but fails to call the appropriate tool to persist the data. Needs investigation into why the tool call is not triggered.
-
 ### Session & Authentication
 
 - [ ] **Save session in database** - Persist user sessions to the database. We will build a secure mechanism later (Magic link with email or any auth session) [need specifications]

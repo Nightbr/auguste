@@ -10,10 +10,8 @@ interface MembersListProps {
     } | null;
     dietaryRestrictions: string[];
     allergies: string[];
-    foodPreferences: {
-      likes: string[];
-      dislikes: string[];
-    };
+    foodPreferencesLikes: string[];
+    foodPreferencesDislikes: string[];
     cookingSkillLevel: string;
   }>;
 }
@@ -92,17 +90,17 @@ export function MembersList({ members }: MembersListProps) {
           )}
 
           {/* Food Preferences */}
-          {(member.foodPreferences.likes.length > 0 ||
-            member.foodPreferences.dislikes.length > 0) && (
+          {(member.foodPreferencesLikes.length > 0 ||
+            member.foodPreferencesDislikes.length > 0) && (
             <div className="mb-4">
               <h4 className="text-sm font-medium text-escoffier-green mb-2">Food Preferences</h4>
-              {member.foodPreferences.likes.length > 0 && (
+              {member.foodPreferencesLikes.length > 0 && (
                 <div className="mb-2">
                   <span className="text-xs text-escoffier-green/60 uppercase tracking-wide">
                     Likes:
                   </span>
                   <div className="flex flex-wrap gap-2 mt-1">
-                    {member.foodPreferences.likes.map((like: string) => (
+                    {member.foodPreferencesLikes.map((like: string) => (
                       <span key={like} className="badge">
                         {like}
                       </span>
@@ -110,13 +108,13 @@ export function MembersList({ members }: MembersListProps) {
                   </div>
                 </div>
               )}
-              {member.foodPreferences.dislikes.length > 0 && (
+              {member.foodPreferencesDislikes.length > 0 && (
                 <div>
                   <span className="text-xs text-escoffier-green/60 uppercase tracking-wide">
                     Dislikes:
                   </span>
                   <div className="flex flex-wrap gap-2 mt-1">
-                    {member.foodPreferences.dislikes.map((dislike: string) => (
+                    {member.foodPreferencesDislikes.map((dislike: string) => (
                       <span key={dislike} className="badge">
                         {dislike}
                       </span>
