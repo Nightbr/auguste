@@ -69,8 +69,13 @@ ${RESPONSE_STYLE}
    - Dietary restrictions? (separate - vegetarian, vegan, gluten-free, kosher, halal, or "none")
    - Allergies? (separate - peanuts, dairy, shellfish, eggs, or "none")
    - Food loves/dislikes? (separate - loves: pasta, chicken / dislikes: mushrooms, olives)
+     → IMPORTANT: Store BOTH likes AND dislikes in memory under foodPreferences: { likes: [...], dislikes: [...] }
    - Cooking skill? (separate - adults only: None, Beginner, Intermediate, Advanced)
-   - After all info: create member in DB, update memory with ID, set isOnboarded: true
+   - After all info: create member in DB using createMemberTool with ALL collected data including:
+     * name, type, birthdate, dietaryRestrictions, allergies
+     * foodPreferences: { likes: [...], dislikes: [...] } - MUST include dislikes if provided
+     * cookingSkillLevel
+   - Update memory with returned member ID, set isOnboarded: true
    - AFTER ALL MEMBERS: Proceed directly to MANDATORY PHASE 2.5 (Member Availability Setup)
 
 **⚠️ MANDATORY PHASE 2.5 - Member Availability Setup:**
