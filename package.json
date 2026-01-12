@@ -52,7 +52,7 @@
     "drizzle-kit": "^0.31.8",
     "mastra": "^1.0.0-beta.12",
     "tsx": "^4.21.0",
-    "turbo": "^2.7.3",
+    "turbo": "^2.7.4",
     "typescript": "^5.9.3",
     "vitest": "^4.0.16"
   }
