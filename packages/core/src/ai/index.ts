@@ -4,6 +4,9 @@ import { LibSQLStore } from '@mastra/libsql';
 import { Observability } from '@mastra/observability';
 import { onboardingAgent, familyEditorAgent, mealPlannerAgent } from './agents/index.js';
 
+// Re-export RequestContext for use by apps
+export { RequestContext } from '@mastra/core/request-context';
+
 // Export utility functions
 export { cronToHumanReadable } from './tools/planner-tools.js';
 
