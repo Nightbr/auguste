@@ -57,9 +57,9 @@ export function ChatInput({
         disabled={isDisabled}
         rows={3}
         className="flex-1 bg-transparent border-0 focus:ring-0 resize-none text-base text-escoffier-green placeholder:text-escoffier-green/40 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-        autoFocus
       />
       <button
+        type="button"
         onClick={handleSend}
         disabled={isDisabled || !input.trim()}
         className="h-8 w-8 pr-0.5 rounded-xl bg-champagne-gold hover:bg-champagne-gold/80 text-escoffier-green border-none shadow-none transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"

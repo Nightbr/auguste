@@ -15,7 +15,55 @@ interface PlannerSettingsProps {
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner'];
 
+/**
+ * Format hour to 12-hour format with AM/PM
+ */
+function formatTime(hour: number, minute: number): string {
+  const period = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+  const minuteStr = minute === 0 ? '' : `:${minute.toString().padStart(2, '0')}`;
+  return `${displayHour}${minuteStr} ${period}`;
+}
+
+/**
+ * Convert a cron expression to human-readable format
+ */
+function cronToHumanReadable(cron: string): string {
+  const parts = cron.split(' ');
+  if (parts.length !== 5) {
+    return cron; // Return as-is if invalid
+  }
+
+  const [minute, hour, , , dayOfWeek] = parts;
+  const hourNum = parseInt(hour, 10);
+  const minuteNum = parseInt(minute, 10);
+
+  // Format time
+  const timeStr = formatTime(hourNum, minuteNum);
+
+  // Format days
+  let dayStr: string;
+  if (dayOfWeek === '*') {
+    dayStr = 'Every day';
+  } else if (dayOfWeek === '1-5') {
+    dayStr = 'Monday to Friday';
+  } else if (dayOfWeek === '0,6' || dayOfWeek === '6,0') {
+    dayStr = 'Weekends';
+  } else {
+    const dayNums = dayOfWeek.split(',').map((d) => parseInt(d, 10));
+    if (dayNums.length === 1) {
+      dayStr = `Every ${DAYS[dayNums[0]]}`;
+    } else {
+      dayStr = dayNums.map((d) => DAYS[d]).join(', ');
+    }
+  }
+
+  return `${dayStr} at ${timeStr}`;
+}
+
 export function PlannerSettings({ settings }: PlannerSettingsProps) {
+  const humanReadableSchedule = cronToHumanReadable(settings.notificationCron);
+
   return (
     <div className="p-6 space-y-6">
       <h2 className="text-2xl font-heading font-semibold text-escoffier-green mb-6">
@@ -70,23 +118,12 @@ export function PlannerSettings({ settings }: PlannerSettingsProps) {
         </div>
       </div>
 
-      {/* Timezone */}
-      <div className="family-card p-6">
-        <h3 className="text-lg font-medium text-escoffier-green mb-4">Timezone</h3>
-        <div className="text-escoffier-green font-medium">{settings.timezone}</div>
-      </div>
-
       {/* Notification Schedule */}
       <div className="family-card p-6">
         <h3 className="text-lg font-medium text-escoffier-green mb-4">Notification Schedule</h3>
-        <div className="text-escoffier-green/70 text-sm">
-          <div className="mb-2">
-            <span className="font-medium text-escoffier-green">Cron Expression:</span>
-            <span className="ml-2 font-mono">{settings.notificationCron}</span>
-          </div>
-          <div className="text-xs text-escoffier-green/50">
-            Notifications are sent according to this schedule
-          </div>
+        <div className="flex items-center gap-3">
+          <div className="text-xl font-medium text-champagne-gold">{humanReadableSchedule}</div>
+          <span className="text-sm text-escoffier-green/50">({settings.timezone})</span>
         </div>
       </div>
 

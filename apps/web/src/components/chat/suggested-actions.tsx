@@ -25,9 +25,7 @@ export function SuggestedActions({ onSelect, disabled = false }: SuggestedAction
   return (
     <div className="flex flex-col items-center justify-center h-full px-4">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-serif text-escoffier-green mb-2">
-          Hello! I'm Auguste
-        </h2>
+        <h2 className="text-2xl font-serif text-escoffier-green mb-2">Hello! I'm Auguste</h2>
         <p className="text-escoffier-green/70">
           Your AI meal planning assistant. How can I help you today?
         </p>
@@ -36,6 +34,7 @@ export function SuggestedActions({ onSelect, disabled = false }: SuggestedAction
       <div className="flex flex-wrap justify-center gap-3 max-w-md">
         {suggestions.map((suggestion) => (
           <button
+            type="button"
             key={suggestion.label}
             onClick={() => onSelect(suggestion.message)}
             disabled={disabled}
@@ -49,4 +48,3 @@ export function SuggestedActions({ onSelect, disabled = false }: SuggestedAction
     </div>
   );
 }
-

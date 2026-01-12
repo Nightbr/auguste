@@ -40,6 +40,7 @@ export function FamilyPanel({ familyId }: FamilyPanelProps) {
         <div className="flex">
           {tabs.map((tab) => (
             <button
+              type="button"
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`px-6 py-4 text-base font-medium transition-colors ${

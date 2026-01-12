@@ -17,10 +17,6 @@
 
 - [ ] **Resume from existing family data** - If there is already a family configured, read the data from the database and continue the conversation from there. If everything is configured, ask if there are any updates to do or go to the next step (Meal planning - TODO later)
 
-### Bugs
-
-- [ ] **PlannerSettings notification CRON is not working** - "Il semble que l'outil ait encore du mal à interpréter "tous les mercredis à 9h du matin" correctement et par défaut à dimanche 18h."
-
 ## apps/web
 
 - [ ] **More modern UI** - The UI is not modern enough, we need to make it more modern and user-friendly. Look at https://ai-sdk.dev/elements for inspiration.

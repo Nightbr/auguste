@@ -105,15 +105,32 @@ describe('Planner Tools', () => {
     expect(result.found).toBe(false);
   });
 
-  it('should parse cron schedule', async () => {
+  it('should parse cron schedule for specific day and time', async () => {
     const result = await parseCronScheduleTool.execute({ description: 'Sunday at 6pm' });
     expect(result.cron).toBe('0 18 * * 0');
     expect(result.humanReadable).toContain('Sunday');
+    expect(result.humanReadable).toContain('6 PM');
   });
 
-  it('should return default cron for unknown description', async () => {
+  it('should parse cron schedule for Friday evening', async () => {
+    const result = await parseCronScheduleTool.execute({ description: 'Friday evening' });
+    expect(result.cron).toBe('0 18 * * 5');
+    expect(result.humanReadable).toContain('Friday');
+    expect(result.humanReadable).toContain('6 PM');
+  });
+
+  it('should parse cron schedule for weekdays', async () => {
+    const result = await parseCronScheduleTool.execute({ description: 'weekday mornings' });
+    expect(result.cron).toBe('0 9 * * 1-5');
+    expect(result.humanReadable).toContain('Monday to Friday');
+    expect(result.humanReadable).toContain('9 AM');
+  });
+
+  it('should default to every day at 6pm for unknown description', async () => {
     const result = await parseCronScheduleTool.execute({ description: 'whenever' });
-    expect(result.cron).toBe('0 18 * * 0');
-    expect(result.humanReadable).toContain('defaulting');
+    // When no day or time is specified, defaults to every day at 6pm
+    expect(result.cron).toBe('0 18 * * *');
+    expect(result.humanReadable).toContain('Every day');
+    expect(result.humanReadable).toContain('6 PM');
   });
 });

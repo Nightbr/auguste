@@ -4,6 +4,9 @@ import { LibSQLStore } from '@mastra/libsql';
 import { Observability } from '@mastra/observability';
 import { onboardingAgent, familyEditorAgent, mealPlannerAgent } from './agents/index.js';
 
+// Export utility functions
+export { cronToHumanReadable } from './tools/planner-tools.js';
+
 export const mastra = new Mastra({
   agents: { onboardingAgent, familyEditorAgent, mealPlannerAgent },
   storage: new LibSQLStore({

@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Header } from '@/components/layout/header';
 import { ChatPanel } from '@/components/chat/chat-panel';
 import { FamilyPanel } from '@/components/family/family-panel';
