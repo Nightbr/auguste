@@ -67,6 +67,19 @@ cp .env.example .env
 # Add your OPENROUTER_API_KEY to .env
 ```
 
+### Running the Application
+
+To start the full development environment (API, Web, and Core packages):
+
+```bash
+pnpm run dev
+```
+
+This will start:
+
+- **Web App:** [http://localhost:3000](http://localhost:3000)
+- **API:** [http://localhost:3001](http://localhost:3001)
+
 ### Running Mastra Studio
 
 To visualize your agents and workflows, run the local studio:
