@@ -1,33 +1,45 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 
-export function useFamilyData(familyId: string) {
+interface UseFamilyDataOptions {
+  /** When true, enables polling every 1 second. When false, polling is disabled. */
+  isPolling?: boolean;
+}
+
+const POLLING_INTERVAL = 1000; // Poll every 1 second when active
+
+export function useFamilyData(familyId: string, options: UseFamilyDataOptions = {}) {
+  const { isPolling = false } = options;
+
+  // Only poll when isPolling is true, otherwise disable refetchInterval
+  const refetchInterval = isPolling ? POLLING_INTERVAL : false;
+
   const familyQuery = useQuery({
     queryKey: ['family', familyId],
     queryFn: () => apiClient.getFamily(familyId),
     enabled: !!familyId,
-    refetchInterval: 5000, // Poll every 5 seconds for real-time updates
+    refetchInterval,
   });
 
   const membersQuery = useQuery({
     queryKey: ['members', familyId],
     queryFn: () => apiClient.getMembers(familyId),
     enabled: !!familyId,
-    refetchInterval: 5000,
+    refetchInterval,
   });
 
   const availabilityQuery = useQuery({
     queryKey: ['availability', familyId],
     queryFn: () => apiClient.getAvailability(familyId),
     enabled: !!familyId,
-    refetchInterval: 5000,
+    refetchInterval,
   });
 
   const settingsQuery = useQuery({
     queryKey: ['settings', familyId],
     queryFn: () => apiClient.getSettings(familyId),
     enabled: !!familyId,
-    refetchInterval: 5000,
+    refetchInterval,
   });
 
   return {

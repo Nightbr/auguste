@@ -1,9 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 
 export interface Message {
   role: 'user' | 'assistant';
   content: string;
 }
+
+const POLLING_DURATION_MS = 5000; // Duration to poll after receiving a message
 
 export function useChat() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -17,6 +19,36 @@ export function useChat() {
 
   // Family ID state - will be set when agent creates a family
   const [familyId, setFamilyId] = useState<string | null>(null);
+
+  // Polling state - controls when family data should be polled
+  const [isPolling, setIsPolling] = useState(false);
+  const pollingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Start or reset the polling timer
+  const triggerPolling = useCallback(() => {
+    // Clear existing timeout if any
+    if (pollingTimeoutRef.current) {
+      clearTimeout(pollingTimeoutRef.current);
+    }
+
+    // Enable polling
+    setIsPolling(true);
+
+    // Set timeout to disable polling after the duration
+    pollingTimeoutRef.current = setTimeout(() => {
+      setIsPolling(false);
+      pollingTimeoutRef.current = null;
+    }, POLLING_DURATION_MS);
+  }, []);
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (pollingTimeoutRef.current) {
+        clearTimeout(pollingTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -98,6 +130,9 @@ export function useChat() {
                 newMessages[newMessages.length - 1] = { ...assistantMessage };
                 return newMessages;
               });
+              // Trigger polling when receiving agent messages
+              // This resets the 5s timer on each chunk received
+              triggerPolling();
             } else if (data.type === 'error') {
               throw new Error(data.content);
             }
@@ -135,5 +170,7 @@ export function useChat() {
     setInput,
     familyId,
     setFamilyId: updateFamilyId,
+    /** Whether family data polling is currently active (5s after last agent message) */
+    isPolling,
   };
 }
