@@ -2,8 +2,10 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import {
   createMealPlanning,
   getMealPlanning,
+  updateMealPlanning,
   createMealEvent,
   updateMealEvent,
+  deleteMealEvent,
   getMealEvents,
 } from './meal-tools';
 import { createFamilyTool } from './family-tools';
@@ -104,5 +106,82 @@ describe('Meal Tools', () => {
     await expect(
       updateMealEvent.execute({ id: '00000000-0000-4000-8000-000000000000' }),
     ).rejects.toThrow('Failed to update meal event');
+  });
+
+  it('should update meal planning status', async () => {
+    const planning = await createMealPlanning.execute({
+      familyId,
+      startDate: '2026-01-01',
+      endDate: '2026-01-07',
+      status: 'draft',
+    });
+
+    expect(planning.status).toBe('draft');
+
+    const updated = await updateMealPlanning.execute({
+      id: planning.id,
+      status: 'active',
+    });
+
+    expect(updated.status).toBe('active');
+
+    const completed = await updateMealPlanning.execute({
+      id: planning.id,
+      status: 'completed',
+    });
+
+    expect(completed.status).toBe('completed');
+  });
+
+  it('should throw error when updating non-existent meal planning', async () => {
+    await expect(
+      updateMealPlanning.execute({
+        id: '00000000-0000-4000-8000-000000000000',
+        status: 'active',
+      }),
+    ).rejects.toThrow('Failed to update meal planning');
+  });
+
+  it('should delete a meal event', async () => {
+    const planning = await createMealPlanning.execute({
+      familyId,
+      startDate: '2026-01-01',
+      endDate: '2026-01-07',
+    });
+
+    const event = await createMealEvent.execute({
+      familyId,
+      planningId: planning.id,
+      date: '2026-01-02',
+      mealType: MealType.dinner as any,
+      recipeName: 'To be deleted',
+    });
+
+    // Verify event exists
+    const eventsBefore = await getMealEvents.execute({
+      familyId,
+      startDate: '2026-01-01',
+      endDate: '2026-01-07',
+    });
+    expect(eventsBefore).toHaveLength(1);
+
+    // Delete the event
+    const result = await deleteMealEvent.execute({ id: event.id });
+    expect(result.success).toBe(true);
+    expect(result.deletedId).toBe(event.id);
+
+    // Verify event is deleted
+    const eventsAfter = await getMealEvents.execute({
+      familyId,
+      startDate: '2026-01-01',
+      endDate: '2026-01-07',
+    });
+    expect(eventsAfter).toHaveLength(0);
+  });
+
+  it('should throw error when deleting non-existent meal event', async () => {
+    await expect(
+      deleteMealEvent.execute({ id: '00000000-0000-4000-8000-000000000000' }),
+    ).rejects.toThrow('Failed to delete meal event');
   });
 });

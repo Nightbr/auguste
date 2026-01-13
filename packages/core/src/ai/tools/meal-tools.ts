@@ -154,3 +154,68 @@ export const getMealEvents = createTool({
     }
   },
 });
+
+export const updateMealPlanning = createTool({
+  id: 'update-meal-planning',
+  description:
+    'Update a meal planning cycle status. Use to transition from draft to active (when user approves) or to completed.',
+  inputSchema: z.object({
+    id: z.string().describe('The meal planning ID'),
+    status: z
+      .enum(['draft', 'active', 'completed'])
+      .optional()
+      .describe('New status for the meal planning'),
+  }),
+  outputSchema: MealPlanningSchema,
+  execute: async ({ id, status }) => {
+    const timestamp = now();
+
+    const updates: Partial<typeof schema.mealPlanning.$inferInsert> = { updatedAt: timestamp };
+
+    if (status !== undefined) updates.status = status;
+
+    try {
+      const [updatedPlanning] = await db
+        .update(schema.mealPlanning)
+        .set(updates)
+        .where(eq(schema.mealPlanning.id, id))
+        .returning();
+
+      if (!updatedPlanning) {
+        throw new Error(`Meal planning with id ${id} not found`);
+      }
+
+      return updatedPlanning;
+    } catch (error) {
+      console.error('Error updating meal planning:', error);
+      throw new Error('Failed to update meal planning');
+    }
+  },
+});
+
+export const deleteMealEvent = createTool({
+  id: 'delete-meal-event',
+  description:
+    'Delete a meal event. Used during the refinement phase when user wants to remove a planned meal.',
+  inputSchema: z.object({
+    id: z.string().describe('The meal event ID to delete'),
+  }),
+  outputSchema: z.object({
+    success: z.boolean(),
+    deletedId: z.string(),
+  }),
+  execute: async ({ id }) => {
+    try {
+      const result = await db.delete(schema.mealEvent).where(eq(schema.mealEvent.id, id));
+
+      if (result.changes === 0) {
+        throw new Error(`Meal event with id ${id} not found`);
+      }
+
+      return { success: true, deletedId: id };
+    } catch (error) {
+      console.error('Error deleting meal event:', error);
+      throw new Error('Failed to delete meal event');
+    }
+  },
+});

@@ -34,6 +34,7 @@ import {
   getFamilyAvailabilityForMealTool,
   setMemberAvailabilityByNameTool,
   bulkSetMemberAvailabilityByNameTool,
+  getAvailabilityForDateRangeTool,
 } from './availability-tools.js';
 export {
   setMemberAvailabilityTool,
@@ -42,6 +43,7 @@ export {
   getFamilyAvailabilityForMealTool,
   setMemberAvailabilityByNameTool,
   bulkSetMemberAvailabilityByNameTool,
+  getAvailabilityForDateRangeTool,
 };
 
 // Planner settings tools
@@ -111,8 +113,18 @@ export const plannerConfigTools = {
 import {
   createMealPlanning,
   getMealPlanning,
+  updateMealPlanning,
   createMealEvent,
   updateMealEvent,
+  deleteMealEvent,
   getMealEvents,
 } from './meal-tools.js';
-export { createMealPlanning, getMealPlanning, createMealEvent, updateMealEvent, getMealEvents };
+export {
+  createMealPlanning,
+  getMealPlanning,
+  updateMealPlanning,
+  createMealEvent,
+  updateMealEvent,
+  deleteMealEvent,
+  getMealEvents,
+};

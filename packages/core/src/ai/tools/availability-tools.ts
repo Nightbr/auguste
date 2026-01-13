@@ -1,5 +1,5 @@
 import { createTool } from '@mastra/core/tools';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, sql, inArray } from 'drizzle-orm';
 import { z } from 'zod';
 import {
   db,
@@ -320,5 +320,117 @@ export const getFamilyAvailabilityForMealTool = createTool({
       memberName: row.memberName,
       isAvailable: row.isAvailable ?? true, // Default to true if no record
     }));
+  },
+});
+
+/**
+ * Get availability for a family within a date range.
+ * Translates day-of-week availability to specific dates.
+ */
+export const getAvailabilityForDateRangeTool = createTool({
+  id: 'get-availability-for-date-range',
+  description:
+    'Get member availability for each date in a range. Translates recurring day-of-week availability to specific calendar dates. Essential for meal planning to know who is available for each meal slot.',
+  inputSchema: z.object({
+    familyId: z.uuid().describe('The family ID'),
+    startDate: z.string().describe('Start date in YYYY-MM-DD format'),
+    endDate: z.string().describe('End date in YYYY-MM-DD format'),
+    mealTypes: z
+      .array(z.enum([MealType.breakfast, MealType.lunch, MealType.dinner]))
+      .optional()
+      .describe('Filter by specific meal types. If not provided, returns all meal types.'),
+  }),
+  outputSchema: z.array(
+    z.object({
+      date: z.string(),
+      dayOfWeek: z.number(),
+      mealType: z.string(),
+      availableMembers: z.array(
+        z.object({
+          memberId: z.string(),
+          memberName: z.string(),
+        }),
+      ),
+      unavailableMembers: z.array(
+        z.object({
+          memberId: z.string(),
+          memberName: z.string(),
+        }),
+      ),
+    }),
+  ),
+  execute: async ({ familyId, startDate, endDate, mealTypes }) => {
+    // Get all family members
+    const members = await db.query.member.findMany({
+      where: eq(schema.member.familyId, familyId),
+      columns: { id: true, name: true },
+    });
+
+    if (members.length === 0) {
+      return [];
+    }
+
+    // Get all availability records for these members
+    const memberIds = members.map((m) => m.id);
+    const availabilityRecords = await db.query.memberAvailability.findMany({
+      where: inArray(schema.memberAvailability.memberId, memberIds),
+    });
+
+    // Create a lookup map: memberId -> mealType -> dayOfWeek -> isAvailable
+    const availabilityMap = new Map<string, Map<string, Map<number, boolean>>>();
+    for (const record of availabilityRecords) {
+      if (!availabilityMap.has(record.memberId)) {
+        availabilityMap.set(record.memberId, new Map());
+      }
+      const memberMap = availabilityMap.get(record.memberId)!;
+      if (!memberMap.has(record.mealType)) {
+        memberMap.set(record.mealType, new Map());
+      }
+      memberMap.get(record.mealType)!.set(record.dayOfWeek, record.isAvailable);
+    }
+
+    // Generate all dates in range
+    const result: Array<{
+      date: string;
+      dayOfWeek: number;
+      mealType: string;
+      availableMembers: Array<{ memberId: string; memberName: string }>;
+      unavailableMembers: Array<{ memberId: string; memberName: string }>;
+    }> = [];
+
+    const mealTypesToCheck = mealTypes ?? [MealType.breakfast, MealType.lunch, MealType.dinner];
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const dateStr = d.toISOString().split('T')[0];
+      const dayOfWeek = d.getDay(); // 0 = Sunday, 6 = Saturday
+
+      for (const mealType of mealTypesToCheck) {
+        const availableMembers: Array<{ memberId: string; memberName: string }> = [];
+        const unavailableMembers: Array<{ memberId: string; memberName: string }> = [];
+
+        for (const member of members) {
+          // Default to available if no record exists
+          const isAvailable = availabilityMap.get(member.id)?.get(mealType)?.get(dayOfWeek) ?? true;
+
+          if (isAvailable) {
+            availableMembers.push({ memberId: member.id, memberName: member.name });
+          } else {
+            unavailableMembers.push({ memberId: member.id, memberName: member.name });
+          }
+        }
+
+        result.push({
+          date: dateStr,
+          dayOfWeek,
+          mealType,
+          availableMembers,
+          unavailableMembers,
+        });
+      }
+    }
+
+    return result;
   },
 });
