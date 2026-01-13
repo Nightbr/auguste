@@ -176,15 +176,17 @@ function mergeArrays(
   mode: 'add' | 'remove' | 'replace',
 ): string[] {
   switch (mode) {
-    case 'add':
+    case 'add': {
       // Add new items without duplicates (case-insensitive)
       const existingLower = existing.map((item) => item.toLowerCase());
       const itemsToAdd = newItems.filter((item) => !existingLower.includes(item.toLowerCase()));
       return [...existing, ...itemsToAdd];
-    case 'remove':
+    }
+    case 'remove': {
       // Remove items (case-insensitive)
       const toRemoveLower = newItems.map((item) => item.toLowerCase());
       return existing.filter((item) => !toRemoveLower.includes(item.toLowerCase()));
+    }
     case 'replace':
       // Replace entirely
       return newItems;

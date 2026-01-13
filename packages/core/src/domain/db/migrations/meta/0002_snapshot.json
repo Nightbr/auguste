@@ -131,23 +131,17 @@
       "indexes": {
         "idx_event_familyId": {
           "name": "idx_event_familyId",
-          "columns": [
-            "familyId"
-          ],
+          "columns": ["familyId"],
           "isUnique": false
         },
         "idx_event_planningId": {
           "name": "idx_event_planningId",
-          "columns": [
-            "planningId"
-          ],
+          "columns": ["planningId"],
           "isUnique": false
         },
         "idx_event_date": {
           "name": "idx_event_date",
-          "columns": [
-            "date"
-          ],
+          "columns": ["date"],
           "isUnique": false
         }
       },
@@ -156,12 +150,8 @@
           "name": "MealEvent_familyId_Family_id_fk",
           "tableFrom": "MealEvent",
           "tableTo": "Family",
-          "columnsFrom": [
-            "familyId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["familyId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -169,12 +159,8 @@
           "name": "MealEvent_planningId_MealPlanning_id_fk",
           "tableFrom": "MealEvent",
           "tableTo": "MealPlanning",
-          "columnsFrom": [
-            "planningId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["planningId"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -242,9 +228,7 @@
       "indexes": {
         "idx_planning_familyId": {
           "name": "idx_planning_familyId",
-          "columns": [
-            "familyId"
-          ],
+          "columns": ["familyId"],
           "isUnique": false
         }
       },
@@ -253,12 +237,8 @@
           "name": "MealPlanning_familyId_Family_id_fk",
           "tableFrom": "MealPlanning",
           "tableTo": "Family",
-          "columnsFrom": [
-            "familyId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["familyId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -365,9 +345,7 @@
       "indexes": {
         "idx_member_familyId": {
           "name": "idx_member_familyId",
-          "columns": [
-            "familyId"
-          ],
+          "columns": ["familyId"],
           "isUnique": false
         }
       },
@@ -376,12 +354,8 @@
           "name": "Member_familyId_Family_id_fk",
           "tableFrom": "Member",
           "tableTo": "Family",
-          "columnsFrom": [
-            "familyId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["familyId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -433,18 +407,12 @@
       "indexes": {
         "idx_availability_memberId": {
           "name": "idx_availability_memberId",
-          "columns": [
-            "memberId"
-          ],
+          "columns": ["memberId"],
           "isUnique": false
         },
         "MemberAvailability_memberId_mealType_dayOfWeek_unique": {
           "name": "MemberAvailability_memberId_mealType_dayOfWeek_unique",
-          "columns": [
-            "memberId",
-            "mealType",
-            "dayOfWeek"
-          ],
+          "columns": ["memberId", "mealType", "dayOfWeek"],
           "isUnique": true
         }
       },
@@ -453,12 +421,8 @@
           "name": "MemberAvailability_memberId_Member_id_fk",
           "tableFrom": "MemberAvailability",
           "tableTo": "Member",
-          "columnsFrom": [
-            "memberId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["memberId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -544,16 +508,12 @@
       "indexes": {
         "PlannerSettings_familyId_unique": {
           "name": "PlannerSettings_familyId_unique",
-          "columns": [
-            "familyId"
-          ],
+          "columns": ["familyId"],
           "isUnique": true
         },
         "idx_settings_familyId": {
           "name": "idx_settings_familyId",
-          "columns": [
-            "familyId"
-          ],
+          "columns": ["familyId"],
           "isUnique": false
         }
       },
@@ -562,12 +522,8 @@
           "name": "PlannerSettings_familyId_Family_id_fk",
           "tableFrom": "PlannerSettings",
           "tableTo": "Family",
-          "columnsFrom": [
-            "familyId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["familyId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
