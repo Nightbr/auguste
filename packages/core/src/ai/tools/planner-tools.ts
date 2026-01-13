@@ -32,7 +32,6 @@ export const createPlannerSettingsTool = createTool({
         familyId: input.familyId,
         mealTypes: input.mealTypes ?? [MealType.lunch, MealType.dinner],
         activeDays: input.activeDays ?? [0, 1, 2, 3, 4, 5, 6],
-        defaultServings: input.defaultServings ?? 4,
         notificationCron: input.notificationCron ?? '0 18 * * 0',
         timezone: input.timezone ?? 'UTC',
         createdAt: timestamp,
@@ -86,7 +85,6 @@ export const updatePlannerSettingsTool = createTool({
 
     if (input.mealTypes !== undefined) updates.mealTypes = input.mealTypes;
     if (input.activeDays !== undefined) updates.activeDays = input.activeDays;
-    if (input.defaultServings !== undefined) updates.defaultServings = input.defaultServings;
     if (input.notificationCron !== undefined) updates.notificationCron = input.notificationCron;
     if (input.timezone !== undefined) updates.timezone = input.timezone;
 
@@ -114,7 +112,6 @@ const UpdatePlannerSettingsByFamilyIdInputSchema = z.object({
     .array(z.number())
     .optional()
     .describe('Array of days (0=Sunday to 6=Saturday) to plan meals for'),
-  defaultServings: z.number().int().optional().describe('Default number of servings per meal'),
   notificationCron: z.string().optional().describe('Cron expression for notification schedule'),
   timezone: z.string().optional().describe('Timezone for notifications (e.g., "America/New_York")'),
 });
@@ -138,7 +135,6 @@ export const updatePlannerSettingsByFamilyIdTool = createTool({
 
     if (input.mealTypes !== undefined) updates.mealTypes = input.mealTypes;
     if (input.activeDays !== undefined) updates.activeDays = input.activeDays;
-    if (input.defaultServings !== undefined) updates.defaultServings = input.defaultServings;
     if (input.notificationCron !== undefined) updates.notificationCron = input.notificationCron;
     if (input.timezone !== undefined) updates.timezone = input.timezone;
 

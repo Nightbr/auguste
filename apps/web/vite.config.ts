@@ -13,4 +13,7 @@ export default defineConfig({
       '@auguste/ui': path.resolve(__dirname, '../../packages/ui/src'),
     },
   },
+  server: {
+    port: 3000,
+  },
 });

@@ -37,13 +37,11 @@ describe('Planner Tools', () => {
     const result = await createPlannerSettingsTool.execute({
       familyId: manualFamilyId,
       mealTypes: [MealType.breakfast as any, MealType.dinner as any],
-      defaultServings: 2,
     });
 
     expect(result.id).toBeDefined();
     expect(result.familyId).toBe(manualFamilyId);
     expect(result.mealTypes).toContain(MealType.breakfast);
-    expect(result.defaultServings).toBe(2);
   });
 
   it('should get auto-created planner settings', async () => {
@@ -53,7 +51,6 @@ describe('Planner Tools', () => {
     expect(result.found).toBe(true);
     expect(result.settings?.familyId).toBe(familyId);
     expect(result.settings?.mealTypes).toEqual(['lunch', 'dinner']);
-    expect(result.settings?.defaultServings).toBe(4);
   });
 
   it('should return found=false for non-existent planner settings', async () => {
@@ -70,12 +67,10 @@ describe('Planner Tools', () => {
 
     const result = await updatePlannerSettingsTool.execute({
       id: settingsId,
-      defaultServings: 6,
       timezone: 'Europe/Paris',
     });
 
     expect(result.found).toBe(true);
-    expect(result.settings?.defaultServings).toBe(6);
     expect(result.settings?.timezone).toBe('Europe/Paris');
   });
 
@@ -100,7 +95,7 @@ describe('Planner Tools', () => {
   it('should return found=false when updating non-existent planner settings', async () => {
     const result = await updatePlannerSettingsTool.execute({
       id: '00000000-0000-4000-8000-000000000000',
-      defaultServings: 1,
+      timezone: 'UTC',
     });
     expect(result.found).toBe(false);
   });

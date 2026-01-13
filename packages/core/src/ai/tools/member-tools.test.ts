@@ -112,7 +112,8 @@ describe('Member Tools', () => {
       type: MemberType.child as any,
       dietaryRestrictions: ['None'],
       allergies: ['Peanuts'],
-      foodPreferences: { likes: ['pizza'], dislikes: [] },
+      foodPreferencesLikes: ['pizza'],
+      foodPreferencesDislikes: [],
       cookingSkillLevel: 'intermediate' as any,
     });
 
@@ -120,7 +121,7 @@ describe('Member Tools', () => {
     expect(result.member?.type).toBe(MemberType.child);
     expect(result.member?.dietaryRestrictions).toContain('None');
     expect(result.member?.allergies).toContain('Peanuts');
-    expect(result.member?.foodPreferences?.likes).toContain('pizza');
+    expect(result.member?.foodPreferencesLikes).toContain('pizza');
     expect(result.member?.cookingSkillLevel).toBe('intermediate');
   });
 

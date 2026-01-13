@@ -8,7 +8,14 @@ import {
   CardContent,
   CardFooter,
 } from '@auguste/ui/components/ui/card';
-import { Search, Globe, Languages } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@auguste/ui/components/ui/select';
+import { Globe, Languages } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 
 const COUNTRIES = [
@@ -44,28 +51,10 @@ interface CreateFamilyModalProps {
 
 export function CreateFamilyModal({ onCreated }: CreateFamilyModalProps) {
   const [name, setName] = useState('');
-  const [countrySearch, setCountrySearch] = useState('');
-  const [selectedCountry, setSelectedCountry] = useState<{ code: string; name: string } | null>(
-    null,
-  );
-  const [languageSearch, setLanguageSearch] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState<{ code: string; name: string } | null>(
-    null,
-  );
+  const [selectedCountry, setSelectedCountry] = useState<string>('');
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const filteredCountries = COUNTRIES.filter(
-    (c) =>
-      c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
-      c.code.toLowerCase().includes(countrySearch.toLowerCase()),
-  );
-
-  const filteredLanguages = LANGUAGES.filter(
-    (l) =>
-      l.name.toLowerCase().includes(languageSearch.toLowerCase()) ||
-      l.code.toLowerCase().includes(languageSearch.toLowerCase()),
-  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,8 +66,8 @@ export function CreateFamilyModal({ onCreated }: CreateFamilyModalProps) {
     try {
       const family = await apiClient.createFamily({
         name,
-        country: selectedCountry.code,
-        language: selectedLanguage.code,
+        country: selectedCountry,
+        language: selectedLanguage,
       });
       onCreated(family.id);
     } catch (err) {
@@ -123,82 +112,40 @@ export function CreateFamilyModal({ onCreated }: CreateFamilyModalProps) {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2 relative">
+              <div className="space-y-2">
                 <label className="text-sm font-medium text-escoffier-green/80 flex items-center gap-2">
                   <Globe className="w-4 h-4" /> Country
                 </label>
-                <div className="relative">
-                  <Input
-                    placeholder="Search country..."
-                    value={selectedCountry ? selectedCountry.name : countrySearch}
-                    onChange={(e) => {
-                      setCountrySearch(e.target.value);
-                      if (selectedCountry) setSelectedCountry(null);
-                    }}
-                    className="bg-white/50 border-escoffier-green/10 pr-8"
-                  />
-                  <Search className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-escoffier-green/30" />
-                </div>
-
-                {!selectedCountry && countrySearch && (
-                  <div className="absolute z-10 w-full mt-1 max-h-40 overflow-auto bg-white border border-escoffier-green/10 rounded-md shadow-lg custom-scrollbar">
-                    {filteredCountries.length > 0 ? (
-                      filteredCountries.map((c) => (
-                        <div
-                          key={c.code}
-                          className="px-3 py-2 text-sm hover:bg-escoffier-green/5 cursor-pointer text-escoffier-green/80 transition-colors"
-                          onClick={() => {
-                            setSelectedCountry(c);
-                            setCountrySearch('');
-                          }}
-                        >
-                          {c.name} ({c.code})
-                        </div>
-                      ))
-                    ) : (
-                      <div className="px-3 py-2 text-sm text-escoffier-green/40">No results</div>
-                    )}
-                  </div>
-                )}
+                <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                  <SelectTrigger className="bg-white/50 border-escoffier-green/10">
+                    <SelectValue placeholder="Select country..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {COUNTRIES.map((c) => (
+                      <SelectItem key={c.code} value={c.code}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
-              <div className="space-y-2 relative">
+              <div className="space-y-2">
                 <label className="text-sm font-medium text-escoffier-green/80 flex items-center gap-2">
                   <Languages className="w-4 h-4" /> Language
                 </label>
-                <div className="relative">
-                  <Input
-                    placeholder="Search language..."
-                    value={selectedLanguage ? selectedLanguage.name : languageSearch}
-                    onChange={(e) => {
-                      setLanguageSearch(e.target.value);
-                      if (selectedLanguage) setSelectedLanguage(null);
-                    }}
-                    className="bg-white/50 border-escoffier-green/10 pr-8"
-                  />
-                  <Search className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-escoffier-green/30" />
-                </div>
-
-                {!selectedLanguage && languageSearch && (
-                  <div className="absolute z-10 w-full mt-1 max-h-40 overflow-auto bg-white border border-escoffier-green/10 rounded-md shadow-lg custom-scrollbar">
-                    {filteredLanguages.length > 0 ? (
-                      filteredLanguages.map((l) => (
-                        <div
-                          key={l.code}
-                          className="px-3 py-2 text-sm hover:bg-escoffier-green/5 cursor-pointer text-escoffier-green/80 transition-colors"
-                          onClick={() => {
-                            setSelectedLanguage(l);
-                            setLanguageSearch('');
-                          }}
-                        >
-                          {l.name} ({l.code})
-                        </div>
-                      ))
-                    ) : (
-                      <div className="px-3 py-2 text-sm text-escoffier-green/40">No results</div>
-                    )}
-                  </div>
-                )}
+                <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                  <SelectTrigger className="bg-white/50 border-escoffier-green/10">
+                    <SelectValue placeholder="Select language..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LANGUAGES.map((l) => (
+                      <SelectItem key={l.code} value={l.code}>
+                        {l.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </CardContent>

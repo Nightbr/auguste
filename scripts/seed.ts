@@ -27,7 +27,8 @@ async function seed() {
       name: 'Pierre',
       type: 'adult',
       dietaryRestrictions: [],
-      foodPreferences: { likes: ['asian', 'spicy', 'steak'], dislikes: ['blue cheese'] },
+      foodPreferencesLikes: ['asian', 'spicy', 'steak'],
+      foodPreferencesDislikes: ['blue cheese'],
       cookingSkillLevel: 'intermediate',
     },
     {
@@ -36,7 +37,8 @@ async function seed() {
       name: 'Marie',
       type: 'adult',
       dietaryRestrictions: ['vegetarian'],
-      foodPreferences: { likes: ['italian', 'salads', 'soup'], dislikes: ['cilantro'] },
+      foodPreferencesLikes: ['italian', 'salads', 'soup'],
+      foodPreferencesDislikes: ['cilantro'],
       cookingSkillLevel: 'advanced',
     },
     {
@@ -46,7 +48,8 @@ async function seed() {
       type: 'child',
       dietaryRestrictions: [],
       allergies: ['peanuts', 'tree-nuts'],
-      foodPreferences: { likes: ['pasta', 'nuggets', 'pizza'], dislikes: ['broccoli', 'spinach'] },
+      foodPreferencesLikes: ['pasta', 'nuggets', 'pizza'],
+      foodPreferencesDislikes: ['broccoli', 'spinach'],
     },
   ]);
 
@@ -57,7 +60,6 @@ async function seed() {
     familyId,
     mealTypes: ['dinner'],
     activeDays: [0, 1, 2, 3, 4, 5, 6],
-    defaultServings: 3,
   });
 
   // Availability

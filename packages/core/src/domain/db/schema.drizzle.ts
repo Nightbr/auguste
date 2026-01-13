@@ -29,10 +29,14 @@ export const member = sqliteTable(
       .default(sql`'[]'`)
       .$type<string[]>(),
     allergies: text('allergies', { mode: 'json' }).notNull().default(sql`'[]'`).$type<string[]>(),
-    foodPreferences: text('foodPreferences', { mode: 'json' })
+    foodPreferencesLikes: text('foodPreferencesLikes', { mode: 'json' })
       .notNull()
-      .default(sql`'{"likes":[],"dislikes":[]}'`)
-      .$type<{ likes: string[]; dislikes: string[] }>(),
+      .default(sql`'[]'`)
+      .$type<string[]>(),
+    foodPreferencesDislikes: text('foodPreferencesDislikes', { mode: 'json' })
+      .notNull()
+      .default(sql`'[]'`)
+      .$type<string[]>(),
     cookingSkillLevel: text('cookingSkillLevel', {
       enum: Object.values(CookingSkillLevel) as [string, ...string[]],
     }).default(CookingSkillLevel.none),
@@ -81,7 +85,6 @@ export const plannerSettings = sqliteTable(
       .notNull()
       .default(sql`'[0, 1, 2, 3, 4, 5, 6]'`)
       .$type<number[]>(),
-    defaultServings: integer('defaultServings').default(4),
     notificationCron: text('notificationCron').default('0 18 * * 0'),
     timezone: text('timezone').default('UTC'),
     createdAt: text('createdAt').notNull().default(sql`(datetime('now'))`),

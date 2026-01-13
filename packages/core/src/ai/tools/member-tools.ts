@@ -12,7 +12,8 @@ import {
   CookingSkillLevel,
   MemberType,
   BirthdateSchema,
-  FoodPreferencesSchema,
+  FoodPreferencesLikesSchema,
+  FoodPreferencesDislikesSchema,
 } from '../../domain';
 
 /**
@@ -37,7 +38,8 @@ export const createMemberTool = createTool({
         birthdate: input.birthdate,
         dietaryRestrictions: input.dietaryRestrictions ?? [],
         allergies: input.allergies ?? [],
-        foodPreferences: input.foodPreferences ?? { likes: [], dislikes: [] },
+        foodPreferencesLikes: input.foodPreferencesLikes ?? [],
+        foodPreferencesDislikes: input.foodPreferencesDislikes ?? [],
         cookingSkillLevel: input.cookingSkillLevel ?? CookingSkillLevel.none,
         createdAt: timestamp,
         updatedAt: timestamp,
@@ -140,7 +142,10 @@ export const updateMemberTool = createTool({
     if (input.dietaryRestrictions !== undefined)
       updates.dietaryRestrictions = input.dietaryRestrictions;
     if (input.allergies !== undefined) updates.allergies = input.allergies;
-    if (input.foodPreferences !== undefined) updates.foodPreferences = input.foodPreferences;
+    if (input.foodPreferencesLikes !== undefined)
+      updates.foodPreferencesLikes = input.foodPreferencesLikes;
+    if (input.foodPreferencesDislikes !== undefined)
+      updates.foodPreferencesDislikes = input.foodPreferencesDislikes;
     if (input.cookingSkillLevel !== undefined) updates.cookingSkillLevel = input.cookingSkillLevel;
 
     const [updatedMember] = await db
@@ -155,7 +160,43 @@ export const updateMemberTool = createTool({
 });
 
 /**
- * Input schema for updating a member by name
+ * Array merge mode schema for smart updating of array fields
+ * - 'add': Add new items to existing array without duplicates (default)
+ * - 'remove': Remove specified items from existing array
+ * - 'replace': Replace entire array with new values
+ */
+const ArrayMergeModeSchema = z.enum(['add', 'remove', 'replace']).default('add');
+
+/**
+ * Helper function to merge arrays based on mode
+ */
+function mergeArrays(
+  existing: string[],
+  newItems: string[],
+  mode: 'add' | 'remove' | 'replace',
+): string[] {
+  switch (mode) {
+    case 'add': {
+      // Add new items without duplicates (case-insensitive)
+      const existingLower = existing.map((item) => item.toLowerCase());
+      const itemsToAdd = newItems.filter((item) => !existingLower.includes(item.toLowerCase()));
+      return [...existing, ...itemsToAdd];
+    }
+    case 'remove': {
+      // Remove items (case-insensitive)
+      const toRemoveLower = newItems.map((item) => item.toLowerCase());
+      return existing.filter((item) => !toRemoveLower.includes(item.toLowerCase()));
+    }
+    case 'replace':
+      // Replace entirely
+      return newItems;
+    default:
+      return existing;
+  }
+}
+
+/**
+ * Input schema for updating a member by name with smart merging
  */
 const UpdateMemberByNameInputSchema = z.object({
   familyId: z.uuid().describe('The family ID the member belongs to'),
@@ -168,9 +209,26 @@ const UpdateMemberByNameInputSchema = z.object({
   dietaryRestrictions: z
     .array(z.string())
     .optional()
-    .describe('Dietary restrictions (e.g., vegetarian, gluten-free)'),
-  allergies: z.array(z.string()).optional().describe('Food allergies'),
-  foodPreferences: FoodPreferencesSchema.optional().describe('Food likes and dislikes'),
+    .describe('Dietary restrictions to add/remove/replace (e.g., vegetarian, gluten-free)'),
+  dietaryRestrictionsMode: ArrayMergeModeSchema.optional().describe(
+    'How to merge dietary restrictions: add (default), remove, or replace',
+  ),
+  allergies: z.array(z.string()).optional().describe('Food allergies to add/remove/replace'),
+  allergiesMode: ArrayMergeModeSchema.optional().describe(
+    'How to merge allergies: add (default), remove, or replace',
+  ),
+  foodPreferencesLikes: FoodPreferencesLikesSchema.optional().describe(
+    'Food likes to add/remove/replace',
+  ),
+  foodPreferencesLikesMode: ArrayMergeModeSchema.optional().describe(
+    'How to merge food likes: add (default), remove, or replace',
+  ),
+  foodPreferencesDislikes: FoodPreferencesDislikesSchema.optional().describe(
+    'Food dislikes to add/remove/replace',
+  ),
+  foodPreferencesDislikesMode: ArrayMergeModeSchema.optional().describe(
+    'How to merge food dislikes: add (default), remove, or replace',
+  ),
   cookingSkillLevel: z
     .nativeEnum(CookingSkillLevel)
     .optional()
@@ -179,11 +237,23 @@ const UpdateMemberByNameInputSchema = z.object({
 
 /**
  * Update a family member by name (preferred for onboarding)
+ * Supports smart merging of array fields with add/remove/replace modes
  */
 export const updateMemberByNameTool = createTool({
   id: 'update-member-by-name',
-  description:
-    "Update a family member's information using familyId and memberName. This is easier than updateMemberTool because you do not need to know the member ID. Uses case-insensitive name matching. Returns found=false if no member with that name exists.",
+  description: `Update a family member's information using familyId and memberName. Supports smart merging for array fields (dietaryRestrictions, allergies, foodPreferencesLikes, foodPreferencesDislikes).
+
+SMART MERGING: For each array field, you can specify a mode:
+- 'add' (default): Add new items to existing array without duplicates
+- 'remove': Remove specified items from existing array
+- 'replace': Replace entire array with new values
+
+Examples:
+- Add a like: { foodPreferencesLikes: ["pasta"], foodPreferencesLikesMode: "add" }
+- Remove a dislike: { foodPreferencesDislikes: ["mushrooms"], foodPreferencesDislikesMode: "remove" }
+- Replace all allergies: { allergies: ["peanuts"], allergiesMode: "replace" }
+
+Uses case-insensitive name matching. Returns found=false if no member with that name exists.`,
   inputSchema: UpdateMemberByNameInputSchema,
   outputSchema: z.object({
     found: z.boolean(),
@@ -204,14 +274,44 @@ export const updateMemberByNameTool = createTool({
 
     const updates: Partial<typeof schema.member.$inferInsert> = { updatedAt: timestamp };
 
+    // Simple field updates
     if (input.name !== undefined) updates.name = input.name;
     if (input.type !== undefined) updates.type = input.type;
     if (input.birthdate !== undefined) updates.birthdate = input.birthdate;
-    if (input.dietaryRestrictions !== undefined)
-      updates.dietaryRestrictions = input.dietaryRestrictions;
-    if (input.allergies !== undefined) updates.allergies = input.allergies;
-    if (input.foodPreferences !== undefined) updates.foodPreferences = input.foodPreferences;
     if (input.cookingSkillLevel !== undefined) updates.cookingSkillLevel = input.cookingSkillLevel;
+
+    // Smart merge for array fields
+    if (input.dietaryRestrictions !== undefined) {
+      const mode = input.dietaryRestrictionsMode ?? 'add';
+      updates.dietaryRestrictions = mergeArrays(
+        existingMember.dietaryRestrictions ?? [],
+        input.dietaryRestrictions,
+        mode,
+      );
+    }
+
+    if (input.allergies !== undefined) {
+      const mode = input.allergiesMode ?? 'add';
+      updates.allergies = mergeArrays(existingMember.allergies ?? [], input.allergies, mode);
+    }
+
+    if (input.foodPreferencesLikes !== undefined) {
+      const mode = input.foodPreferencesLikesMode ?? 'add';
+      updates.foodPreferencesLikes = mergeArrays(
+        existingMember.foodPreferencesLikes ?? [],
+        input.foodPreferencesLikes,
+        mode,
+      );
+    }
+
+    if (input.foodPreferencesDislikes !== undefined) {
+      const mode = input.foodPreferencesDislikesMode ?? 'add';
+      updates.foodPreferencesDislikes = mergeArrays(
+        existingMember.foodPreferencesDislikes ?? [],
+        input.foodPreferencesDislikes,
+        mode,
+      );
+    }
 
     const [updatedMember] = await db
       .update(schema.member)

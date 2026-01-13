@@ -4,7 +4,6 @@ interface PlannerSettingsProps {
     familyId: string;
     mealTypes: string[];
     activeDays: number[];
-    defaultServings: number;
     notificationCron: string;
     timezone: string;
     createdAt: string;
@@ -104,17 +103,6 @@ export function PlannerSettings({ settings }: PlannerSettingsProps) {
               {mealType}
             </span>
           ))}
-        </div>
-      </div>
-
-      {/* Default Servings */}
-      <div className="family-card p-6">
-        <h3 className="text-lg font-medium text-escoffier-green mb-4">Default Servings</h3>
-        <div className="flex items-center gap-4">
-          <div className="text-4xl font-heading font-semibold text-champagne-gold">
-            {settings.defaultServings}
-          </div>
-          <div className="text-sm text-escoffier-green/70">people per meal</div>
         </div>
       </div>
 

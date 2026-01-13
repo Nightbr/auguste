@@ -16,13 +16,16 @@ export const BirthdateSchema = z
 export type Birthdate = z.infer<typeof BirthdateSchema>;
 
 /**
- * Food preferences schema - likes and dislikes
+ * Food preferences likes schema - array of food items the member likes
  */
-export const FoodPreferencesSchema = z.object({
-  likes: z.array(z.string()).default([]),
-  dislikes: z.array(z.string()).default([]),
-});
-export type FoodPreferences = z.infer<typeof FoodPreferencesSchema>;
+export const FoodPreferencesLikesSchema = z.array(z.string()).default([]);
+export type FoodPreferencesLikes = z.infer<typeof FoodPreferencesLikesSchema>;
+
+/**
+ * Food preferences dislikes schema - array of food items the member dislikes
+ */
+export const FoodPreferencesDislikesSchema = z.array(z.string()).default([]);
+export type FoodPreferencesDislikes = z.infer<typeof FoodPreferencesDislikesSchema>;
 
 /**
  * Family schema - represents a household
@@ -75,7 +78,8 @@ export const MemberSchema = createSelectSchema(member).extend({
   birthdate: BirthdateSchema,
   dietaryRestrictions: z.array(z.string()).default([]),
   allergies: z.array(z.string()).default([]),
-  foodPreferences: FoodPreferencesSchema.default({ likes: [], dislikes: [] }),
+  foodPreferencesLikes: FoodPreferencesLikesSchema,
+  foodPreferencesDislikes: FoodPreferencesDislikesSchema,
 });
 export type Member = z.infer<typeof MemberSchema>;
 
@@ -85,7 +89,8 @@ export const CreateMemberInputSchema = createInsertSchema(member)
     birthdate: BirthdateSchema.optional(),
     dietaryRestrictions: z.array(z.string()).optional(),
     allergies: z.array(z.string()).optional(),
-    foodPreferences: FoodPreferencesSchema.optional(),
+    foodPreferencesLikes: FoodPreferencesLikesSchema.optional(),
+    foodPreferencesDislikes: FoodPreferencesDislikesSchema.optional(),
     cookingSkillLevel: z.nativeEnum(CookingSkillLevel).optional(),
   })
   .omit({ id: true, createdAt: true, updatedAt: true });
@@ -98,7 +103,8 @@ export const UpdateMemberInputSchema = createInsertSchema(member)
     birthdate: BirthdateSchema.optional(),
     dietaryRestrictions: z.array(z.string()).optional(),
     allergies: z.array(z.string()).optional(),
-    foodPreferences: FoodPreferencesSchema.optional(),
+    foodPreferencesLikes: FoodPreferencesLikesSchema.optional(),
+    foodPreferencesDislikes: FoodPreferencesDislikesSchema.optional(),
     cookingSkillLevel: z.nativeEnum(CookingSkillLevel).optional(),
   })
   .omit({ familyId: true, createdAt: true, updatedAt: true });

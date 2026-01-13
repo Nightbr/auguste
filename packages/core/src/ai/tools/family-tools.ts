@@ -42,7 +42,6 @@ export const createFamilyTool = createTool({
       familyId: id,
       mealTypes: ['lunch', 'dinner'],
       activeDays: [0, 1, 2, 3, 4, 5, 6],
-      defaultServings: 4,
       notificationCron: '0 18 * * 0',
       timezone: 'UTC',
       createdAt: timestamp,

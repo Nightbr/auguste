@@ -42,13 +42,8 @@ const OnboardingMemberSchema = z.object({
     .default([])
     .describe('Dietary restrictions (e.g., vegetarian, gluten-free)'),
   allergies: z.array(z.string()).default([]).describe('Food allergies'),
-  foodPreferences: z
-    .object({
-      likes: z.array(z.string()).default([]),
-      dislikes: z.array(z.string()).default([]),
-    })
-    .default({ likes: [], dislikes: [] })
-    .describe('Food preferences'),
+  foodPreferencesLikes: z.array(z.string()).default([]).describe('Food likes'),
+  foodPreferencesDislikes: z.array(z.string()).default([]).describe('Food dislikes'),
   cookingSkillLevel: z
     .enum([
       CookingSkillLevel.none,
@@ -90,7 +85,6 @@ const OnboardingPlannerSettingsSchema = z.object({
     .array(z.number().int().min(0).max(6))
     .default([0, 1, 2, 3, 4, 5, 6])
     .describe('Days of the week for planning (0=Sunday, 6=Saturday)'),
-  defaultServings: z.number().int().positive().default(4).describe('Default servings per meal'),
   notificationCron: z.string().default('0 18 * * 0').describe('Cron expression for notifications'),
   timezone: z.string().default('UTC').describe('Timezone for notifications'),
   isConfigured: z

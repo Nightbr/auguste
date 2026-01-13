@@ -5,10 +5,6 @@
 
 ## Onboarding Agent
 
-### Bugs
-
-- [ ] **Food dislikes not saved to database** - When asking the agent to add dislikes for a member (e.g., "Lucie dislikes pineapple"), the agent acknowledges the input but the database is not updated. The `updateMemberByNameTool` with `foodPreferences` is not being called. Root cause: The agent stores dislikes in working memory but fails to call the appropriate tool to persist the data. Needs investigation into why the tool call is not triggered.
-
 ### Session & Authentication
 
 - [ ] **Save session in database** - Persist user sessions to the database. We will build a secure mechanism later (Magic link with email or any auth session) [need specifications]
@@ -27,6 +23,7 @@
 - [ ] **Display family and member object on the right** - Dynamically display family and member object on the right of the screen when they are configured.
 - [ ] **Display MemberAvailability and PlannerSettings on the right** - Dynamically display MemberAvailability and PlannerSettings on the right of the screen when they are configured.
 - [ ] **Onboarding phase/Meal planner phase** - Dissociate the onboarding phase and the meal planner phase in the UI. Also related to saving session in database [need specifications].
+- [ ] **Speech-to-text button for chat input** - Add a speech-to-text button to the chat input that allows users to speak and have their speech transcribed to text in the input field.
 
 ## Tech
 

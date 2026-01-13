@@ -11,7 +11,8 @@ export {
 // Family schemas
 export {
   BirthdateSchema,
-  FoodPreferencesSchema,
+  FoodPreferencesLikesSchema,
+  FoodPreferencesDislikesSchema,
   FamilySchema,
   CreateFamilyInputSchema,
   UpdateFamilyInputSchema,
@@ -23,7 +24,8 @@ export {
 // Family types
 export type {
   Birthdate,
-  FoodPreferences,
+  FoodPreferencesLikes,
+  FoodPreferencesDislikes,
   Family,
   CreateFamilyInput,
   UpdateFamilyInput,
