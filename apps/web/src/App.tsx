@@ -16,6 +16,7 @@ function App() {
     sendMessage,
     familyId,
     setFamilyId,
+    isPolling,
   } = useChat();
 
   return (
@@ -38,7 +39,7 @@ function App() {
         {/* Right Panel: Family Data (55% width) */}
         <div className="w-[55%]">
           {familyId ? (
-            <FamilyPanel familyId={familyId} />
+            <FamilyPanel familyId={familyId} isPolling={isPolling} />
           ) : (
             <div className="flex items-center justify-center h-full bg-white relative">
               <div className="text-center p-8">

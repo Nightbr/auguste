@@ -9,11 +9,15 @@ type TabType = 'overview' | 'members' | 'availability' | 'settings';
 
 interface FamilyPanelProps {
   familyId: string;
+  /** When true, enables polling for family data updates (during agent conversation) */
+  isPolling?: boolean;
 }
 
-export function FamilyPanel({ familyId }: FamilyPanelProps) {
+export function FamilyPanel({ familyId, isPolling = false }: FamilyPanelProps) {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
-  const { family, members, availability, settings, isLoading, error } = useFamilyData(familyId);
+  const { family, members, availability, settings, isLoading, error } = useFamilyData(familyId, {
+    isPolling,
+  });
 
   const tabs: { id: TabType; label: string }[] = [
     { id: 'overview', label: 'Overview' },
