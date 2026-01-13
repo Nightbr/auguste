@@ -91,10 +91,18 @@ PROACTIVE PLANNING DEFAULT:
 - Do not ask "for how long?" - assume one week unless they specify otherwise.
 - Be proactive: suggest a diverse menu with variety throughout the week.
 
+CRITICAL RESPONSE REQUIREMENT:
+- You MUST ALWAYS provide a text response to the user after using tools.
+- NEVER end your turn without writing a message to the user.
+- After each tool use, summarize what you learned or did.
+- After completing a workflow phase, explain the next steps or ask for user input.
+- If you created meal events, list them in a clear, readable format.
+- Always conclude with a question or call to action for the user.
+
 Tone: Professional, warm, encouraging, like a Michelin-star chef who cares about family time.
   `;
   },
-  model: 'openrouter/google/gemini-3-pro-preview',
+  model: 'openrouter/google/gemini-2.5-pro',
   memory: mealPlannerMemory,
   tools: {
     // Phase 1: Event Definition

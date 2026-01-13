@@ -3,6 +3,8 @@ import { ChatInput } from './chat-input';
 import { SuggestedActions } from './suggested-actions';
 import type { Message } from '@/hooks/use-chat';
 
+type ChatContext = 'family' | 'planner';
+
 interface ChatPanelProps {
   messages: Message[];
   isLoading: boolean;
@@ -11,6 +13,7 @@ interface ChatPanelProps {
   onSend: () => void;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
   disabled?: boolean;
+  context?: ChatContext;
 }
 
 export function ChatPanel({
@@ -21,6 +24,7 @@ export function ChatPanel({
   onSend,
   messagesEndRef,
   disabled = false,
+  context = 'family',
 }: ChatPanelProps) {
   const hasMessages = messages.length > 0;
 
@@ -37,7 +41,11 @@ export function ChatPanel({
         {hasMessages ? (
           <MessageList messages={messages} isLoading={isLoading} messagesEndRef={messagesEndRef} />
         ) : (
-          <SuggestedActions onSelect={handleSuggestedAction} disabled={disabled} />
+          <SuggestedActions
+            onSelect={handleSuggestedAction}
+            disabled={disabled}
+            context={context}
+          />
         )}
       </div>
 

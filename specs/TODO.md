@@ -25,6 +25,12 @@
 - [ ] **Onboarding phase/Meal planner phase** - Dissociate the onboarding phase and the meal planner phase in the UI. Also related to saving session in database [need specifications].
 - [ ] **Speech-to-text button for chat input** - Add a speech-to-text button to the chat input that allows users to speak and have their speech transcribed to text in the input field.
 
+## Meal Planner
+
+- [ ] **Unique non-overlapping meal planning dates** - Ensure a Family can have multiple meal planning entries but startDate & endDate should be unique and non-overlapping. Add database constraints and validation in the meal planner agent.
+- [ ] **Display current meal planning in planner view** - Show the current active meal planning in the planner view based on the current date. Fetch the meal planning where today falls within startDate and endDate.
+- [ ] **Calendar view with meal planning widget** - On the calendar view, display a calendar widget showing all meal planning periods. Allow users to click/select a specific meal planning to visualize its details and meal events.
+
 ## Tech
 
 - [ ] **Use drizzle-seed for database seeding** - Replace the current manual seeding script with [drizzle-seed](https://orm.drizzle.team/docs/seed-overview) for more robust and maintainable test data generation. This will provide better data variety, relationship handling, and faker integration.

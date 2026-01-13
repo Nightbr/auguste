@@ -5,9 +5,21 @@ export interface Message {
   content: string;
 }
 
+type AgentType = 'onboarding' | 'meal-planner';
+
+interface UseChatOptions {
+  agentType?: AgentType;
+}
+
 const POLLING_DURATION_MS = 5000; // Duration to poll after receiving a message
 
-export function useChat() {
+const AGENT_ID_MAP: Record<AgentType, string> = {
+  onboarding: 'onboardingAgent',
+  'meal-planner': 'mealPlannerAgent',
+};
+
+export function useChat(options: UseChatOptions = {}) {
+  const { agentType = 'onboarding' } = options;
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -84,7 +96,7 @@ export function useChat() {
         },
         body: JSON.stringify({
           message: input, // Only send the current message
-          agentId: 'onboardingAgent',
+          agentId: AGENT_ID_MAP[agentType],
           threadId: threadIdRef.current,
           resourceId: familyId || resourceIdRef.current,
           familyId,
