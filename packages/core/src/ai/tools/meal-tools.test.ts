@@ -139,7 +139,7 @@ describe('Meal Tools', () => {
         id: '00000000-0000-4000-8000-000000000000',
         status: 'active',
       }),
-    ).rejects.toThrow('Failed to update meal planning');
+    ).rejects.toThrow('not found');
   });
 
   it('should delete a meal event', async () => {

@@ -39,6 +39,11 @@ export const apiClient = {
     }
     return response.json();
   },
+  getAllMealPlannings: async (familyId: string) => {
+    const response = await fetch(`${API_BASE_URL}/api/family/${familyId}/plannings`);
+    if (!response.ok) throw new Error('Failed to fetch meal plannings');
+    return response.json();
+  },
   getMealEvents: async (familyId: string) => {
     const response = await fetch(`${API_BASE_URL}/api/family/${familyId}/events`);
     if (!response.ok) throw new Error('Failed to fetch meal events');

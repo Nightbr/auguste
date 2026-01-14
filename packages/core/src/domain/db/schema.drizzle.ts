@@ -9,8 +9,12 @@ export const family = sqliteTable('Family', {
   name: text('name').notNull(),
   country: text('country').notNull(), // ISO 3166-1 alpha-2
   language: text('language').notNull(), // ISO 639-1
-  createdAt: text('createdAt').notNull().default(sql`(datetime('now'))`),
-  updatedAt: text('updatedAt').notNull().default(sql`(datetime('now'))`),
+  createdAt: text('createdAt')
+    .notNull()
+    .default(sql`(datetime('now'))`),
+  updatedAt: text('updatedAt')
+    .notNull()
+    .default(sql`(datetime('now'))`),
 });
 
 // --- Member ---
@@ -28,7 +32,10 @@ export const member = sqliteTable(
       .notNull()
       .default(sql`'[]'`)
       .$type<string[]>(),
-    allergies: text('allergies', { mode: 'json' }).notNull().default(sql`'[]'`).$type<string[]>(),
+    allergies: text('allergies', { mode: 'json' })
+      .notNull()
+      .default(sql`'[]'`)
+      .$type<string[]>(),
     foodPreferencesLikes: text('foodPreferencesLikes', { mode: 'json' })
       .notNull()
       .default(sql`'[]'`)
@@ -40,8 +47,12 @@ export const member = sqliteTable(
     cookingSkillLevel: text('cookingSkillLevel', {
       enum: Object.values(CookingSkillLevel) as [string, ...string[]],
     }).default(CookingSkillLevel.none),
-    createdAt: text('createdAt').notNull().default(sql`(datetime('now'))`),
-    updatedAt: text('updatedAt').notNull().default(sql`(datetime('now'))`),
+    createdAt: text('createdAt')
+      .notNull()
+      .default(sql`(datetime('now'))`),
+    updatedAt: text('updatedAt')
+      .notNull()
+      .default(sql`(datetime('now'))`),
   },
   (table) => ({
     familyIdIdx: index('idx_member_familyId').on(table.familyId),
@@ -87,8 +98,12 @@ export const plannerSettings = sqliteTable(
       .$type<number[]>(),
     notificationCron: text('notificationCron').default('0 18 * * 0'),
     timezone: text('timezone').default('UTC'),
-    createdAt: text('createdAt').notNull().default(sql`(datetime('now'))`),
-    updatedAt: text('updatedAt').notNull().default(sql`(datetime('now'))`),
+    createdAt: text('createdAt')
+      .notNull()
+      .default(sql`(datetime('now'))`),
+    updatedAt: text('updatedAt')
+      .notNull()
+      .default(sql`(datetime('now'))`),
   },
   (table) => ({
     familyIdIdx: index('idx_settings_familyId').on(table.familyId),
@@ -108,8 +123,12 @@ export const mealPlanning = sqliteTable(
     status: text('status', {
       enum: Object.values(MealPlanningStatus) as [string, ...string[]],
     }).default(MealPlanningStatus.draft),
-    createdAt: text('createdAt').notNull().default(sql`(datetime('now'))`),
-    updatedAt: text('updatedAt').notNull().default(sql`(datetime('now'))`),
+    createdAt: text('createdAt')
+      .notNull()
+      .default(sql`(datetime('now'))`),
+    updatedAt: text('updatedAt')
+      .notNull()
+      .default(sql`(datetime('now'))`),
   },
   (table) => ({
     familyIdIdx: index('idx_planning_familyId').on(table.familyId),
@@ -124,9 +143,9 @@ export const mealEvent = sqliteTable(
     familyId: text('familyId')
       .notNull()
       .references(() => family.id, { onDelete: 'cascade' }),
-    planningId: text('planningId').references(() => mealPlanning.id, {
-      onDelete: 'set null',
-    }),
+    planningId: text('planningId')
+      .notNull()
+      .references(() => mealPlanning.id, { onDelete: 'cascade' }),
     date: text('date').notNull(), // YYYY-MM-DD
     mealType: text('mealType', {
       enum: Object.values(MealType) as [string, ...string[]],
@@ -136,8 +155,12 @@ export const mealEvent = sqliteTable(
       .notNull()
       .default(sql`'[]'`)
       .$type<string[]>(),
-    createdAt: text('createdAt').notNull().default(sql`(datetime('now'))`),
-    updatedAt: text('updatedAt').notNull().default(sql`(datetime('now'))`),
+    createdAt: text('createdAt')
+      .notNull()
+      .default(sql`(datetime('now'))`),
+    updatedAt: text('updatedAt')
+      .notNull()
+      .default(sql`(datetime('now'))`),
   },
   (table) => ({
     familyIdIdx: index('idx_event_familyId').on(table.familyId),

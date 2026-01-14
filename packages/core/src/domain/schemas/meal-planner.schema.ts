@@ -21,7 +21,7 @@ export const CreateMealEventInputSchema = createInsertSchema(mealEvent)
   .extend({
     participants: z.array(z.string().uuid()).optional(),
     recipeName: z.string().optional(),
-    planningId: z.string().uuid().optional(),
+    planningId: z.string().uuid(), // Required - events must belong to a planning
   })
   .omit({ id: true, createdAt: true, updatedAt: true });
 export type CreateMealEventInput = z.infer<typeof CreateMealEventInputSchema>;

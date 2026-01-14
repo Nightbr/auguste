@@ -9,6 +9,7 @@ import {
   getAvailabilityByFamilyId,
   getPlannerSettingsByFamilyId,
   getMealPlanningByFamilyId,
+  getAllMealPlanningsByFamilyId,
   getMealEventsByFamilyId,
 } from '@auguste/core';
 import dotenv from 'dotenv';
@@ -83,7 +84,9 @@ app.post('/api/chat', async (req, res) => {
       const anyChunk = chunk as any;
       if (chunk.type === 'text-delta') {
         chunkCount++;
-        res.write(`data: ${JSON.stringify({ type: 'text', content: chunk.textDelta })}\n\n`);
+        // Mastra fullStream wraps text content in payload.text
+        const textContent = anyChunk.payload?.text ?? anyChunk.textDelta ?? '';
+        res.write(`data: ${JSON.stringify({ type: 'text', content: textContent })}\n\n`);
       } else if (chunk.type === 'error') {
         console.error('Stream error:', chunk.error);
         res.write(`data: ${JSON.stringify({ type: 'error', content: String(chunk.error) })}\n\n`);
@@ -196,6 +199,17 @@ app.get('/api/family/:id/planning', async (req, res) => {
   } catch (error) {
     console.error('Error fetching meal planning:', error);
     res.status(500).json({ error: 'Failed to fetch meal planning' });
+  }
+});
+
+app.get('/api/family/:id/plannings', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const plannings = await getAllMealPlanningsByFamilyId(id);
+    res.json(plannings);
+  } catch (error) {
+    console.error('Error fetching all meal plannings:', error);
+    res.status(500).json({ error: 'Failed to fetch meal plannings' });
   }
 });
 

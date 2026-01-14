@@ -168,11 +168,13 @@ export type MealPlanning = z.infer<typeof MealPlanningSchema>;
 
 ### MealEvent Schema
 
+Meal events must always belong to a meal planning. When creating a meal event, if no planningId is provided, the system automatically finds or creates a weekly planning for the event's date.
+
 ```typescript
 export const MealEventSchema = z.object({
   id: z.string().uuid(),
   familyId: z.string().uuid(),
-  planningId: z.string().uuid().optional(),
+  planningId: z.string().uuid(), // Required - events must belong to a planning
   date: z.string().date(), // YYYY-MM-DD
   mealType: z.enum(['breakfast', 'lunch', 'dinner']),
   recipeName: z.string().optional(),

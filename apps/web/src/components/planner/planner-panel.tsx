@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { WeeklyPlanView } from './weekly-plan-view';
+import { CalendarView } from './calendar-view';
+import { PlanningDetails } from './planning-details';
 import { usePlannerData } from '@/hooks/use-planner-data';
 import { LayoutGrid, CalendarDays } from 'lucide-react';
 
@@ -12,12 +14,16 @@ interface PlannerPanelProps {
 
 export function PlannerPanel({ familyId, isPolling = false }: PlannerPanelProps) {
   const [activeTab, setActiveTab] = useState<PlannerTabType>('weekly');
-  const { planning, events, isLoading, error } = usePlannerData(familyId, { isPolling });
+  const [selectedPlanningId, setSelectedPlanningId] = useState<string | undefined>();
+  const { planning, plannings, events, isLoading, error } = usePlannerData(familyId, { isPolling });
 
   const tabs: { id: PlannerTabType; label: string; icon: React.ReactNode }[] = [
     { id: 'weekly', label: 'Weekly Plan', icon: <LayoutGrid className="w-4 h-4" /> },
     { id: 'calendar', label: 'Calendar', icon: <CalendarDays className="w-4 h-4" /> },
   ];
+
+  // Find the selected planning object
+  const selectedPlanning = plannings.find((p) => p.id === selectedPlanningId);
 
   if (error) {
     return (
@@ -39,7 +45,13 @@ export function PlannerPanel({ familyId, isPolling = false }: PlannerPanelProps)
             <button
               type="button"
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => {
+                setActiveTab(tab.id);
+                // Clear selection when switching tabs
+                if (tab.id === 'weekly') {
+                  setSelectedPlanningId(undefined);
+                }
+              }}
               className={`flex items-center gap-2 px-6 py-4 text-base font-medium transition-colors ${
                 activeTab === tab.id
                   ? 'text-champagne-gold border-b-2 border-champagne-gold'
@@ -54,15 +66,41 @@ export function PlannerPanel({ familyId, isPolling = false }: PlannerPanelProps)
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-hidden flex flex-col">
         {isLoading ? (
-          <div className="flex items-center justify-center h-full">
+          <div className="flex items-center justify-center flex-1">
             <div className="text-escoffier-green">Loading meal plan...</div>
           </div>
         ) : (
           <>
-            {activeTab === 'weekly' && <WeeklyPlanView planning={planning} events={events} />}
-            {activeTab === 'calendar' && <WeeklyPlanView planning={planning} events={events} />}
+            {activeTab === 'weekly' && (
+              <div className="flex-1 overflow-y-auto">
+                <WeeklyPlanView planning={planning} events={events} />
+              </div>
+            )}
+            {activeTab === 'calendar' && (
+              <div className="flex-1 flex flex-col overflow-hidden">
+                {/* Calendar takes remaining space */}
+                <div className="flex-1 overflow-y-auto">
+                  <CalendarView
+                    plannings={plannings}
+                    events={events}
+                    selectedPlanningId={selectedPlanningId}
+                    onSelectPlanning={setSelectedPlanningId}
+                  />
+                </div>
+                {/* Planning details at bottom with horizontal scroll */}
+                {selectedPlanning && (
+                  <div className="flex-shrink-0">
+                    <PlanningDetails
+                      planning={selectedPlanning}
+                      events={events}
+                      onClose={() => setSelectedPlanningId(undefined)}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </>
         )}
       </div>

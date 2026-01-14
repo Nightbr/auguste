@@ -48,6 +48,17 @@ export async function getMealPlanningByFamilyId(familyId: string) {
 }
 
 /**
+ * Get all meal plannings for a family, ordered by start date descending
+ */
+export async function getAllMealPlanningsByFamilyId(familyId: string) {
+  return db
+    .select()
+    .from(mealPlanning)
+    .where(eq(mealPlanning.familyId, familyId))
+    .orderBy(desc(mealPlanning.startDate));
+}
+
+/**
  * Get all meal events for a family
  */
 export async function getMealEventsByFamilyId(familyId: string) {
