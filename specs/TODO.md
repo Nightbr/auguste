@@ -27,9 +27,22 @@
 - [ ] **Hide empty chat messages** - When a message is empty, don't display it to avoid empty blocks in the chat UI.
 - [ ] **Persistent chat history** - Make chat messages persistent (in memory store/localStorage) to keep chat history when navigating the app. Ensure separate stores for family and planner contexts. Add a clear/New chat button to reset the chat history.
 
-## Meal Planner
+## Recipe Manager
 
-- [ ] **Display current meal planning in planner view** - Show the current active meal planning in the planner view based on the current date. Fetch the meal planning where today falls within startDate and endDate.
+> New route `/recipes` with a dedicated Recipes tab
+
+### Core Features
+
+- [ ] **Create recipe with AI** - Describe a recipe in natural language and let AI generate a structured recipe with ingredients, steps, cooking time, servings, etc.
+- [ ] **View recipes list** - Display all recipes in a searchable, filterable list with sorting options (by name, date created, cuisine type, etc.)
+- [ ] **View recipe details** - Show full recipe details including ingredients, step-by-step instructions, nutritional info, and metadata
+- [ ] **Link recipe to meal event** - Allow users to link existing recipes to meal events in their meal planning
+
+### Later
+
+- [ ] **Generate recipe image** - Use AI to generate an image for the recipe
+- [ ] **Hand-drawn step illustrations** - Generate hand-drawn style illustrations for each recipe step [Optional]
+- [ ] **Import recipes from external sources** - Import recipes from URLs, PDFs, or other recipe platforms
 
 ## Tech
 
