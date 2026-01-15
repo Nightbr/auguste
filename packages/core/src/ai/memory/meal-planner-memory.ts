@@ -61,8 +61,6 @@ export const MealPlannerMemorySchema = z.object({
   notes: z.array(z.string()).default([]).describe('Context notes'),
 });
 
-export type MealPlannerMemory = z.infer<typeof MealPlannerMemorySchema>;
-
 export const createMealPlannerMemory = (storage?: LibSQLStore): Memory => {
   return new Memory({
     storage:

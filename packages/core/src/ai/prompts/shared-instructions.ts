@@ -36,20 +36,6 @@ export const QUESTION_BUNDLING_GUIDELINES = `
 `;
 
 /**
- * Guidelines for how to format questions to users
- */
-export const QUESTION_GUIDELINES = `
-## Question Format:
-${QUESTION_BUNDLING_GUIDELINES}
-
-**Format Rules:**
-- For bundled questions: Use a numbered list (1️⃣, 2️⃣, 3️⃣) or bullet points
-- For single questions: Use emoji to highlight: 👉 📋 🤔
-- Provide examples in parentheses: _(e.g., "example")_
-- Always end with a clear call-to-action
-`;
-
-/**
  * Response style and personality guidelines
  */
 export const RESPONSE_STYLE = `

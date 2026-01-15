@@ -15,7 +15,7 @@ interface PlannerPanelProps {
 export function PlannerPanel({ familyId, isPolling = false }: PlannerPanelProps) {
   const [activeTab, setActiveTab] = useState<PlannerTabType>('weekly');
   const [selectedPlanningId, setSelectedPlanningId] = useState<string | undefined>();
-  const { planning, plannings, events, isLoading, error } = usePlannerData(familyId, { isPolling });
+  const { plannings, events, isLoading, error } = usePlannerData(familyId, { isPolling });
 
   const tabs: { id: PlannerTabType; label: string; icon: React.ReactNode }[] = [
     { id: 'weekly', label: 'Weekly Plan', icon: <LayoutGrid className="w-4 h-4" /> },
@@ -75,7 +75,7 @@ export function PlannerPanel({ familyId, isPolling = false }: PlannerPanelProps)
           <>
             {activeTab === 'weekly' && (
               <div className="flex-1 overflow-y-auto">
-                <WeeklyPlanView planning={planning} events={events} />
+                <WeeklyPlanView plannings={plannings} events={events} />
               </div>
             )}
             {activeTab === 'calendar' && (

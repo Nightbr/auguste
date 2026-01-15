@@ -34,15 +34,8 @@ export function usePlannerData(familyId: string, options: UsePlannerDataOptions 
   // Only poll when isPolling is true, otherwise disable refetchInterval
   const refetchInterval = isPolling ? POLLING_INTERVAL : false;
 
-  const planningQuery = useQuery<MealPlanning | null>({
-    queryKey: ['planning', familyId],
-    queryFn: () => apiClient.getMealPlanning(familyId),
-    enabled: !!familyId,
-    refetchInterval,
-  });
-
-  const allPlanningsQuery = useQuery<MealPlanning[]>({
-    queryKey: ['allPlannings', familyId],
+  const planningsQuery = useQuery<MealPlanning[]>({
+    queryKey: ['plannings', familyId],
     queryFn: () => apiClient.getAllMealPlannings(familyId),
     enabled: !!familyId,
     refetchInterval,
@@ -56,14 +49,12 @@ export function usePlannerData(familyId: string, options: UsePlannerDataOptions 
   });
 
   return {
-    planning: planningQuery.data,
-    plannings: allPlanningsQuery.data ?? [],
+    plannings: planningsQuery.data ?? [],
     events: eventsQuery.data ?? [],
-    isLoading: planningQuery.isLoading || allPlanningsQuery.isLoading || eventsQuery.isLoading,
-    error: planningQuery.error || allPlanningsQuery.error || eventsQuery.error,
+    isLoading: planningsQuery.isLoading || eventsQuery.isLoading,
+    error: planningsQuery.error || eventsQuery.error,
     refetch: () => {
-      planningQuery.refetch();
-      allPlanningsQuery.refetch();
+      planningsQuery.refetch();
       eventsQuery.refetch();
     },
   };

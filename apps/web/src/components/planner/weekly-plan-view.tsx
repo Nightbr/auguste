@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
-import { format, parseISO, addDays, startOfDay } from 'date-fns';
-import { UtensilsCrossed, Users, Coffee, Sun, Moon } from 'lucide-react';
+import { useMemo, useState, useEffect } from 'react';
+import { format, parseISO, addDays, isWithinInterval } from 'date-fns';
+import { UtensilsCrossed, Users, Coffee, Sun, Moon, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface MealPlanning {
   id: string;
@@ -21,7 +21,7 @@ interface MealEvent {
 }
 
 interface WeeklyPlanViewProps {
-  planning?: MealPlanning | null;
+  plannings: MealPlanning[];
   events?: MealEvent[];
 }
 
@@ -37,11 +37,45 @@ const MEAL_TYPE_LABELS: Record<string, string> = {
   dinner: 'Dinner',
 };
 
-export function WeeklyPlanView({ planning, events = [] }: WeeklyPlanViewProps) {
+export function WeeklyPlanView({ plannings, events = [] }: WeeklyPlanViewProps) {
+  // Sort plannings by start date (chronologically for navigation)
+  const sortedPlannings = useMemo(
+    () => [...plannings].sort((a, b) => a.startDate.localeCompare(b.startDate)),
+    [plannings],
+  );
+
+  // Find the planning that contains today (current week)
+  const currentWeekPlanningIndex = useMemo(() => {
+    const today = new Date();
+    const index = sortedPlannings.findIndex((p) => {
+      const start = parseISO(p.startDate);
+      const end = parseISO(p.endDate);
+      return isWithinInterval(today, { start, end });
+    });
+    // Default to last planning if no current week planning, or 0 if empty
+    return index >= 0 ? index : Math.max(0, sortedPlannings.length - 1);
+  }, [sortedPlannings]);
+
+  // Track selected planning index
+  const [selectedIndex, setSelectedIndex] = useState(currentWeekPlanningIndex);
+
+  // Update selected index when plannings change and we need to find current week
+  useEffect(() => {
+    setSelectedIndex(currentWeekPlanningIndex);
+  }, [currentWeekPlanningIndex]);
+
+  const selectedPlanning = sortedPlannings[selectedIndex];
+
+  // Filter events for the selected planning
+  const planningEvents = useMemo(() => {
+    if (!selectedPlanning) return [];
+    return events.filter((e) => e.planningId === selectedPlanning.id);
+  }, [events, selectedPlanning]);
+
   // Group events by date
   const groupedEvents = useMemo(() => {
     const grouped: Record<string, MealEvent[]> = {};
-    for (const event of events) {
+    for (const event of planningEvents) {
       if (!grouped[event.date]) {
         grouped[event.date] = [];
       }
@@ -53,19 +87,39 @@ export function WeeklyPlanView({ planning, events = [] }: WeeklyPlanViewProps) {
       grouped[date].sort((a, b) => mealOrder[a.mealType] - mealOrder[b.mealType]);
     }
     return grouped;
-  }, [events]);
+  }, [planningEvents]);
 
-  // Generate week dates
+  // Generate dates for the selected planning's date range
   const weekDates = useMemo(() => {
-    const today = startOfDay(new Date());
-    return Array.from({ length: 7 }, (_, i) => {
-      const date = addDays(today, i);
-      return format(date, 'yyyy-MM-dd');
-    });
-  }, []);
+    if (!selectedPlanning) return [];
+    const start = parseISO(selectedPlanning.startDate);
+    const end = parseISO(selectedPlanning.endDate);
+    const dates: string[] = [];
+    let current = start;
+    while (current <= end) {
+      dates.push(format(current, 'yyyy-MM-dd'));
+      current = addDays(current, 1);
+    }
+    return dates;
+  }, [selectedPlanning]);
 
-  // No planning - show empty state
-  if (!planning && events.length === 0) {
+  const canGoPrevious = selectedIndex > 0;
+  const canGoNext = selectedIndex < sortedPlannings.length - 1;
+
+  const handlePrevious = () => {
+    if (canGoPrevious) {
+      setSelectedIndex(selectedIndex - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (canGoNext) {
+      setSelectedIndex(selectedIndex + 1);
+    }
+  };
+
+  // No plannings - show empty state
+  if (sortedPlannings.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-8 text-center">
         <div className="w-16 h-16 rounded-full bg-escoffier-green/10 flex items-center justify-center mb-4">
@@ -82,25 +136,59 @@ export function WeeklyPlanView({ planning, events = [] }: WeeklyPlanViewProps) {
 
   return (
     <div className="p-6">
-      {/* Header */}
+      {/* Header with Navigation */}
       <div className="mb-6">
-        <h2 className="text-2xl font-serif text-escoffier-green mb-1">Weekly Meal Plan</h2>
-        {planning && (
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="text-2xl font-serif text-escoffier-green">Weekly Meal Plan</h2>
+          {/* Navigation Controls */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handlePrevious}
+              disabled={!canGoPrevious}
+              className={`p-2 rounded-lg transition-colors ${
+                canGoPrevious
+                  ? 'hover:bg-escoffier-green/10 text-escoffier-green'
+                  : 'text-escoffier-green/30 cursor-not-allowed'
+              }`}
+              title="Previous planning"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <span className="text-sm text-escoffier-green/60 min-w-[80px] text-center">
+              {selectedIndex + 1} of {sortedPlannings.length}
+            </span>
+            <button
+              type="button"
+              onClick={handleNext}
+              disabled={!canGoNext}
+              className={`p-2 rounded-lg transition-colors ${
+                canGoNext
+                  ? 'hover:bg-escoffier-green/10 text-escoffier-green'
+                  : 'text-escoffier-green/30 cursor-not-allowed'
+              }`}
+              title="Next planning"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+        {selectedPlanning && (
           <div className="flex items-center gap-3 text-sm text-escoffier-green/60">
             <span>
-              {format(parseISO(planning.startDate), 'MMM d')} -{' '}
-              {format(parseISO(planning.endDate), 'MMM d, yyyy')}
+              {format(parseISO(selectedPlanning.startDate), 'MMM d')} -{' '}
+              {format(parseISO(selectedPlanning.endDate), 'MMM d, yyyy')}
             </span>
             <span
               className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                planning.status === 'active'
+                selectedPlanning.status === 'active'
                   ? 'bg-green-100 text-green-700'
-                  : planning.status === 'draft'
+                  : selectedPlanning.status === 'draft'
                     ? 'bg-yellow-100 text-yellow-700'
                     : 'bg-gray-100 text-gray-700'
               }`}
             >
-              {planning.status.charAt(0).toUpperCase() + planning.status.slice(1)}
+              {selectedPlanning.status.charAt(0).toUpperCase() + selectedPlanning.status.slice(1)}
             </span>
           </div>
         )}
@@ -117,7 +205,9 @@ export function WeeklyPlanView({ planning, events = [] }: WeeklyPlanViewProps) {
             <div
               key={dateStr}
               className={`border rounded-lg overflow-hidden ${
-                isToday ? 'border-champagne-gold/50 bg-champagne-gold/5' : 'border-escoffier-green/10'
+                isToday
+                  ? 'border-champagne-gold/50 bg-champagne-gold/5'
+                  : 'border-escoffier-green/10'
               }`}
             >
               {/* Day Header */}
@@ -126,9 +216,7 @@ export function WeeklyPlanView({ planning, events = [] }: WeeklyPlanViewProps) {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-escoffier-green">
-                      {format(date, 'EEEE')}
-                    </span>
+                    <span className="font-medium text-escoffier-green">{format(date, 'EEEE')}</span>
                     <span className="text-escoffier-green/60">{format(date, 'MMM d')}</span>
                   </div>
                   {isToday && (
@@ -142,9 +230,7 @@ export function WeeklyPlanView({ planning, events = [] }: WeeklyPlanViewProps) {
               {/* Meals */}
               <div className="divide-y divide-escoffier-green/5">
                 {dayEvents.length > 0 ? (
-                  dayEvents.map((event) => (
-                    <MealEventCard key={event.id} event={event} />
-                  ))
+                  dayEvents.map((event) => <MealEventCard key={event.id} event={event} />)
                 ) : (
                   <div className="px-4 py-3 text-escoffier-green/40 text-sm italic">
                     No meals planned
@@ -182,4 +268,3 @@ function MealEventCard({ event }: { event: MealEvent }) {
     </div>
   );
 }
-

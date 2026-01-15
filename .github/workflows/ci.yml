@@ -37,3 +37,6 @@ jobs:
 
       - name: Test
         run: pnpm turbo test
+
+      - name: Check unused files and dependencies
+        run: pnpm knip
