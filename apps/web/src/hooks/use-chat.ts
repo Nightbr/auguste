@@ -1,8 +1,16 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 
+export interface ToolCall {
+  toolName: string;
+  args?: Record<string, unknown>;
+  result?: unknown;
+  status: 'pending' | 'completed';
+}
+
 export interface Message {
   role: 'user' | 'assistant';
   content: string;
+  toolCalls?: ToolCall[];
 }
 
 type AgentType = 'onboarding' | 'meal-planner';
@@ -113,7 +121,7 @@ export function useChat(options: UseChatOptions = {}) {
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      const assistantMessage: Message = { role: 'assistant', content: '' };
+      const assistantMessage: Message = { role: 'assistant', content: '', toolCalls: [] };
 
       setMessages((prev) => [...prev, assistantMessage]);
 
@@ -144,6 +152,40 @@ export function useChat(options: UseChatOptions = {}) {
               });
               // Trigger polling when receiving agent messages
               // This resets the 5s timer on each chunk received
+              triggerPolling();
+            } else if (data.type === 'tool-call') {
+              // Add a new pending tool call
+              const toolCall: ToolCall = {
+                toolName: data.toolName,
+                args: data.args,
+                status: 'pending',
+              };
+              assistantMessage.toolCalls = [...(assistantMessage.toolCalls || []), toolCall];
+              setMessages((prev) => {
+                const newMessages = [...prev];
+                newMessages[newMessages.length - 1] = { ...assistantMessage };
+                return newMessages;
+              });
+              triggerPolling();
+            } else if (data.type === 'tool-result') {
+              // Update the corresponding tool call with the result
+              const toolCalls = assistantMessage.toolCalls || [];
+              const toolIndex = toolCalls.findIndex(
+                (tc) => tc.toolName === data.toolName && tc.status === 'pending',
+              );
+              if (toolIndex !== -1) {
+                toolCalls[toolIndex] = {
+                  ...toolCalls[toolIndex],
+                  result: data.result,
+                  status: 'completed',
+                };
+                assistantMessage.toolCalls = [...toolCalls];
+                setMessages((prev) => {
+                  const newMessages = [...prev];
+                  newMessages[newMessages.length - 1] = { ...assistantMessage };
+                  return newMessages;
+                });
+              }
               triggerPolling();
             } else if (data.type === 'error') {
               throw new Error(data.content);

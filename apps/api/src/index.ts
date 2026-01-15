@@ -75,6 +75,22 @@ app.post('/api/chat', async (req, res) => {
       threadId,
       resourceId,
       requestContext,
+      // Ensure the agent continues to generate a response after tool calls
+      // Without maxSteps, some models may stop after executing a tool without providing text output
+      maxSteps: 10,
+      onStepFinish: ({
+        text,
+        toolCalls,
+        finishReason,
+      }: {
+        text?: string;
+        toolCalls?: unknown[];
+        finishReason?: string;
+      }) => {
+        console.log(
+          `Step finished: finishReason=${finishReason}, textLength=${text?.length ?? 0}, toolCalls=${toolCalls?.length ?? 0}`,
+        );
+      },
     });
 
     let chunkCount = 0;
@@ -92,11 +108,19 @@ app.post('/api/chat', async (req, res) => {
         res.write(`data: ${JSON.stringify({ type: 'error', content: String(chunk.error) })}\n\n`);
       } else if (chunk.type === 'tool-call') {
         const toolName = anyChunk.payload?.toolName || anyChunk.toolName || 'unknown';
+        const toolArgs = anyChunk.payload?.args || anyChunk.args || {};
         console.log(`Tool call: ${toolName}`);
+        // Send tool-call event to frontend
+        res.write(`data: ${JSON.stringify({ type: 'tool-call', toolName, args: toolArgs })}\n\n`);
       } else if (chunk.type === 'tool-result') {
         const toolName = anyChunk.payload?.toolName || anyChunk.toolName || 'unknown';
-        const resultStr = JSON.stringify(anyChunk.payload?.result || anyChunk.result || {});
+        const toolResult = anyChunk.payload?.result || anyChunk.result || {};
+        const resultStr = JSON.stringify(toolResult);
         console.log(`Tool result: ${toolName} -> ${resultStr.slice(0, 200)}`);
+        // Send tool-result event to frontend
+        res.write(
+          `data: ${JSON.stringify({ type: 'tool-result', toolName, result: toolResult })}\n\n`,
+        );
       }
     }
 

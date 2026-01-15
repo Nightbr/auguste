@@ -1,6 +1,7 @@
 import { cn } from '@auguste/ui/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import type { Message } from '@/hooks/use-chat';
+import { ToolCallsSection } from './tool-calls-section';
 
 interface MessageItemProps {
   message: Message;
@@ -8,9 +9,11 @@ interface MessageItemProps {
 
 export function MessageItem({ message }: MessageItemProps) {
   const isAssistant = message.role === 'assistant';
+  const hasToolCalls = isAssistant && message.toolCalls && message.toolCalls.length > 0;
 
   return (
-    <div className={cn('flex items-start mb-6', !isAssistant && 'justify-end')}>
+    <div className={cn('flex flex-col mb-6', !isAssistant && 'items-end')}>
+      {/* Message bubble */}
       <div
         className={cn(
           'relative px-5 py-2.5 text-sm transition-all duration-300',
@@ -48,6 +51,9 @@ export function MessageItem({ message }: MessageItemProps) {
           )}
         </div>
       </div>
+
+      {/* Tool calls - subtle text below the message */}
+      {hasToolCalls && <ToolCallsSection toolCalls={message.toolCalls!} />}
     </div>
   );
 }
