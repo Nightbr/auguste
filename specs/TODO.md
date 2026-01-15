@@ -48,3 +48,4 @@
 
 - [ ] **Use drizzle-seed for database seeding** - Replace the current manual seeding script with [drizzle-seed](https://orm.drizzle.team/docs/seed-overview) for more robust and maintainable test data generation. This will provide better data variety, relationship handling, and faker integration.
 - [ ] **Refactor core/db/index.ts** - Refactor the database connection to use a more modern and maintainable approach. Avoid putting everything in index.ts.
+- [ ] **Agent evaluation and scoring** - Implement an evaluation framework to test agent behavior and quality. Use Mastra's built-in evaluation/scoring capabilities. First test case: verify agents always respond to the user with text after executing tool calls (no empty responses).

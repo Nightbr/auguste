@@ -4,6 +4,7 @@ import { familyConfigTools, plannerConfigTools, getFamilySummaryTool } from '../
 import {
   AGENT_INTRO,
   QUESTION_BUNDLING_GUIDELINES,
+  RESPONSE_REQUIREMENT,
   RESPONSE_STYLE,
   UUID_HANDLING,
 } from '../prompts/shared-instructions';
@@ -50,6 +51,8 @@ Phases: initializing → memberOnboarding → availabilitySetup → plannerSetup
 ${QUESTION_BUNDLING_GUIDELINES}
 
 ${RESPONSE_STYLE}
+
+${RESPONSE_REQUIREMENT}
 
 ## Context:
 - CRITICAL: The familyId for this conversation is: ${familyId}

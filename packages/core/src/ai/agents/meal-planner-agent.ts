@@ -11,7 +11,12 @@ import {
 } from '../tools';
 import { getFamilySummaryTool } from '../tools/family-summary-tool';
 import { getCurrentDateTool } from '../tools/calendar-tools';
-import { AGENT_INTRO, RESPONSE_STYLE, UUID_HANDLING } from '../prompts/shared-instructions';
+import {
+  AGENT_INTRO,
+  RESPONSE_REQUIREMENT,
+  RESPONSE_STYLE,
+  UUID_HANDLING,
+} from '../prompts/shared-instructions';
 import { LANGUAGE_INSTRUCTIONS } from '../prompts/language-instructions';
 import { mealPlannerMemory } from '../memory';
 import type { AugusteRequestContext } from '../types/request-context.js';
@@ -95,13 +100,7 @@ PROACTIVE PLANNING DEFAULT:
 - Do not ask "for how long?" - assume one week unless they specify otherwise.
 - Be proactive: suggest a diverse menu with variety throughout the week.
 
-CRITICAL RESPONSE REQUIREMENT:
-- You MUST ALWAYS provide a text response to the user after using tools.
-- NEVER end your turn without writing a message to the user.
-- After each tool use, summarize what you learned or did.
-- After completing a workflow phase, explain the next steps or ask for user input.
-- If you created meal events, list them in a clear, readable format.
-- Always conclude with a question or call to action for the user.
+${RESPONSE_REQUIREMENT}
 
 Tone: Professional, warm, encouraging, like a Michelin-star chef who cares about family time.
   `;

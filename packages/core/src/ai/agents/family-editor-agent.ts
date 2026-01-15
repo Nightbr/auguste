@@ -4,6 +4,7 @@ import { familyConfigTools, plannerConfigTools } from '../tools';
 import {
   AGENT_INTRO,
   QUESTION_BUNDLING_GUIDELINES,
+  RESPONSE_REQUIREMENT,
   RESPONSE_STYLE,
   UUID_HANDLING,
 } from '../prompts/shared-instructions';
@@ -43,6 +44,8 @@ ${LANGUAGE_INSTRUCTIONS}
 ${QUESTION_BUNDLING_GUIDELINES}
 
 ${RESPONSE_STYLE}
+
+${RESPONSE_REQUIREMENT}
 
 ## Examples:
 
