@@ -1,13 +1,33 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 
+export interface ToolCall {
+  toolName: string;
+  args?: Record<string, unknown>;
+  result?: unknown;
+  status: 'pending' | 'completed';
+}
+
 export interface Message {
   role: 'user' | 'assistant';
   content: string;
+  toolCalls?: ToolCall[];
+}
+
+type AgentType = 'onboarding' | 'meal-planner';
+
+interface UseChatOptions {
+  agentType?: AgentType;
 }
 
 const POLLING_DURATION_MS = 5000; // Duration to poll after receiving a message
 
-export function useChat() {
+const AGENT_ID_MAP: Record<AgentType, string> = {
+  onboarding: 'onboardingAgent',
+  'meal-planner': 'mealPlannerAgent',
+};
+
+export function useChat(options: UseChatOptions = {}) {
+  const { agentType = 'onboarding' } = options;
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -84,7 +104,7 @@ export function useChat() {
         },
         body: JSON.stringify({
           message: input, // Only send the current message
-          agentId: 'onboardingAgent',
+          agentId: AGENT_ID_MAP[agentType],
           threadId: threadIdRef.current,
           resourceId: familyId || resourceIdRef.current,
           familyId,
@@ -101,7 +121,7 @@ export function useChat() {
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      const assistantMessage: Message = { role: 'assistant', content: '' };
+      const assistantMessage: Message = { role: 'assistant', content: '', toolCalls: [] };
 
       setMessages((prev) => [...prev, assistantMessage]);
 
@@ -132,6 +152,40 @@ export function useChat() {
               });
               // Trigger polling when receiving agent messages
               // This resets the 5s timer on each chunk received
+              triggerPolling();
+            } else if (data.type === 'tool-call') {
+              // Add a new pending tool call
+              const toolCall: ToolCall = {
+                toolName: data.toolName,
+                args: data.args,
+                status: 'pending',
+              };
+              assistantMessage.toolCalls = [...(assistantMessage.toolCalls || []), toolCall];
+              setMessages((prev) => {
+                const newMessages = [...prev];
+                newMessages[newMessages.length - 1] = { ...assistantMessage };
+                return newMessages;
+              });
+              triggerPolling();
+            } else if (data.type === 'tool-result') {
+              // Update the corresponding tool call with the result
+              const toolCalls = assistantMessage.toolCalls || [];
+              const toolIndex = toolCalls.findIndex(
+                (tc) => tc.toolName === data.toolName && tc.status === 'pending',
+              );
+              if (toolIndex !== -1) {
+                toolCalls[toolIndex] = {
+                  ...toolCalls[toolIndex],
+                  result: data.result,
+                  status: 'completed',
+                };
+                assistantMessage.toolCalls = [...toolCalls];
+                setMessages((prev) => {
+                  const newMessages = [...prev];
+                  newMessages[newMessages.length - 1] = { ...assistantMessage };
+                  return newMessages;
+                });
+              }
               triggerPolling();
             } else if (data.type === 'error') {
               throw new Error(data.content);

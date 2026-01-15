@@ -124,9 +124,9 @@ export const mealEvent = sqliteTable(
     familyId: text('familyId')
       .notNull()
       .references(() => family.id, { onDelete: 'cascade' }),
-    planningId: text('planningId').references(() => mealPlanning.id, {
-      onDelete: 'set null',
-    }),
+    planningId: text('planningId')
+      .notNull()
+      .references(() => mealPlanning.id, { onDelete: 'cascade' }),
     date: text('date').notNull(), // YYYY-MM-DD
     mealType: text('mealType', {
       enum: Object.values(MealType) as [string, ...string[]],

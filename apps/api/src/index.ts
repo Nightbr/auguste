@@ -8,6 +8,9 @@ import {
   getMembersByFamilyId,
   getAvailabilityByFamilyId,
   getPlannerSettingsByFamilyId,
+  getMealPlanningByFamilyId,
+  getAllMealPlanningsByFamilyId,
+  getMealEventsByFamilyId,
 } from '@auguste/core';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -46,8 +49,15 @@ app.get('/health', (_req, res) => {
 app.post('/api/chat', async (req, res) => {
   const { message, agentId = 'onboardingAgent', threadId, resourceId, familyId } = req.body;
 
+  console.log(`Chat request: agentId=${agentId}, familyId=${familyId}`);
+
   try {
     const agent = mastra.getAgent(agentId);
+
+    if (!agent) {
+      console.error(`Agent not found: ${agentId}`);
+      return res.status(404).json({ error: `Agent not found: ${agentId}` });
+    }
 
     // Set headers for SSE streaming
     res.setHeader('Content-Type', 'text/event-stream');
@@ -59,16 +69,62 @@ app.post('/api/chat', async (req, res) => {
       requestContext.set('familyId', familyId);
     }
 
+    console.log(`Starting stream for agent: ${agentId}`);
+
     const result = await agent.stream(message, {
       threadId,
       resourceId,
       requestContext,
+      // Ensure the agent continues to generate a response after tool calls
+      // Without maxSteps, some models may stop after executing a tool without providing text output
+      maxSteps: 10,
+      onStepFinish: ({
+        text,
+        toolCalls,
+        finishReason,
+      }: {
+        text?: string;
+        toolCalls?: unknown[];
+        finishReason?: string;
+      }) => {
+        console.log(
+          `Step finished: finishReason=${finishReason}, textLength=${text?.length ?? 0}, toolCalls=${toolCalls?.length ?? 0}`,
+        );
+      },
     });
 
-    // Stream text chunks as SSE events
-    for await (const chunk of result.textStream) {
-      res.write(`data: ${JSON.stringify({ type: 'text', content: chunk })}\n\n`);
+    let chunkCount = 0;
+    // Stream using fullStream to catch all events including errors
+    for await (const chunk of result.fullStream) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const anyChunk = chunk as any;
+      if (chunk.type === 'text-delta') {
+        chunkCount++;
+        // Mastra fullStream wraps text content in payload.text
+        const textContent = anyChunk.payload?.text ?? anyChunk.textDelta ?? '';
+        res.write(`data: ${JSON.stringify({ type: 'text', content: textContent })}\n\n`);
+      } else if (chunk.type === 'error') {
+        console.error('Stream error:', chunk.error);
+        res.write(`data: ${JSON.stringify({ type: 'error', content: String(chunk.error) })}\n\n`);
+      } else if (chunk.type === 'tool-call') {
+        const toolName = anyChunk.payload?.toolName || anyChunk.toolName || 'unknown';
+        const toolArgs = anyChunk.payload?.args || anyChunk.args || {};
+        console.log(`Tool call: ${toolName}`);
+        // Send tool-call event to frontend
+        res.write(`data: ${JSON.stringify({ type: 'tool-call', toolName, args: toolArgs })}\n\n`);
+      } else if (chunk.type === 'tool-result') {
+        const toolName = anyChunk.payload?.toolName || anyChunk.toolName || 'unknown';
+        const toolResult = anyChunk.payload?.result || anyChunk.result || {};
+        const resultStr = JSON.stringify(toolResult);
+        console.log(`Tool result: ${toolName} -> ${resultStr.slice(0, 200)}`);
+        // Send tool-result event to frontend
+        res.write(
+          `data: ${JSON.stringify({ type: 'tool-result', toolName, result: toolResult })}\n\n`,
+        );
+      }
     }
+
+    console.log(`Stream completed for agent: ${agentId}, chunks: ${chunkCount}`);
 
     // Send done event
     res.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`);
@@ -150,6 +206,45 @@ app.get('/api/family/:id/settings', async (req, res) => {
   } catch (error) {
     console.error('Error fetching settings:', error);
     res.status(500).json({ error: 'Failed to fetch settings' });
+  }
+});
+
+// Meal planning endpoints
+app.get('/api/family/:id/planning', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const planning = await getMealPlanningByFamilyId(id);
+
+    if (!planning) {
+      return res.status(404).json({ error: 'No meal planning found' });
+    }
+
+    res.json(planning);
+  } catch (error) {
+    console.error('Error fetching meal planning:', error);
+    res.status(500).json({ error: 'Failed to fetch meal planning' });
+  }
+});
+
+app.get('/api/family/:id/plannings', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const plannings = await getAllMealPlanningsByFamilyId(id);
+    res.json(plannings);
+  } catch (error) {
+    console.error('Error fetching all meal plannings:', error);
+    res.status(500).json({ error: 'Failed to fetch meal plannings' });
+  }
+});
+
+app.get('/api/family/:id/events', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const events = await getMealEventsByFamilyId(id);
+    res.json(events);
+  } catch (error) {
+    console.error('Error fetching meal events:', error);
+    res.status(500).json({ error: 'Failed to fetch meal events' });
   }
 });
 

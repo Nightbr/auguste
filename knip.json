@@ -1,0 +1,36 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": ["scripts/*.ts"],
+      "project": ["scripts/**/*.ts"],
+      "ignore": ["coverage/**"],
+      "ignoreDependencies": ["mastra", "drizzle-orm", "dotenv"]
+    },
+    "packages/core": {
+      "entry": ["src/ai/index.ts"],
+      "project": ["src/**/*.ts"],
+      "ignore": ["src/**/*.test.ts", "src/test/**"],
+      "ignoreDependencies": ["drizzle-kit", "@mastra/evals", "@mastra/server", "dotenv"]
+    },
+    "packages/ui": {
+      "project": ["src/**/*.{ts,tsx}"]
+    },
+    "apps/api": {
+      "project": ["src/**/*.ts"]
+    },
+    "apps/web": {
+      "entry": ["src/main.tsx"],
+      "project": ["src/**/*.{ts,tsx}"],
+      "ignoreDependencies": [
+        "@radix-ui/react-scroll-area",
+        "@radix-ui/react-slot",
+        "class-variance-authority",
+        "clsx",
+        "tailwind-merge"
+      ]
+    }
+  },
+  "ignoreExportsUsedInFile": true,
+  "exclude": ["unresolved"]
+}

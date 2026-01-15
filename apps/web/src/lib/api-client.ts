@@ -30,4 +30,23 @@ export const apiClient = {
     if (!response.ok) throw new Error('Failed to create family');
     return response.json();
   },
+  // Meal planning endpoints
+  getMealPlanning: async (familyId: string) => {
+    const response = await fetch(`${API_BASE_URL}/api/family/${familyId}/planning`);
+    if (!response.ok) {
+      if (response.status === 404) return null;
+      throw new Error('Failed to fetch meal planning');
+    }
+    return response.json();
+  },
+  getAllMealPlannings: async (familyId: string) => {
+    const response = await fetch(`${API_BASE_URL}/api/family/${familyId}/plannings`);
+    if (!response.ok) throw new Error('Failed to fetch meal plannings');
+    return response.json();
+  },
+  getMealEvents: async (familyId: string) => {
+    const response = await fetch(`${API_BASE_URL}/api/family/${familyId}/events`);
+    if (!response.ok) throw new Error('Failed to fetch meal events');
+    return response.json();
+  },
 };

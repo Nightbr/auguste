@@ -127,8 +127,6 @@ export const OnboardingMemorySchema = z.object({
   notes: z.array(z.string()).default([]).describe('Important notes or context to remember'),
 });
 
-export type OnboardingMemory = z.infer<typeof OnboardingMemorySchema>;
-
 /**
  * Create a new Memory instance configured for onboarding with structured schema.
  *

@@ -2,4 +2,3 @@
 export { onboardingAgent } from './onboarding-agent.js';
 export { familyEditorAgent } from './family-editor-agent.js';
 export { mealPlannerAgent } from './meal-planner-agent.js';
-export { callMealPlannerAgent, type MealPlannerOptions } from './meal-planner-helper.js';

@@ -3,10 +3,9 @@ import { ChatPanel } from '@/components/chat/chat-panel';
 import { FamilyPanel } from '@/components/family/family-panel';
 import { CreateFamilyModal } from '@/components/family/create-family-modal';
 import { useChat } from '@/hooks/use-chat';
-import '@auguste/ui/globals.css';
-import './components/family/family-styles.css';
+import { useFamilyReady } from '@/hooks/use-family-ready';
 
-function App() {
+export function FamilyView() {
   const {
     messages,
     input,
@@ -17,11 +16,13 @@ function App() {
     familyId,
     setFamilyId,
     isPolling,
-  } = useChat();
+  } = useChat({ agentType: 'onboarding' });
+
+  const { isReady } = useFamilyReady(familyId);
 
   return (
     <div className="flex flex-col h-screen bg-[#FAF9F6]">
-      <Header />
+      <Header familyId={familyId} isFamilyReady={isReady} currentRoute="family" />
       <div className="flex flex-1 overflow-hidden">
         {/* Left Panel: Chat (45% width) */}
         <div className="w-[45%] border-r border-escoffier-green/10">
@@ -48,7 +49,7 @@ function App() {
                   Start a conversation to create your family and set up meal planning.
                 </p>
                 <div className="mt-6">
-                  <div className="inline-block w-16 h-1 bg-escoffier-green/10 rounded-full animate-pulse"></div>
+                  <div className="inline-block w-16 h-1 bg-escoffier-green/10 rounded-full animate-pulse" />
                 </div>
               </div>
               <CreateFamilyModal onCreated={setFamilyId} />
@@ -60,4 +61,3 @@ function App() {
   );
 }
 
-export default App;

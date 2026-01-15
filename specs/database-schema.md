@@ -70,7 +70,7 @@ erDiagram
     MealEvent {
         string id PK
         string familyId FK
-        string planningId FK
+        string planningId FK "required"
         date date
         string mealType "breakfast | lunch | dinner"
         string recipeName "optional"
@@ -147,11 +147,11 @@ CREATE TABLE MealPlanning (
     FOREIGN KEY (familyId) REFERENCES Family(id) ON DELETE CASCADE
 );
 
--- MealEvent table: Individual scheduled meals
+-- MealEvent table: Individual scheduled meals (must belong to a planning)
 CREATE TABLE MealEvent (
     id TEXT PRIMARY KEY,
     familyId TEXT NOT NULL,
-    planningId TEXT, -- Optional, can exist outside a planning cycle
+    planningId TEXT NOT NULL, -- Required - events must belong to a planning
     date TEXT NOT NULL, -- YYYY-MM-DD
     mealType TEXT NOT NULL CHECK (mealType IN ('breakfast', 'lunch', 'dinner')),
     recipeName TEXT,
@@ -159,7 +159,7 @@ CREATE TABLE MealEvent (
     createdAt TEXT NOT NULL DEFAULT (datetime('now')),
     updatedAt TEXT NOT NULL DEFAULT (datetime('now')),
     FOREIGN KEY (familyId) REFERENCES Family(id) ON DELETE CASCADE,
-    FOREIGN KEY (planningId) REFERENCES MealPlanning(id) ON DELETE SET NULL
+    FOREIGN KEY (planningId) REFERENCES MealPlanning(id) ON DELETE CASCADE
 );
 
 -- Indexes for performance

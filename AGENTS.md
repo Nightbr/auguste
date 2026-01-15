@@ -91,6 +91,8 @@ Foreign key relationships: `Member.familyId → Family`, `MemberAvailability.mem
 - **Const Enums**: Used for enums with proper TypeScript types.
 - **No `any` Types**: TypeScript strict mode is enabled - avoid `any`.
 - **ESM Only**: Package type is `"module"` - uses ES2022 modules.
+- **Implementation Plans**: Before implementing a feature, write down the plan in markdown in the `specs/` folder. Use subfolders to group related work (e.g., `specs/meal-planner/`).
+- **Business Logic in Domain Layer**: Keep business logic in domain services (`packages/core/src/domain/services/`), not in AI tools. Tools should be thin wrappers that call domain services.
 
 ## AI Agents
 
